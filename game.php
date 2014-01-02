@@ -42,12 +42,19 @@ print $body;
 //functions start here!
 
 function handleError($error){
+	global $body;
+	$return = "<br>Click <a href='index.php'>here</a> to go home";
 	switch($error){
 		case "noid":
+			$error = "No Game ID";
 			$content = "<p>You didn't provide a game ID!</p>";
 			break;
 	}
-	print $content;
+	$body = str_replace("###HEADING###", "Error: " . $error, $body);
+	$body = str_replace("###CONTENT###", $content . $return, $body);
+	//remove all the remaining tags
+	$body = preg_replace("/###.*###/", "", $body);
+	print $body;
 	die();
 }
 ?>
