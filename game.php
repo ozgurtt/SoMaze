@@ -22,12 +22,19 @@ if (!isset($_REQUEST["id"])){
 
 $body = str_replace("###HEADING###", "SoMaze Game ID: " . $gameID, $body);
 
+//load the game
 
+//check to see if this game's relation to the user calling this
+
+//if they are the player, find what state the game is in, and start it
+
+//if they are the creator, show them stats and let them manage it
 
 
 
 //pre body and send it out
 $body = str_replace("###CONTENT###", $content, $body);
+$body = str_replace("###JS###", $JS_SOURCE, $body);
 //remove all the remaining tags
 $body = preg_replace("/###.*###/", "", $body);
 print $body;
