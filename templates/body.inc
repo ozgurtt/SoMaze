@@ -57,11 +57,11 @@
 
     <div class="container">
 
-      <div class="starter-template">
+      <div class="basic-template">
         <h1>###HEADING###</h1>
         <p class="lead">###CONTENT###</p>
       </div>
-
+###DIV###
     </div><!-- /.container -->
 
 

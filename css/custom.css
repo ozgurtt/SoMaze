@@ -1,8 +1,13 @@
 body {
   padding-top: 50px;
 }
-.starter-template {
+.basic-template {
   padding: 40px 15px;
+}
+
+td.fee {
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .grid { margin:1em auto; border-collapse:collapse }

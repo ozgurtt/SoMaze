@@ -52,7 +52,7 @@ switch ($command){
 			handleError("nodoc", $_REQUEST["id"]);
 		}
 		//loaded the map, now convert it
-		$content = json_encode(convertMap($puzzle->map));
+		$content = json_encode(convertMap($puzzle));
 		break;
 	default:
 		//serve the game on the main webpage
@@ -66,6 +66,45 @@ switch ($command){
 		}
 		$body = str_replace("###HEADING###", $puzzle->title . " by " . $puzzle->creator, $body);
 		$content = "<p>" . $puzzle->desc . "</p>";
+		//do tile difficulty math
+		$tiles = intval($puzzle->dimensions->height) * intval($puzzle->dimensions->width);
+		$traps = 0;
+		foreach ($puzzle->traps as $trap){
+			$traps += intval($trap);
+		}
+		$difficulty = ($traps / $tiles)*100;
+		if ($difficulty < 20){
+			//easy
+			$label = "label-success";
+			$note = "Easy";
+		}else if ($difficulty < 40){
+			//medium
+			$label = "label-warning";
+			$note = "Medium";
+		}else{
+			//hard!
+			$label = "label-danger";
+			$note = "Hard";
+		}
+		$stats = "THIS IS A TEST";
+		$divcontent = <<<EOT
+<div id="game">
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Puzzle Statistics</h3>
+  </div>
+  <div class="panel-body">
+    <p>Difficulty: $difficulty% <span class="label $label">$note</span></p>
+    <table id='fee'>
+    <tr><td class='fee'>Creation Fee</td><td>{$puzzle->fees->creation}</td></tr>
+    <tr><td class='fee'>Entry Fee</td><td>{$puzzle->fees->entry}</td></tr>
+    <tr><td class='fee'>Reward Fee</td><td>{$puzzle->fees->reward}</td></tr>
+    </table>
+  </div>
+</div>
+EOT;
+		$body = str_replace("###DIV###", $divcontent, $body);
 		break;
 		
 }
@@ -121,14 +160,14 @@ function handleError($error, $meta=null){
 	die();
 }
 
-function convertMap($map){
+function convertMap($puzzle){
 	//when given a map array, converts it for the client (removes all tiles they shouldn't see
 	$hiddenTiles = array(4);
 	foreach ($hiddenTiles as $tile){
 		//walks through each hidden tile
-		$map = str_replace($tile, 0, $map);
+		$puzzle->map = str_replace($tile, 0, $puzzle->map);
 	}
-	return $map;
+	return $puzzle;
 	
 }
 ?>
