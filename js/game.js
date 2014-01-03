@@ -1,26 +1,31 @@
 var lastClicked;
-var startTile = 5;
+var startTile = 48;
 var lastTile = startTile;
 
 var totalRows = 10;
-var totalCols = 10;
+var totalCols = 5;
 
-var grid = clickableGrid(totalRows,totalCols,function(el,row,col,i){
-    console.log("You clicked on element:",el);
-    console.log("You clicked on row:",row);
-    console.log("You clicked on col:",col);
-    console.log("You clicked on item #:",i);
-	if (validateClick(lastTile, i, col)){
-		console.log ("validate passed");
-		el.className='clicked';
-	    if (lastClicked) lastClicked.className='';
-	    lastClicked = el;
-	    lastTile = i;
-	}else{console.log("validate failed");}
-    
+var mapData;
+
+$( document ).ready(function() {
+    console.log("DOM loaded");
+    $.getJSON( "game.php?api=true&command=getMap&id="+GAME_ID, function( data ) {
+		mapData = data;
+		//console.log(mapData);
+		var grid = clickableGrid(totalRows,totalCols,function(el,row,col,i){
+		    console.log("You clicked on item #:",i);
+			if (validateClick(lastTile, i, col)){
+				console.log ("validate passed");
+				el.className='clicked';
+			    if (lastClicked) lastClicked.className='';
+			    lastClicked = el;
+			    lastTile = i;
+			}else{console.log("validate failed");}
+		});
+		document.body.appendChild(grid);
+	});
 });
 
-document.body.appendChild(grid);
 
 function clickableGrid( rows, cols, callback ){
     var i=0;
@@ -30,7 +35,8 @@ function clickableGrid( rows, cols, callback ){
         var tr = grid.appendChild(document.createElement('tr'));
         for (var c=0;c<cols;++c){
             var cell = tr.appendChild(document.createElement('td'));
-            cell.innerHTML = "<img src='img/blank.png'>";
+            //console.log("getTileArt: " + getTileArt(mapData[i]) + " - i: " + i);
+            cell.innerHTML = "<img src='" + getTileArt(mapData[i]) + "'>";
             i++;
             if (startTile == i){
             	//set starting position
@@ -61,4 +67,30 @@ console.log("validateClick: startTile: " + startTile + " - finishTile: " + finis
 		return true;
 	}
 	return false;
+}
+
+function getTileArt(id){
+	//give me the id for the map, and i'll tell you what tile to use
+	path = "img/Tiles/";
+	switch(id){
+		case "0":
+			path += "blank.png";
+			break;
+		case "1":
+			path += "entrance.png";
+			break;
+		case "2":
+			path += "exit.png";
+			break;
+		case "3":
+			path += "lava.png";
+			break;
+		case "4":
+			path += "mine.png";
+			break;
+		default:
+			path += "error.png";
+			break;
+	}
+	return path;
 }

@@ -17,9 +17,10 @@ if (isset($_SERVER['PHP_AUTH_USER'])){
 $TITLE = "SoMaze";
 $VERSION = ".01";
 
+$TEST_GAME = "c5aa7908b18d8ba39e3c326043000364";
+
 //html snippets
 $JS_SOURCE = '<script src="js/###JS###"></script>';
-
 
 //prep body
 $body = file_get_contents('templates/body.inc');
@@ -30,7 +31,7 @@ switch($type){
 	case "games":
 		//shows listing of all games
 		$body = str_replace("###HEADING###", "There are currently 0 games to join", $body);
-		$content = "<p>Test Game 0: <a href='game.php?id=1'>Join</a></p>";
+		$content = "<p>Test Game: <a href='game.php?id=" . $TEST_GAME . "'>Join</a></p>";
 		break;
 	case "about":
 		//about this game and stuff
@@ -54,4 +55,5 @@ $body = preg_replace("/###.*###/", "", $body);
 print $body;
 
 //functions start here!
+
 ?>
