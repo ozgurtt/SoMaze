@@ -83,6 +83,7 @@ function handleError($error, $meta=null){
 			$error = "Generic Error";
 			break;
 	}
+	error_log($error);
 	$body = str_replace("###HEADING###", "Error: " . $error, $body);
 	$body = str_replace("###CONTENT###", $content . $return, $body);
 	//remove all the remaining tags

@@ -131,6 +131,7 @@ function convertMap($puzzle){
 }
 
 function convertMove($player, $puzzle, $tileID, $sessionID){
+	global $DB_ROOT;
 	//given the puzzle, the player, and the proposed move, sends information back to the client
 	//get json from client, {tileID, sessionID} ?player id?
 	//send json back, {accepted, tileID, tileType, hp, sessionID}
@@ -146,16 +147,16 @@ function convertMove($player, $puzzle, $tileID, $sessionID){
 			$returnObj->tileType = $puzzle->map[$tileID];
 			//TODO: use better session id!
 			$returnObj->sessionID = "X";
+			array_push($puzzle->players->{$player}->movechain, intval($tileID));
 			$puzzle->players->{$player} = applyEffects($puzzle->players->{$player}, $puzzle->map[$tileID]);
 			$returnObj->hp = $puzzle->players->{$player}->hp;
 			//write player position to database
+			$client = new couchClient ($DB_ROOT,"puzzles");
 			try {
 				$response = $client->storeDoc($puzzle);
 			} catch (Exception $e) {
 				handleError("badsave", $puzzle->_id);
-			}
-			echo "Doc recorded. id = ".$response->id." and revision = ".$response->rev."<br>\n";
-			
+			}	
 		}else{
 			$returnObj->accepted = false;
 		}
