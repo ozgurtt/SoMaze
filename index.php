@@ -50,6 +50,11 @@ switch($type){
 		//contact me...or don't
 		$body = str_replace("###HEADING###", "Contact the creator", $body);
 		$content = "<p>The creator can be contacted via this <a href='http://evilmousestudios.com/contactme.html'>form</a></p>";
+		if (isset($_SESSION['user'])){
+			echo "this user was already logged in";
+		}else{
+			echo "this user hasn't yet logged in";
+		}
 		break;
 	default:
 		//default landing page

@@ -186,4 +186,5 @@ function checkIfNeighbor($puzzle, $start, $finish){
 	//bound checking needs to go here
 	return true;
 }
+
 ?>

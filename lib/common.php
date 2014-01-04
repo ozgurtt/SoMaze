@@ -1,5 +1,7 @@
 <?php
 
+require 'lib/openid.php';
+
 $TITLE = "SoMaze";
 $VERSION = ".01";
 
@@ -78,6 +80,10 @@ function handleError($error, $meta=null){
 			$error = "Unable to save document";
 			$content = "<p>Save failed with document ID: " . $meta . "</p>";
 			break;
+		case "badlogin":
+			$error = "Unable to log you in";
+			$content = "<p>Something went wrong during the OpenID login: ("  $meta . ")</p>";
+			break;
 		default:
 			$content = "No listing for error: " . $error;
 			$error = "Generic Error";
@@ -90,6 +96,44 @@ function handleError($error, $meta=null){
 	$body = preg_replace("/###.*###/", "", $body);
 	print $body;
 	die();
+}
+
+function doLogin(){
+	//calls to generate proper html for the log in button (or username if logged in
+	session_start();
+	try {
+		    # Change 'localhost' to your domain name.
+		    $openid = new LightOpenID('evilmousestudios.com');
+		    $openid->required = array('namePerson/friendly');
+		    $openid->identity = 'https://www.google.com/accounts/o8/id';
+		    header('Location: ' . $openid->authUrl());
+	    } elseif($openid->mode == 'cancel') {
+	        return 'User has canceled authentication!';
+	    } else {
+	    	if ($openid->validate()){
+		    	//user is validated
+		    	$_SESSION['user'] = $openid->identity;
+		    	return "User has logged in";
+	    	}else{
+		    	//user isn't valided
+		    	return "User has not logged in";
+	    	}
+	        //echo "<br>" . json_encode($openid->getAttributes());
+	    }
+	} catch(ErrorException $e) {
+	    handleError("badlogin", $e->getMessage());
+	}
+	return null;
+}
+
+function formatLogin(){
+	//calls to generate proper html for the log in button (or username if logged in
+	session_start();
+	if (isset($_SESSION['user'])){
+		//this user was already logged in
+	}else{
+		//this user hasn't yet logged in
+	}
 }
 
 ?>
