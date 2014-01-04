@@ -40,6 +40,12 @@ function getDifficulty($dimArr, $trapArr){
 	return "Difficulty: $difficulty% <span class=\"label $label\">$note</span>";
 }
 
+function generateSession(){
+	$bytes = openssl_random_pseudo_bytes(8, $strong);
+    $hex = bin2hex($bytes);
+    return $hex;
+}
+
 function handleError($error, $meta=null){
 	global $body;
 	$return = "<br>Click <a href='index.php'>here</a> to go home";

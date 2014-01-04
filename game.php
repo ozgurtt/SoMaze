@@ -29,7 +29,7 @@ if (isset($_REQUEST["api"])){
 	$command = "none";
 }
 
-$JS_ID_SNIPPET = "<script>var GAME_ID = '" . $_REQUEST['id'] . "';</script";
+$JS_ID_SNIPPET = "<script>\n\tvar GAME_ID = '" . $_REQUEST['id'] . "';\n\tvar SESSION_ID = '" . generateSession() . "'\n</script";
 
 switch ($command){
 	case "getMap":
