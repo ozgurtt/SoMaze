@@ -5,7 +5,7 @@ $VERSION = ".01";
 
 $CURRENCY = "DOGE";
 $CURRENCY_FULL = "Dogecoin";
-$CURRENCY_IMG = "<img src='img/dogecoin-16.png' class='currency' alt='DOGE'>";
+$CURRENCY_IMG = "<img src='img/dogecoin-d-16.png' class='currency' alt='DOGE'>";
 
 $DB_ROOT = "http://127.0.0.1:5984";
 
@@ -55,6 +55,22 @@ function handleError($error, $meta=null){
 		case "nodoc":
 			$error = "Document Not Found";
 			$content = "<p>No document found with ID: " . $meta . "</p>";
+			break;
+		case "noview":
+			$error = "View Not Found";
+			$content = "<p>The view you requested can not be found</p>";
+			break;
+		case "notile-move":
+			$error = "No Tile Given";
+			$content = "<p>The move command requires a tile the player is moving to</p>";
+			break;
+		case "nosession":
+			$error = "No Session ID Given";
+			$content = "<p>Session IDs are required for this request</p>";
+			break;
+		default:
+			$content = "No listing for error: " . $error;
+			$error = "Generic Error";
 			break;
 	}
 	$body = str_replace("###HEADING###", "Error: " . $error, $body);

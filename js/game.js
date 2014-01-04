@@ -39,14 +39,14 @@ function clickableGrid( rows, cols, callback ){
             	//set starting position
             	cell.className='clicked';
             	lastClicked = cell;
-            	lastTile = i+1;
+            	lastTile = i;
             }
-            i++;
             cell.addEventListener('click',(function(el,r,c,i){
                 return function(){
                     callback(el,r,c,i);
                 }
             })(cell,r,c,i),false);
+            i++;
         }
     }
     return grid;

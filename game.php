@@ -44,6 +44,20 @@ switch ($command){
 		//loaded the map, now convert it
 		$content = json_encode(convertMap($puzzle));
 		break;
+	case "move":
+		$client = new couchClient ($DB_ROOT,"puzzles");
+		try{
+			$puzzle = $client->getDoc($_REQUEST["id"]);
+		}
+		catch (Exception $c){
+			//map wasn't found
+			handleError("nodoc", $_REQUEST["id"]);
+		}
+		//loaded the map, and player, now do the move stuff
+		if (!isset($_REQUEST['tileID'])){handleError("notile-move");}
+		if (!isset($_REQUEST['sessionID'])){handleError("nosession");}
+		$content = json_encode(convertMove($puzzle->players->SLoW, $puzzle, $_REQUEST['tileID'], $_REQUEST['sessionID']));
+		break;
 	default:
 		//serve the game on the main webpage
 		$client = new couchClient ($DB_ROOT,"puzzles");
@@ -114,6 +128,53 @@ function convertMap($puzzle){
 		$puzzle->map = str_replace($tile, 0, $puzzle->map);
 	}
 	return $puzzle;
-	
+}
+
+function convertMove($player, $puzzle, $tileID, $sessionID{
+	//given the puzzle, the player, and the proposed move, sends information back to the client
+	//get json from client, {tileID, sessionID} ?player id?
+	//send json back, {accepted, tileID, tileType, hp, sessionID}
+	$returnObj = new stdClass();
+	//first check if the request ID is valid
+	if ($sessionID == $player->sessionID){
+		//the request matches what we are expecting, let's check if it's a valid move next
+		if (checkIfNeighbor($puzzle, end($player->movechain), $tileID) == true){
+			//the move is valid, let's do calculations on damage
+			$returnObj->accepted = true;
+			$returnObj->tileID = $tileID;
+			$returnObj->tileType = $puzzle->map[$tileID];
+			//TODO: use better session id!
+			$returnObj->sessionID = "X";
+			$player = applyEffects($player, $)
+			$returnObj->hp = $player->hp;
+			//write player position to database
+		}else{
+			$returnObj->accepted = false;
+		}
+	}else{
+		//bad request, either malformed or late
+		$returnObj->accepted = false;
+	}
+	return $returnObj;
+}
+
+function applyEffects($player, $tile){
+	switch($tile){
+		case 3:
+			//lava - instadeath
+			$player->hp = 0;
+			break;
+		case 4:
+			//mine
+			$player->hp -= 50;
+			break;
+	}
+	return $player;
+}
+
+function checkIfNeighbor($puzzle, $start, $finish){
+	//checks if $finish is a neighbor to $start
+	//bound checking needs to go here
+	return true;
 }
 ?>

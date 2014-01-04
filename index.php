@@ -29,7 +29,7 @@ switch($type){
 		}
 		catch (Exception $c){
 			//map wasn't found
-			handleError("nodoc", $_REQUEST["id"]);
+			handleError("noview");
 		}
 		$body = str_replace("###HEADING###", ((count($results) == 1)?"There is currently 1 game to join":"There are currently " . count($results) . " games to join"), $body);
 		$content = '<div class="list-group">';
