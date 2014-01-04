@@ -20,8 +20,6 @@ if (isset($_SERVER['PHP_AUTH_USER'])){
 	$access = 0;
 }
 
-$TEST_GAME = "c5aa7908b18d8ba39e3c326043000364";
-
 switch($type){
 	case "games":
 		//shows listing of all games
@@ -37,7 +35,7 @@ switch($type){
 		$content = '<div class="list-group">';
 		$i = 0;
 		while ($i < count($results->rows)){
-			$content .= "<a href='game.php?id=" . $results->rows[$i]->id . "' class='list-group-item'>" . $results->rows[$i]->value[1] . " by " . $results->rows[$i]->value[0] . "<br>Dimensions: " . $results->rows[$i]->value[3]->width . "x" . $results->rows[$i]->value[3]->height . "<br>" . getDifficulty($results->rows[$i]->value[3], $results->rows[$i]->value[4]) . "</a>";
+			$content .= "<a href='game.php?id=" . $results->rows[$i]->id . "' class='list-group-item'><span class='badge'>Entry: " . $results->rows[$i]->value[5]->entry . "$CURRENCY_IMG - Reward: " . $results->rows[$i]->value[5]->reward . "$CURRENCY_IMG</span>" . $results->rows[$i]->value[1] . " by " . $results->rows[$i]->value[0] . "<br>Dimensions: " . $results->rows[$i]->value[3]->width . "x" . $results->rows[$i]->value[3]->height . "<br>" . getDifficulty($results->rows[$i]->value[3], $results->rows[$i]->value[4]) . "</a>";
 			$i++;
 		}
 		$content .= "</div>";

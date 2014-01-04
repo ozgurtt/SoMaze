@@ -68,9 +68,9 @@ switch ($command){
   <div class="panel-body">
     <p>$diffSpan</p>
     <table id='fee'>
-    <tr><td class='fee'>Creation Fee</td><td>{$puzzle->fees->creation}</td></tr>
-    <tr><td class='fee'>Entry Fee</td><td>{$puzzle->fees->entry}</td></tr>
-    <tr><td class='fee'>Reward Fee</td><td>{$puzzle->fees->reward}</td></tr>
+    <tr><td class='fee'>Creation Fee</td><td>{$puzzle->fees->creation}$CURRENCY_IMG</td></tr>
+    <tr><td class='fee'>Entry Fee</td><td>{$puzzle->fees->entry}$CURRENCY_IMG</td></tr>
+    <tr><td class='fee'>Reward Fee</td><td>{$puzzle->fees->reward}$CURRENCY_IMG</td></tr>
     </table>
   </div>
 </div>

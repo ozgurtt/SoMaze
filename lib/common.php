@@ -3,6 +3,10 @@
 $TITLE = "SoMaze";
 $VERSION = ".01";
 
+$CURRENCY = "DOGE";
+$CURRENCY_FULL = "Dogecoin";
+$CURRENCY_IMG = "<img src='img/dogecoin-16.png' class='currency' alt='DOGE'>";
+
 $DB_ROOT = "http://127.0.0.1:5984";
 
 //html snippets
