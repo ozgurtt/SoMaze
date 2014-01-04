@@ -130,7 +130,7 @@ function convertMap($puzzle){
 	return $puzzle;
 }
 
-function convertMove($player, $puzzle, $tileID, $sessionID{
+function convertMove($player, $puzzle, $tileID, $sessionID){
 	//given the puzzle, the player, and the proposed move, sends information back to the client
 	//get json from client, {tileID, sessionID} ?player id?
 	//send json back, {accepted, tileID, tileType, hp, sessionID}
@@ -145,7 +145,7 @@ function convertMove($player, $puzzle, $tileID, $sessionID{
 			$returnObj->tileType = $puzzle->map[$tileID];
 			//TODO: use better session id!
 			$returnObj->sessionID = "X";
-			$player = applyEffects($player, $)
+			$player = applyEffects($player, $puzzle->map[$tileID]);
 			$returnObj->hp = $player->hp;
 			//write player position to database
 		}else{

@@ -2,6 +2,8 @@ var lastClicked;
 var lastTile;
 
 var puzzleData;
+//do better than this later
+var sessionID = "X";
 
 $( document ).ready(function() {
     console.log("DOM loaded");
@@ -10,19 +12,33 @@ $( document ).ready(function() {
 		//console.log(mapData);
 		var grid = clickableGrid(puzzleData.dimensions.height,puzzleData.dimensions.width,function(el,row,col,i){
 		    console.log("You clicked on item #:",i);
-		    if (i == 5){giveAlert("warning", "YOU DIED DAWG",false);}
 			if (validateClick(lastTile, i, col)){
 				console.log ("validate passed");
-				el.className='clicked';
-			    if (lastClicked) lastClicked.className='';
-			    lastClicked = el;
-			    lastTile = i;
+				sendMove(i, el);
 			}else{console.log("validate failed");}
 		});
 		//document.body.appendChild(grid);
 		$("#game").append(grid);
 	});
 });
+
+function sendMove(tileID, el){
+	$.getJSON( "game.php?api=true&command=move&id="+GAME_ID+"&tileID="+tileID+"&sessionID="+sessionID, function( data ) {
+		if (data.accepted == true){
+			console.log ("move accepted");
+			//the move we sent was accepted
+			el.className='clicked';
+		    if (lastClicked) lastClicked.className='';
+		    lastClicked = el;
+		    lastTile = tileID;
+		    lastClicked.innerHTML = "<img src='" + getTileArt(data.tileType) + "'>";
+		    if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}
+		    if (data.hp == 50){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
+		}else{
+			console.log ("move not accepted");
+		}
+	});
+}
 
 
 function clickableGrid( rows, cols, callback ){
@@ -75,6 +91,7 @@ function giveAlert(type, text, dismissable){
 function getTileArt(id){
 	//give me the id for the map, and i'll tell you what tile to use
 	path = "img/Tiles/";
+	id = id.toString();
 	switch(id){
 		case "0":
 			path += "blank.png";
@@ -96,4 +113,30 @@ function getTileArt(id){
 			break;
 	}
 	return path;
+}
+
+function getTileName(id){
+	//give me the id for the map, and i'll tell you what tile to use
+	id = id.toString();
+	switch(id){
+		case "0":
+			name = "Tile";
+			break;
+		case "1":
+			name = "Entrance";
+			break;
+		case "2":
+			name = "Exit";
+			break;
+		case "3":
+			name = "Lava";
+			break;
+		case "4":
+			name = "Mine";
+			break;
+		default:
+			name = "Error";
+			break;
+	}
+	return name;
 }
