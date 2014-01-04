@@ -45,7 +45,8 @@ switch($type){
 	case "about":
 		//about this game and stuff
 		$body = str_replace("###HEADING###", "About SoMaze", $body);
-		$content = "<p>SoMaze is a game created by <a href='http://evilmousestudios.com'>Evil Mouse Studios</a> for use with various cryptocurrencies.  There will be more information here once it's available.</p>";
+		$about = file_get_contents('templates/about.inc');
+		$content = "<p>$about</p>";
 		break;
 	case "contact":
 		//contact me...or don't

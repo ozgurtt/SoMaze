@@ -15,7 +15,7 @@ There are basically two roles in SoMaze, that of the *Puzzle Creator* and that o
 * After designing the map and placing the traps, fees are set.
  * The Entrance Fee is the amount the Puzzle Solver pays the Puzzle Creator to attempt to solve the puzzle.  The Puzzle Creator gets this entire fee regard of if the Puzzle Solver wins or not.
  * The Reward is the amount the Puzzle Creator pays to the Puzzle Solver upon successful completion of the puzzle.  The Puzzle Creator will only pay this once.  Upon successful completion of the puzzle, the puzzle will be marked "deactivated" and will not be playable anymore.
- * The Creation Fee is an amount that is determined automatically based on the size of the map, the number of traps, and the type of traps.  Larger, more elaborate maps will have larger Creation Fees.  The Creation Fee is payed by the Puzzle Creator once when creating the map, and again every time a Puzzle Solver attempts to solve the puzzle.  It's a good idea to make sure your Entrance Fee is larger than the Creation Fee, or you'll consistantly lose money.
+ * The Creation Fee is an amount that is determined automatically based on the size of the map, the number of traps, and the type of traps.  Larger, more elaborate maps will have larger Creation Fees.  The Creation Fee is payed by the Puzzle Creator once when creating the map, and again every time a Puzzle Solver attempts to solve the puzzle.  It's a good idea to make sure your Entrance Fee is larger than the Creation Fee, or you'll consistently lose money.
 * After all the fees are set, the Puzzle Creator must play through his puzzle before it goes live.  This is to ensure that the puzzle is solvable.
 
 #####Puzzle Solver
