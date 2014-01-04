@@ -1,20 +1,16 @@
 var lastClicked;
-var startTile = 48;
-var lastTile = startTile;
+var lastTile;
 
-var totalRows = 10;
-var totalCols = 5;
-
-var mapData;
+var puzzleData;
 
 $( document ).ready(function() {
     console.log("DOM loaded");
     $.getJSON( "game.php?api=true&command=getMap&id="+GAME_ID, function( data ) {
-		mapData = data.map;
+		puzzleData = data;
 		//console.log(mapData);
-		var grid = clickableGrid(totalRows,totalCols,function(el,row,col,i){
+		var grid = clickableGrid(puzzleData.dimensions.height,puzzleData.dimensions.width,function(el,row,col,i){
 		    console.log("You clicked on item #:",i);
-		    if (i == 5){giveAlert("warning", "YOU DIED DAWG");}
+		    if (i == 5){giveAlert("warning", "YOU DIED DAWG",false);}
 			if (validateClick(lastTile, i, col)){
 				console.log ("validate passed");
 				el.className='clicked';
@@ -38,13 +34,14 @@ function clickableGrid( rows, cols, callback ){
         for (var c=0;c<cols;++c){
             var cell = tr.appendChild(document.createElement('td'));
             //console.log("getTileArt: " + getTileArt(mapData[i]) + " - mapData: " + mapData[i] + " - i: " + i);
-            cell.innerHTML = "<img src='" + getTileArt(mapData[i]) + "'>";
-            i++;
-            if (startTile == i){
+            cell.innerHTML = "<img src='" + getTileArt(puzzleData.map[i]) + "'>";
+            if (puzzleData.map[i] == 1){
             	//set starting position
             	cell.className='clicked';
             	lastClicked = cell;
+            	lastTile = i+1;
             }
+            i++;
             cell.addEventListener('click',(function(el,r,c,i){
                 return function(){
                     callback(el,r,c,i);
@@ -57,22 +54,22 @@ function clickableGrid( rows, cols, callback ){
 
 function validateClick(startTile, finishTile, startTileColumn){
 console.log("validateClick: startTile: " + startTile + " - finishTile: " + finishTile);
-	if (finishTile < 0 || finishTile > (totalRows * totalCols)){return false;}
+	if (finishTile < 0 || finishTile > (puzzleData.dimensions.height * puzzleData.dimensions.width)){return false;}
 	if (startTile + 1 == finishTile && startTileColumn != 0){
 		//do left movement
 		return true;
-	}else if (startTile - 1 == finishTile && startTileColumn != (totalCols - 1)){
+	}else if (startTile - 1 == finishTile && startTileColumn != (puzzleData.dimensions.width - 1)){
 		//do right movement
 		return true;
-	}else if (Math.abs(startTile - finishTile) == totalCols){
+	}else if (Math.abs(startTile - finishTile) == puzzleData.dimensions.width){
 		//this is a top or bottom match
 		return true;
 	}
 	return false;
 }
 
-function giveAlert(type, text){
-	$("#game").append('<div class="alert alert-' + type + '">' + text + '</div>');
+function giveAlert(type, text, dismissable){
+	$("#game").append('<div class="alert alert-' + type + ' ' + ((dismissable == true)?'alert-dismissable':'') + '">' + ((dismissable == true)?'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>':'') + text + '</div>');
 }
 
 function getTileArt(id){
