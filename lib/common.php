@@ -74,6 +74,10 @@ function handleError($error, $meta=null){
 			$error = "No Session ID Given";
 			$content = "<p>Session IDs are required for this request</p>";
 			break;
+		case "badsave":
+			$error = "Unable to save document";
+			$content = "<p>Save failed with document ID: " . $meta . "</p>";
+			break;
 		default:
 			$content = "No listing for error: " . $error;
 			$error = "Generic Error";

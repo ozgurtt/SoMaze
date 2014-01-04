@@ -56,7 +56,7 @@ switch ($command){
 		//loaded the map, and player, now do the move stuff
 		if (!isset($_REQUEST['tileID'])){handleError("notile-move");}
 		if (!isset($_REQUEST['sessionID'])){handleError("nosession");}
-		$content = json_encode(convertMove($puzzle->players->SLoW, $puzzle, $_REQUEST['tileID'], $_REQUEST['sessionID']));
+		$content = json_encode(convertMove("SLoW", $puzzle, $_REQUEST['tileID'], $_REQUEST['sessionID']));
 		break;
 	default:
 		//serve the game on the main webpage
@@ -134,20 +134,28 @@ function convertMove($player, $puzzle, $tileID, $sessionID){
 	//given the puzzle, the player, and the proposed move, sends information back to the client
 	//get json from client, {tileID, sessionID} ?player id?
 	//send json back, {accepted, tileID, tileType, hp, sessionID}
+	//error_log("debug: " . json_encode($puzzle->players->{'$player'}));
 	$returnObj = new stdClass();
 	//first check if the request ID is valid
-	if ($sessionID == $player->sessionID){
+	if ($sessionID == $puzzle->players->{$player}->sessionID){
 		//the request matches what we are expecting, let's check if it's a valid move next
-		if (checkIfNeighbor($puzzle, end($player->movechain), $tileID) == true){
+		if (checkIfNeighbor($puzzle, end($puzzle->players->{$player}->movechain), $tileID) == true){
 			//the move is valid, let's do calculations on damage
 			$returnObj->accepted = true;
 			$returnObj->tileID = $tileID;
 			$returnObj->tileType = $puzzle->map[$tileID];
 			//TODO: use better session id!
 			$returnObj->sessionID = "X";
-			$player = applyEffects($player, $puzzle->map[$tileID]);
-			$returnObj->hp = $player->hp;
+			$puzzle->players->{$player} = applyEffects($puzzle->players->{$player}, $puzzle->map[$tileID]);
+			$returnObj->hp = $puzzle->players->{$player}->hp;
 			//write player position to database
+			try {
+				$response = $client->storeDoc($puzzle);
+			} catch (Exception $e) {
+				handleError("badsave", $puzzle->_id);
+			}
+			echo "Doc recorded. id = ".$response->id." and revision = ".$response->rev."<br>\n";
+			
 		}else{
 			$returnObj->accepted = false;
 		}
