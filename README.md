@@ -8,7 +8,7 @@ Gameplay
 
 There are basically two roles in SoMaze, that of the *Puzzle Creator* and that of the *Puzzle Solver*.
 
-#####Puzzle Creator
+##### Puzzle Creator
 * The Puzzle Creator first selects the size of the map they'd like to create.  The maximum size is currently 25x25
 * After selecting the size for the map, the Puzzle Creator then places traps around the map.
 * Some traps can be seen by the player (such as lava tiles), and some are hidden until activated by the player (such as mines).
@@ -18,7 +18,7 @@ There are basically two roles in SoMaze, that of the *Puzzle Creator* and that o
  * The Creation Fee is an amount that is determined automatically based on the size of the map, the number of traps, and the type of traps.  Larger, more elaborate maps will have larger Creation Fees.  The Creation Fee is payed by the Puzzle Creator once when creating the map, and again every time a Puzzle Solver attempts to solve the puzzle.  It's a good idea to make sure your Entrance Fee is larger than the Creation Fee, or you'll consistently lose money.
 * After all the fees are set, the Puzzle Creator must play through his puzzle before it goes live.  This is to ensure that the puzzle is solvable.
 
-#####Puzzle Solver
+##### Puzzle Solver
 * The Puzzle Solver selects the puzzle they'd like to attempt from a list of all currently active puzzles.  Puzzles are given a difficulty rating to assist the player in choosing the puzzle they'd like to play.
 * Once the player has selected a puzzle, they will be required to pay the Entrance Fee before starting.
  * *Note: The creation fee is paid by the Puzzle Creator, NOT the Puzzle Solver.*
