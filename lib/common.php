@@ -1,7 +1,5 @@
 <?php
 
-require 'lib/openid.php';
-
 $TITLE = "SoMaze";
 $VERSION = ".01";
 
@@ -11,6 +9,9 @@ $CURRENCY_IMG = "<img src='img/dogecoin-d-16.png' class='currency' alt='DOGE'>";
 
 $DB_ROOT = "http://127.0.0.1:5984";
 
+//switch these for openID deployment
+//$DOMAIN = "somaze.evilmousestudios.com";
+$DOMAIN = "127.0.0.1";
 //html snippets
 $JS_GAME_SOURCE = '<script src="js/game.js"></script>';
 
@@ -82,7 +83,7 @@ function handleError($error, $meta=null){
 			break;
 		case "badlogin":
 			$error = "Unable to log you in";
-			$content = "<p>Something went wrong during the OpenID login: ("  $meta . ")</p>";
+			$content = "<p>Something went wrong during the OpenID login: (" .  $meta . ")</p>";
 			break;
 		default:
 			$content = "No listing for error: " . $error;
@@ -98,42 +99,23 @@ function handleError($error, $meta=null){
 	die();
 }
 
-function doLogin(){
-	//calls to generate proper html for the log in button (or username if logged in
-	session_start();
-	try {
-		    # Change 'localhost' to your domain name.
-		    $openid = new LightOpenID('evilmousestudios.com');
-		    $openid->required = array('namePerson/friendly');
-		    $openid->identity = 'https://www.google.com/accounts/o8/id';
-		    header('Location: ' . $openid->authUrl());
-	    } elseif($openid->mode == 'cancel') {
-	        return 'User has canceled authentication!';
-	    } else {
-	    	if ($openid->validate()){
-		    	//user is validated
-		    	$_SESSION['user'] = $openid->identity;
-		    	return "User has logged in";
-	    	}else{
-		    	//user isn't valided
-		    	return "User has not logged in";
-	    	}
-	        //echo "<br>" . json_encode($openid->getAttributes());
-	    }
-	} catch(ErrorException $e) {
-	    handleError("badlogin", $e->getMessage());
-	}
-	return null;
-}
 
 function formatLogin(){
 	//calls to generate proper html for the log in button (or username if logged in
 	session_start();
 	if (isset($_SESSION['user'])){
 		//this user was already logged in
+		$content = "<p class='navbar-text navbar-right'>Signed in as SLoW</p>";
 	}else{
 		//this user hasn't yet logged in
+		$content = <<<'EOT'
+		<form class="navbar-form navbar-right" role="form" action="login.php" method="get">
+		<input type="hidden" name="login" value="true">
+            <button type="submit" class="btn btn-success">Sign in</button>
+		</form>
+EOT;
 	}
+	return $content;
 }
 
 ?>

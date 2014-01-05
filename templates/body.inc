@@ -42,9 +42,7 @@
             <li><a href="index.php?type=about">About</a></li>
             <li><a href="index.php?type=contact">Contact</a></li>
           </ul>
-          <form class="navbar-form navbar-right" role="form">
-            <button type="submit" class="btn btn-success">Sign in</button>
-          </form>
+          ###LOGIN###
         </div><!--/.nav-collapse -->
       </div>
     </div>
