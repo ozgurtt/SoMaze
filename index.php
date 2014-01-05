@@ -101,20 +101,9 @@ print $body;
 
 //functions start here!
 function changeNickname($nickname){
-	global $DB_ROOT;
-	$client = new couchClient ($DB_ROOT,"users");
-	try{
-		$user = $client->getDoc($_SESSION['user']);
-	}
-	catch (Exception $c){
-		handleError("nodoc", $_SESSION['user']);
-	}
+	$user = getDoc($_SESSION['user'], "users");
 	$user->nickname = $nickname;
-	try {
-		$response = $client->storeDoc($user);
-	} catch (Exception $e) {
-		handleError("badsave", $user->_id);
-	}
+	$response = setDoc($user, "users");
 	$_SESSION['nickname'] = $nickname;
 	return $nickname;
 }
