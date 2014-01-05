@@ -100,22 +100,24 @@ function handleError($error, $meta=null){
 }
 
 
-function formatLogin(){
+function formatLogin($body){
 	//calls to generate proper html for the log in button (or username if logged in
 	session_start();
 	if (isset($_SESSION['user'])){
 		//this user was already logged in
-		$content = "<p class='navbar-text navbar-right'>Signed in as " . $_SESSION['nickname'] . "</p>";
+		$signin = "<p class='navbar-text navbar-right'>Signed in as <a href='index.php?type=account' class='navbar-link'>" . $_SESSION['nickname'] . "</a> - <a href='login.php?logout=true' class='navbar-link'>Logout</a></p>";
+		$body = str_replace("###NAVBAR###", "<li><a href='index.php?type=account'>Account</a></li>", $body);
 	}else{
 		//this user hasn't yet logged in
-		$content = <<<'EOT'
+		$signin = <<<'EOT'
 		<form class="navbar-form navbar-right" role="form" action="login.php" method="get">
 		<input type="hidden" name="login" value="true">
             <button type="submit" class="btn btn-success">Sign in with Google OpenID</button>
 		</form>
 EOT;
 	}
-	return $content;
+	$body = str_replace("###LOGIN###", $signin, $body);
+	return $body;
 }
 
 ?>

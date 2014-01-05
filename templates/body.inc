@@ -41,6 +41,7 @@
             <li><a href="index.php?type=games">Play</a></li>
             <li><a href="index.php?type=about">About</a></li>
             <li><a href="index.php?type=contact">Contact</a></li>
+            ###NAVBAR###
           </ul>
           ###LOGIN###
         </div><!--/.nav-collapse -->
