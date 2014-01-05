@@ -9,6 +9,11 @@ if (session_status() == PHP_SESSION_NONE) {
 date_default_timezone_set('America/Chicago');
 
 //set vars / error trap
+if (!isset($_SESSION['user'])){
+	//they aren't logged in, so they can't play until they do
+	handleError("notloggedin");
+}
+
 if (!isset($_REQUEST["id"])){
 	//they didn't provide an ID for the game they are trying to access
 	handleError("noid");
@@ -76,7 +81,6 @@ switch ($command){
 		$content = json_encode(convertMove($game, $_SESSION['puzzle'], $_REQUEST['tileID'], $_REQUEST['sessionID']));
 		break;
 	default:	
-		//TODO: session checking to make sure there's a user logged in
 		//serve the game on the main webpage
 		$client = new couchClient ($DB_ROOT,"puzzles");
 		try{

@@ -96,12 +96,20 @@ function handleError($error, $meta=null){
 			$error = "You are not in this game";
 			$content = "<p>You can submit commands to a game that you haven't joined.</p>";
 			break;
+		case "notloggedin":
+			$error = "You are not logged in";
+			$content = "<p>You must be logged in to do that.</p>";
+			break;
+		case "nofunds":
+			$error = "Not enough money";
+			$content = "<p>You have insufficient funds to do this.</p>";
+			break;
 		default:
 			$content = "No listing for error: " . $error;
 			$error = "Generic Error";
 			break;
 	}
-	error_log($error . " - " . $content);
+	error_log("handleError: " . $error . " - " . $content);
 	//adds account specific html to the body
 	$body = formatLogin($body);
 	$body = str_replace("###HEADING###", "Error: " . $error, $body);

@@ -21,6 +21,36 @@ if (isset($_SERVER['PHP_AUTH_USER'])){
 }
 
 switch($type){
+	case "play":
+		if (!isset($_SESSION['user'])){
+			//they aren't logged in, so why are they accessing the account page?
+			handleError("notloggedin");
+		}
+		if (!isset($_REQUEST["id"])){
+			//they didn't provide an ID for the game they are trying to access
+			handleError("noid");
+		}
+		$body = str_replace("###HEADING###", "Entry confirmation", $body);
+		$puzzle = getDoc($_REQUEST["id"], "puzzles");
+		$user = getDoc($_SESSION['user'], "users");
+		if ($user->wallet->available < $puzzle->fees->entry){
+			handleError("nofunds");
+		}
+		if (isset($user->games->solver->$_REQUEST['id'])){
+			//this user has already joined this game and has an open session, let's not make them pay twice, shall we?
+			$content = "<p>You have already paid the entry fee of <b>" . $puzzle->fees->entry . $CURRENCY_IMG . "</b> and you already have an open session in this game.  <br>Would you like to rejoin it?  This action will not cost you anything.</p>";
+		}else{
+			//they haven't paid, warn them about the consequences
+			$content = "<p>To attempt this puzzle will cost you an entry fee of <b>" . $puzzle->fees->entry . $CURRENCY_IMG . "</b> (you currently have <b>" . $user->wallet->available . $CURRENCY_IMG . "</b> available)<br>Are you sure you want to pay this?</p>";
+		}
+		
+		$content .=<<<EOT
+<p>
+  <a href="index.php" class="btn btn-danger btn-lg">No</a>
+  <a href="game.php?id={$_REQUEST['id']}" class="btn btn-success btn-lg">Yes</a>
+</p>				
+EOT;
+		break;
 	case "games":
 		//shows listing of all games
 		$client = new couchClient ($DB_ROOT,"puzzles");
@@ -31,11 +61,12 @@ switch($type){
 			//map wasn't found
 			handleError("noview");
 		}
+		//TODO: give listing of games you are currently playing
 		$body = str_replace("###HEADING###", ((count($results) == 1)?"There is currently 1 game to join":"There are currently " . count($results) . " games to join"), $body);
 		$content = '<div class="list-group">';
 		$i = 0;
 		while ($i < count($results->rows)){
-			$content .= "<a href='game.php?id=" . $results->rows[$i]->id . "' class='list-group-item'><span class='badge'>Entry: " . $results->rows[$i]->value[5]->entry . "$CURRENCY_IMG - Reward: " . $results->rows[$i]->value[5]->reward . "$CURRENCY_IMG</span>" . $results->rows[$i]->value[1] . " by " . $results->rows[$i]->value[0] . "<br>Dimensions: " . $results->rows[$i]->value[3]->width . "x" . $results->rows[$i]->value[3]->height . "<br>" . getDifficulty($results->rows[$i]->value[3], $results->rows[$i]->value[4]) . "</a>";
+			$content .= "<a href='index.php?type=play&id=" . $results->rows[$i]->id . "' class='list-group-item'><span class='badge'>Entry: " . $results->rows[$i]->value[5]->entry . "$CURRENCY_IMG - Reward: " . $results->rows[$i]->value[5]->reward . "$CURRENCY_IMG</span>" . $results->rows[$i]->value[1] . " by " . $results->rows[$i]->value[0] . "<br>Dimensions: " . $results->rows[$i]->value[3]->width . "x" . $results->rows[$i]->value[3]->height . "<br>" . getDifficulty($results->rows[$i]->value[3], $results->rows[$i]->value[4]) . "</a>";
 			$i++;
 		}
 		$content .= "</div>";
@@ -51,6 +82,10 @@ switch($type){
 		$body = str_replace("###HEADING###", "Contact the creator", $body);
 		$content = "<p>The creator can be contacted via this <a href='http://evilmousestudios.com/contactme.html'>form</a></p>";
 	case "account":
+		if (!isset($_SESSION['user'])){
+			//they aren't logged in, so why are they accessing the account page?
+			handleError("notloggedin");
+		}
 		$body = str_replace("###HEADING###", "Account settings", $body);
 		if (isset($_REQUEST["action"])){
 			$action = $_REQUEST["action"];

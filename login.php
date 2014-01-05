@@ -35,11 +35,7 @@ if(isset($_GET['logout'])){
 				catch (Exception $c){
 					//user wasn't found, don't throw an error, just make them!
 					$user = createUser($openid->identity);
-					try {
-						$response = $client->storeDoc($user);
-					} catch (Exception $e) {
-						handleError("badsave", $user->_id);
-					}	
+					$reponse = setDoc($user, "users");	
 					$nickname = $user->nickname;
 				}
 		    	$_SESSION['user'] = $openid->identity;
