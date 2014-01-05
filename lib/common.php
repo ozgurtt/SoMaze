@@ -111,7 +111,7 @@ function formatLogin(){
 		$content = <<<'EOT'
 		<form class="navbar-form navbar-right" role="form" action="login.php" method="get">
 		<input type="hidden" name="login" value="true">
-            <button type="submit" class="btn btn-success">Sign in</button>
+            <button type="submit" class="btn btn-success">Sign in with Google OpenID</button>
 		</form>
 EOT;
 	}
