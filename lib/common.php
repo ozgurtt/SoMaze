@@ -57,7 +57,7 @@ function handleError($error, $meta=null){
 			$error = "No Game ID";
 			$content = "<p>You didn't provide a game ID!</p>";
 			break;
-		case "noid":
+		case "nocommand":
 			$error = "No API Command";
 			$content = "<p>To use the API, you must provide a command!</p>";
 			break;
@@ -85,12 +85,18 @@ function handleError($error, $meta=null){
 			$error = "Unable to log you in";
 			$content = "<p>Something went wrong during the OpenID login: (" .  $meta . ")</p>";
 			break;
+		case "nonick":
+			$error = "No nickname provided";
+			$content = "<p>To change your nickname, you must provide a nickname!</p>";
+			break;
 		default:
 			$content = "No listing for error: " . $error;
 			$error = "Generic Error";
 			break;
 	}
 	error_log($error);
+	//adds account specific html to the body
+	$body = formatLogin($body);
 	$body = str_replace("###HEADING###", "Error: " . $error, $body);
 	$body = str_replace("###CONTENT###", $content . $return, $body);
 	//remove all the remaining tags

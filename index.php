@@ -6,6 +6,7 @@ require_once "lib/couchDocument.php";
 require_once "lib/common.php";
 date_default_timezone_set('America/Chicago');
 
+session_start();
 
 if (isset($_REQUEST["type"])){
 	$type = $_REQUEST["type"];
@@ -19,9 +20,6 @@ if (isset($_SERVER['PHP_AUTH_USER'])){
 	$username = "none";
 	$access = 0;
 }
-
-//adds account specific html to the body
-$body = formatLogin($body);
 
 switch($type){
 	case "games":
@@ -55,7 +53,36 @@ switch($type){
 		$content = "<p>The creator can be contacted via this <a href='http://evilmousestudios.com/contactme.html'>form</a></p>";
 	case "account":
 		$body = str_replace("###HEADING###", "Account settings", $body);
-		
+		if (isset($_REQUEST["action"])){
+			$action = $_REQUEST["action"];
+		}else{
+			$action = "none";
+		}
+		switch ($action){
+			case "nickname":
+				//for changing your nickname
+				if (!isset($_REQUEST["nickname"])){
+					handleError("nonick");
+				}
+				$nickname = changeNickname($_REQUEST["nickname"]);
+				$content = "<p>Your nickname has been changed to <b>" . $nickname . "</b></p>";
+				break;
+			default:
+				//just display the menu
+				$content = "<p>Your nickname is currently <b>" . $_SESSION['nickname'] . "</b> <i>(which we all love)</i><br>To change it, type in your desired nickname in the box below and click submit.</p>";
+				$content .=<<<EOT
+	<form role="form" action="index.php" method="post">
+	<div class="form-group">
+    	<label for="nickname">Nickname</label>
+		<input type="text" class="form-control" name="nickname" placeholder="{$_SESSION['nickname']}">
+		<input type="hidden" name="type" value="account">
+		<input type="hidden" name="action" value="nickname">
+	</div>
+		<button type="submit" class="btn btn-primary">Change Nickname</button>
+	</form>			
+EOT;
+				break;
+		}
 	
 		break;
 	default:
@@ -64,11 +91,32 @@ switch($type){
 		$content = "<p>Much traps. Many deaths. Such coin. So maze. Wow.</p>";
 		break;	
 }
+
+//adds account specific html to the body
+$body = formatLogin($body);
+//put the content in
 $body = str_replace("###CONTENT###", $content, $body);
 //remove all the remaining tags
 $body = preg_replace("/###.*###/", "", $body);
 print $body;
 
 //functions start here!
-
+function changeNickname($nickname){
+	global $DB_ROOT;
+	$client = new couchClient ($DB_ROOT,"users");
+	try{
+		$user = $client->getDoc($_SESSION['user']);
+	}
+	catch (Exception $c){
+		handleError("nodoc", $_SESSION['user']);
+	}
+	$user->nickname = $nickname;
+	try {
+		$response = $client->storeDoc($user);
+	} catch (Exception $e) {
+		handleError("badsave", $user->_id);
+	}
+	$_SESSION['nickname'] = $nickname;
+	return $nickname;
+}
 ?>

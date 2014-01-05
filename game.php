@@ -109,6 +109,9 @@ if ($api == true){
 	print $content;
 }else{
 	//if we're not, make it pretttty
+	//adds account specific html to the body
+	$body = formatLogin($body);
+	//format the rest
 	$body = str_replace("###CONTENT###", $content, $body);
 	$body = str_replace("###JS###", $JS_GAME_SOURCE, $body);
 	$body = str_replace("###SNIPPET###", $JS_ID_SNIPPET, $body);
