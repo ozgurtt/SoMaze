@@ -89,6 +89,10 @@ function handleError($error, $meta=null){
 			$error = "No nickname provided";
 			$content = "<p>To change your nickname, you must provide a nickname!</p>";
 			break;
+		case "notingame":
+			$error = "You are not in this game";
+			$content = "<p>You can submit commands to a game that you haven't joined.</p>";
+			break;
 		default:
 			$content = "No listing for error: " . $error;
 			$error = "Generic Error";
@@ -108,7 +112,9 @@ function handleError($error, $meta=null){
 
 function formatLogin($body){
 	//calls to generate proper html for the log in button (or username if logged in
-	session_start();
+	if (session_status() == PHP_SESSION_NONE) {
+    	session_start();
+	}
 	if (isset($_SESSION['user'])){
 		//this user was already logged in
 		$signin = "<p class='navbar-text navbar-right'>Signed in as <a href='index.php?type=account' class='navbar-link'>" . $_SESSION['nickname'] . "</a> - <a href='login.php?logout=true' class='navbar-link'>Logout</a></p>";

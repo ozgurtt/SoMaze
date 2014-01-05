@@ -6,6 +6,10 @@ require_once "lib/couchDocument.php";
 //common vars and such
 require_once "lib/common.php";
 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 date_default_timezone_set('America/Chicago');
 
 //set vars / error trap
@@ -36,27 +40,43 @@ switch ($command){
 		$client = new couchClient ($DB_ROOT,"puzzles");
 		try{
 			$puzzle = $client->getDoc($_REQUEST["id"]);
+			$_SESSION['puzzle'] = clone $puzzle;
 		}
 		catch (Exception $c){
 			//map wasn't found
 			handleError("nodoc", $_REQUEST["id"]);
 		}
-		//loaded the map, now convert it
+		//loaded the map, now store it in the session and then convert it
 		$content = json_encode(convertMap($puzzle));
 		break;
 	case "move":
-		$client = new couchClient ($DB_ROOT,"puzzles");
+		$client = new couchClient ($DB_ROOT,"users");
 		try{
-			$puzzle = $client->getDoc($_REQUEST["id"]);
+			$user = $client->getDoc($_SESSION["user"]);
 		}
 		catch (Exception $c){
 			//map wasn't found
-			handleError("nodoc", $_REQUEST["id"]);
+			handleError("nodoc", $_SESSION["user"]);
 		}
 		//loaded the map, and player, now do the move stuff
+		if (!isset($user->games->solver->{$_REQUEST['id']})){handleError("notingame");}
 		if (!isset($_REQUEST['tileID'])){handleError("notile-move");}
 		if (!isset($_REQUEST['sessionID'])){handleError("nosession");}
-		$content = json_encode(convertMove("SLoW", $puzzle, $_REQUEST['tileID'], $_REQUEST['sessionID']));
+		//check to make sure the puzzle isn't stale
+		if ($_SESSION['puzzle']->_id != $_REQUEST['id']){
+			error_log("puzzle is stale, getting it again");
+			//the puzzle is stale, let's get a new copy of it
+			$client = new couchClient ($DB_ROOT,"puzzles");
+			try{
+				$puzzle = $client->getDoc($_REQUEST["id"]);
+			}
+			catch (Exception $c){
+				//map wasn't found
+				handleError("nodoc", $_REQUEST["id"]);
+			}
+			$_SESSION['puzzle'] = $puzzle;
+		}
+		$content = json_encode(convertMove($user, $_SESSION['puzzle'], $_REQUEST['tileID'], $_REQUEST['sessionID']));
 		break;
 	default:
 		//serve the game on the main webpage
@@ -140,25 +160,26 @@ function convertMove($player, $puzzle, $tileID, $sessionID){
 	//send json back, {accepted, tileID, tileType, hp, sessionID}
 	//error_log("debug: " . json_encode($puzzle->players->{'$player'}));
 	$returnObj = new stdClass();
+	error_log("puzzle dump: " . json_encode($puzzle));
 	//first check if the request ID is valid
-	if ($sessionID == $puzzle->players->{$player}->sessionID){
+	if ($sessionID == $player->games->solver->{$puzzle->_id}->sessionID){
 		//the request matches what we are expecting, let's check if it's a valid move next
-		if (checkIfNeighbor($puzzle, end($puzzle->players->{$player}->movechain), $tileID) == true){
+		if (checkIfNeighbor($puzzle, end($player->games->solver->{$puzzle->_id}->movechain), $tileID) == true){
 			//the move is valid, let's do calculations on damage
 			$returnObj->accepted = true;
 			$returnObj->tileID = $tileID;
 			$returnObj->tileType = $puzzle->map[$tileID];
 			//TODO: use better session id!
 			$returnObj->sessionID = "X";
-			array_push($puzzle->players->{$player}->movechain, intval($tileID));
-			$puzzle->players->{$player} = applyEffects($puzzle->players->{$player}, $puzzle->map[$tileID]);
-			$returnObj->hp = $puzzle->players->{$player}->hp;
+			array_push($player->games->solver->{$puzzle->_id}->movechain, intval($tileID));
+			$player->games->solver->{$puzzle->_id} = applyEffects($player->games->solver->{$puzzle->_id}, $puzzle->map[$tileID]);
+			$returnObj->hp = $player->games->solver->{$puzzle->_id}->hp;
 			//write player position to database
-			$client = new couchClient ($DB_ROOT,"puzzles");
+			$client = new couchClient ($DB_ROOT,"users");
 			try {
-				$response = $client->storeDoc($puzzle);
+				$response = $client->storeDoc($player);
 			} catch (Exception $e) {
-				handleError("badsave", $puzzle->_id);
+				handleError("badsave", $user->_id);
 			}	
 		}else{
 			$returnObj->accepted = false;
@@ -178,7 +199,10 @@ function applyEffects($player, $tile){
 			break;
 		case 4:
 			//mine
-			$player->hp -= 50;
+			if (!in_array(4, $player->movechain)){
+				//single damage.  if the user hits it twice, the second time does no damage
+				$player->hp -= 50;
+			}
 			break;
 	}
 	return $player;

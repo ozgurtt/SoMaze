@@ -9,7 +9,9 @@ require_once 'lib/openid.php';
 require_once "lib/common.php";
 date_default_timezone_set('America/Chicago');
 
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 if(isset($_GET['logout'])){
 	session_destroy();
