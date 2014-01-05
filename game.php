@@ -168,8 +168,8 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 			$returnObj->tileType = $puzzle->map[$tileID];
 			//TODO: use better session id!
 			$returnObj->sessionID = "X";
+			$game = applyEffects($game, $puzzle->map[$tileID], $tileID);
 			array_push($game->movechain, intval($tileID));
-			$game = applyEffects($game, $puzzle->map[$tileID]);
 			$returnObj->hp = $game->hp;
 			//write player position to database
 			$response = setDoc($game, "games");	
@@ -183,7 +183,7 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 	return $returnObj;
 }
 
-function applyEffects($player, $tile){
+function applyEffects($player, $tile, $tileID){
 	switch($tile){
 		case 3:
 			//lava - instadeath
@@ -191,7 +191,7 @@ function applyEffects($player, $tile){
 			break;
 		case 4:
 			//mine
-			if (!in_array(4, $player->movechain)){
+			if (!in_array($tileID, $player->movechain)){
 				//single damage.  if the user hits it twice, the second time does no damage
 				$player->hp -= 50;
 			}

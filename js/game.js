@@ -5,6 +5,8 @@ var puzzleData;
 //do better than this later
 var sessionID = "X";
 
+var hp = 100;
+
 $( document ).ready(function() {
     console.log("DOM loaded");
     $.getJSON( "game.php?api=true&command=getMap&id="+GAME_ID, function( data ) {
@@ -32,8 +34,8 @@ function sendMove(tileID, el){
 		    lastClicked = el;
 		    lastTile = tileID;
 		    lastClicked.innerHTML = "<img src='" + getTileArt(data.tileType) + "'>";
-		    if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}
-		    if (data.hp == 50){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
+		    if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
+		    hp = data.hp;
 		}else{
 			console.log ("move not accepted");
 		}
