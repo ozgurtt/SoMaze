@@ -105,7 +105,7 @@ function formatLogin(){
 	session_start();
 	if (isset($_SESSION['user'])){
 		//this user was already logged in
-		$content = "<p class='navbar-text navbar-right'>Signed in as SLoW</p>";
+		$content = "<p class='navbar-text navbar-right'>Signed in as " . $_SESSION['nickname'] . "</p>";
 	}else{
 		//this user hasn't yet logged in
 		$content = <<<'EOT'

@@ -24,10 +24,24 @@ try {
     } else {
     	if ($openid->validate()){
 	    	//user is validated
+	    	$client = new couchClient ($DB_ROOT,"users");
+			try{
+				$user = $client->getDoc($openid->identity);
+			}
+			catch (Exception $c){
+				//user wasn't found, don't throw an error, just make them!
+				$user = createUser($openid->identity);
+				try {
+					$response = $client->storeDoc($user);
+				} catch (Exception $e) {
+					handleError("badsave", $user->_id);
+				}	
+				$nickname = $user->nickname;
+			}
 	    	$_SESSION['user'] = $openid->identity;
-	    	$nickname = generateNickname();
+	    	$_SESSION['nickname'] = $user->nickname;
+	    	if (isset($nickname)){
 	    	$aux =<<<EOT
-	    	
 <div class="panel panel-default">
 <div class="panel-body">
 Google doesn't provide us with a cool nickname for you to use, and since we figure you don't want to use your real name, we have provided you with a super awesome nickname to use for now.  You can feel free to change it in your account settings if you'd like.  Although honestly, why would you want to?<br><br>
@@ -36,6 +50,7 @@ Google doesn't provide us with a cool nickname for you to use, and since we figu
 </div>
 </p>
 EOT;
+			}else{$aux="";}
 	    	$content =<<<EOT
 <p>You've successfully logged in!<br>
 $aux
@@ -67,6 +82,25 @@ function generateNickname(){
 	$adjectives = file('templates/adjectives.txt', FILE_IGNORE_NEW_LINES);
 	$nouns = file('templates/nouns.txt', FILE_IGNORE_NEW_LINES);
 	return ucwords($adjectives[array_rand($adjectives)] . " " . $nouns[array_rand($nouns)]) . " " . strval(rand(1,100));
+}
+
+function createUser($id){
+	$user = new stdClass();
+	$user->_id = $id;
+	$user->nickname = generateNickname();
+	$user->joined = time();
+	$user->wallet = new stdClass();
+	$user->wallet->available = 0;
+	$user->wallet->pending = 0;
+	$user->wallet->locked = 0;
+	$user->stats = new stdClass();
+	$user->stats->attempts = 0;
+	$user->stats->wins = 0;
+	$user->stats->losses = 0;
+	$user->games = new stdClass();
+	$user->games->creator = array();
+	$user->games->solver = array();
+	return $user;
 }
 
 ?>
