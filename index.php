@@ -1,7 +1,4 @@
 <?
-require_once "lib/couch.php";
-require_once "lib/couchClient.php";
-require_once "lib/couchDocument.php";
 //common vars and such
 require_once "lib/common.php";
 date_default_timezone_set('America/Chicago');

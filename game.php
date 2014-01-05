@@ -1,8 +1,4 @@
 <?
-
-require_once "lib/couch.php";
-require_once "lib/couchClient.php";
-require_once "lib/couchDocument.php";
 //common vars and such
 require_once "lib/common.php";
 
@@ -37,48 +33,50 @@ $JS_ID_SNIPPET = "<script>\n\tvar GAME_ID = '" . $_REQUEST['id'] . "';\n\tvar SE
 
 switch ($command){
 	case "getMap":
-		$client = new couchClient ($DB_ROOT,"puzzles");
-		try{
-			$puzzle = $client->getDoc($_REQUEST["id"]);
-			$_SESSION['puzzle'] = clone $puzzle;
-		}
-		catch (Exception $c){
-			//map wasn't found
-			handleError("nodoc", $_REQUEST["id"]);
-		}
+		$puzzle = getDoc($_REQUEST["id"], "puzzles");
+		$_SESSION['puzzle'] = clone $puzzle;
 		//loaded the map, now store it in the session and then convert it
 		$content = json_encode(convertMap($puzzle));
 		break;
 	case "move":
-		$client = new couchClient ($DB_ROOT,"users");
-		try{
-			$user = $client->getDoc($_SESSION["user"]);
-		}
-		catch (Exception $c){
-			//map wasn't found
-			handleError("nodoc", $_SESSION["user"]);
-		}
-		//loaded the map, and player, now do the move stuff
-		if (!isset($user->games->solver->{$_REQUEST['id']})){handleError("notingame");}
 		if (!isset($_REQUEST['tileID'])){handleError("notile-move");}
 		if (!isset($_REQUEST['sessionID'])){handleError("nosession");}
+		//if the game var isn't set in the session
+		if (!isset($_SESSION['game'])){
+			//it means that the user hasn't been loaded ever
+			error_log("game session doesn't exist, get it from the user");
+			$user = getDoc($_SESSION["user"], "users");
+			if (!isset($user->games->solver->{$_REQUEST['id']})){
+				//user isn't a solver in this game
+				handleError("notingame");
+			}
+			$_SESSION['game'] = $user->games->solver->{$_REQUEST['id']};
+		}
+		//user is a solver, so let's load the game
+		$game = getDoc($_SESSION['game'], "games");
+		if ($game->gameid != $_REQUEST['id']){
+			//session game id is stale, update it
+			$user = getDoc($_SESSION["user"], "users");
+			if (!isset($user->games->solver->{$_REQUEST['id']})){
+				//user isn't a solver in this game
+				handleError("notingame");
+			}	
+			//set the game id into the session var
+			$_SESSION['game'] = $user->games->solver->{$_REQUEST['id']};
+			//get the new game that was just got from the user
+			$game = getDoc($_SESSION['game'], "games");
+		}
 		//check to make sure the puzzle isn't stale
 		if ($_SESSION['puzzle']->_id != $_REQUEST['id']){
 			error_log("puzzle is stale, getting it again");
 			//the puzzle is stale, let's get a new copy of it
-			$client = new couchClient ($DB_ROOT,"puzzles");
-			try{
-				$puzzle = $client->getDoc($_REQUEST["id"]);
-			}
-			catch (Exception $c){
-				//map wasn't found
-				handleError("nodoc", $_REQUEST["id"]);
-			}
-			$_SESSION['puzzle'] = $puzzle;
+			$puzzle = getDoc($_REQUEST["id"], "puzzles");
+			$_SESSION['puzzle'] = clone $puzzle;
 		}
-		$content = json_encode(convertMove($user, $_SESSION['puzzle'], $_REQUEST['tileID'], $_REQUEST['sessionID']));
+		$content = json_encode(convertMove($game, $_SESSION['puzzle'], $_REQUEST['tileID'], $_REQUEST['sessionID']));
 		break;
-	default:
+	default:	
+		//TODO: session checking to make sure there's a user logged in
 		//serve the game on the main webpage
 		$client = new couchClient ($DB_ROOT,"puzzles");
 		try{
@@ -153,34 +151,28 @@ function convertMap($puzzle){
 	return $puzzle;
 }
 
-function convertMove($player, $puzzle, $tileID, $sessionID){
+function convertMove($game, $puzzle, $tileID, $sessionID){
 	global $DB_ROOT;
 	//given the puzzle, the player, and the proposed move, sends information back to the client
 	//get json from client, {tileID, sessionID} ?player id?
 	//send json back, {accepted, tileID, tileType, hp, sessionID}
 	//error_log("debug: " . json_encode($puzzle->players->{'$player'}));
 	$returnObj = new stdClass();
-	error_log("puzzle dump: " . json_encode($puzzle));
 	//first check if the request ID is valid
-	if ($sessionID == $player->games->solver->{$puzzle->_id}->sessionID){
+	if ($sessionID == $game->sessionID){
 		//the request matches what we are expecting, let's check if it's a valid move next
-		if (checkIfNeighbor($puzzle, end($player->games->solver->{$puzzle->_id}->movechain), $tileID) == true){
+		if (checkIfNeighbor($puzzle, end($game->movechain), $tileID) == true){
 			//the move is valid, let's do calculations on damage
 			$returnObj->accepted = true;
 			$returnObj->tileID = $tileID;
 			$returnObj->tileType = $puzzle->map[$tileID];
 			//TODO: use better session id!
 			$returnObj->sessionID = "X";
-			array_push($player->games->solver->{$puzzle->_id}->movechain, intval($tileID));
-			$player->games->solver->{$puzzle->_id} = applyEffects($player->games->solver->{$puzzle->_id}, $puzzle->map[$tileID]);
-			$returnObj->hp = $player->games->solver->{$puzzle->_id}->hp;
+			array_push($game->movechain, intval($tileID));
+			$game = applyEffects($game, $puzzle->map[$tileID]);
+			$returnObj->hp = $game->hp;
 			//write player position to database
-			$client = new couchClient ($DB_ROOT,"users");
-			try {
-				$response = $client->storeDoc($player);
-			} catch (Exception $e) {
-				handleError("badsave", $user->_id);
-			}	
+			$response = setDoc($game, "games");	
 		}else{
 			$returnObj->accepted = false;
 		}

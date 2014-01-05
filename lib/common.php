@@ -1,4 +1,7 @@
 <?php
+require_once "lib/couch.php";
+require_once "lib/couchClient.php";
+require_once "lib/couchDocument.php";
 
 $TITLE = "SoMaze";
 $VERSION = ".01";
@@ -98,7 +101,7 @@ function handleError($error, $meta=null){
 			$error = "Generic Error";
 			break;
 	}
-	error_log($error);
+	error_log($error . " - " . $content);
 	//adds account specific html to the body
 	$body = formatLogin($body);
 	$body = str_replace("###HEADING###", "Error: " . $error, $body);
@@ -131,5 +134,33 @@ EOT;
 	$body = str_replace("###LOGIN###", $signin, $body);
 	return $body;
 }
+
+function getDoc($id, $db){
+	global $DB_ROOT;
+	//gets a document from the database
+	$client = new couchClient ($DB_ROOT,$db);
+	try{
+		return $client->getDoc($id);
+	}
+	catch (Exception $c){
+		//doc
+		handleError("nodoc", $id . " db: " . $db);
+	}
+}
+
+function setDoc($id, $db){
+	global $DB_ROOT;
+	//stores a document in the database
+	$client = new couchClient ($DB_ROOT,$db);
+	try {
+		return $client->storeDoc($id);
+	} catch (Exception $e) {
+		handleError("badsave", $id . " db: " . $db);
+	}	
+}
+
+
+
+
 
 ?>
