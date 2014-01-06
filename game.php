@@ -239,8 +239,18 @@ function applyEffects($player, $tile, $tileID){
 
 function checkIfNeighbor($puzzle, $start, $finish){
 	//checks if $finish is a neighbor to $start
-	//bound checking needs to go here
-	return true;
+	if ($finish < 0 || $finish > ($puzzle->dimensions->height * $puzzle->dimensions->width)){return false;}
+	if ($start + 1 == $finish && ($start % $puzzle->dimensions->width) != ($puzzle->dimensions->width - 1)){
+		//do left movement
+		return true;
+	}elseif ($start - 1 == $finish && ($start % $puzzle->dimensions->width) != 0){
+		//do right movement
+		return true;
+	}elseif (abs($start - $finish) == $puzzle->dimensions->width){
+		//this is a top or bottom match
+		return true;
+	}
+	return false;
 }
 
 function payUser($from, $to, $amount, $fee){
