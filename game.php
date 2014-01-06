@@ -111,13 +111,17 @@ switch ($command){
 			//this person has already paid
 			$_SESSION['game'] = $user->games->solver->{$_REQUEST['id']};
 			$amount = 0;
-			$joinfee = "<p>You have rejoined this game for free.</p>";
+			$joinfee = "<p><i>You have rejoined this game for free.</i></p>";
 		}else{
 			//create the game in their active games and save it
+			$game = createGame();
+			$user->games->solver->$_REQUEST['id'] = $game->_id;
+			$response = setDoc($user, "users");
 			//then set the session
+			$_SESSION['game'] = $user->games->solver->$_REQUEST['id'];
 			//change them for entry
-			$amount = payUser($user, $puzzle->creator, $puzzle->fees->entry);
-			$joinfee = "<p>You just paid <b>" . $amount . $CURRENCY_IMG . "</b> to join this game.</p>";
+			$amount = payUser($_SESSION['user'], $puzzle->creator, $puzzle->fees->entry, $puzzle->fees->creation);
+			$joinfee = "<p><i>You just paid <b>" . $amount . $CURRENCY_IMG . "</b> to join this game.</i></p>";
 		}
 		$body = str_replace("###HEADING###", $puzzle->title . " by " . $puzzle->nickname, $body);
 		$content = $joinfee . "<p>" . $puzzle->desc . "</p>";
@@ -239,15 +243,19 @@ function checkIfNeighbor($puzzle, $start, $finish){
 	return true;
 }
 
-function payUser($from, $to, $amount){
+function payUser($from, $to, $amount, $fee){
 	$fromuser = getDoc($from, "users");
 	if ($fromuser->wallet->available < $amount){
 		//they don't have the funds
 		handleError("nofunds");
 	}
 	$touser = getDoc($to, "users");
-	$touser->wallet->available -= $amount;
-	$fromuser->wallet->available += $amount;
+	//pay the user the entrance fee
+	$touser->wallet->available += $amount;
+	//take the creation fee (we should probably log this)
+	$touser->wallet->available -= $fee;
+	//take the entrance fee from the user
+	$fromuser->wallet->available -= $amount;
 	if ($fromuser->wallet->available >= 0){
 		$response = setDoc($fromuser, "users");
 		$response = setDoc($touser, "users");
@@ -261,4 +269,17 @@ function payUser($from, $to, $amount){
 	return 0;
 }
 
+function createGame(){
+	//creates a new blank game and returns it
+	$game = new stdClass();
+	$game->_id = $_REQUEST['id'] . " - " . $_SESSION['user'];
+	$game->gameid = $_REQUEST['id'];
+	$game->userid = $_SESSION['user'];
+	$game->hp = 100;
+	$game->started = time();
+	$game->sessionID = "X";
+	$game->movechain = array();
+	$response = setDoc($game, "games");
+	return $game;
+}
 ?>
