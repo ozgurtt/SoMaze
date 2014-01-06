@@ -99,7 +99,7 @@ function createUser($id){
 	$user->stats->losses = 0;
 	$user->games = new stdClass();
 	$user->games->creator = array();
-	$user->games->solver = array();
+	$user->games->solver = new stdClass();
 	return $user;
 }
 

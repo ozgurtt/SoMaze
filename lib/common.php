@@ -15,6 +15,7 @@ $DB_ROOT = "http://127.0.0.1:5984";
 //switch these for openID deployment
 //$DOMAIN = "somaze.evilmousestudios.com";
 $DOMAIN = "127.0.0.1";
+//$DOMAIN = "192.168.1.101";
 //html snippets
 $JS_GAME_SOURCE = '<script src="js/game.js"></script>';
 
