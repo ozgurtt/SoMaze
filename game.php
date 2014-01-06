@@ -102,6 +102,7 @@ switch ($command){
 			$puzzle = getDoc($_REQUEST["id"], "puzzles");
 			$_SESSION['puzzle'] = clone $puzzle;
 		}
+		if ($game->hp <= 0){handleError("youredead");}
 		$content = json_encode(convertMove($game, $_SESSION['puzzle'], $_REQUEST['tileID'], $_REQUEST['sessionID']));
 		break;
 	default:
@@ -208,6 +209,13 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 			$game = applyEffects($game, $puzzle->map[$tileID], $tileID);
 			array_push($game->movechain, intval($tileID));
 			$returnObj->hp = $game->hp;
+			if ($return->tileType == 2){
+				//win conditions
+				rewardUser($puzzle->creator, $_SESSION['user'], $puzzle->fees->reward, 0);
+				//remove the reference from the user doc
+				//delete the game
+				//set the puzzle to active=false
+			}
 			//write player position to database
 			$response = setDoc($game, "games");	
 		}else{
@@ -222,6 +230,10 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 
 function applyEffects($player, $tile, $tileID){
 	switch($tile){
+		case 2:
+			//finish tile, they've won, NOW KILL THEM!
+			$player-> = 0;
+			break;
 		case 3:
 			//lava - instadeath
 			$player->hp = 0;
@@ -254,6 +266,7 @@ function checkIfNeighbor($puzzle, $start, $finish){
 }
 
 function payUser($from, $to, $amount, $fee){
+	//used to pay users (for entry fees)
 	$fromuser = getDoc($from, "users");
 	if ($fromuser->wallet->available < $amount){
 		//they don't have the funds
@@ -267,6 +280,33 @@ function payUser($from, $to, $amount, $fee){
 	//take the entrance fee from the user
 	$fromuser->wallet->available -= $amount;
 	if ($fromuser->wallet->available >= 0){
+		$response = setDoc($fromuser, "users");
+		$response = setDoc($touser, "users");
+		return $amount;
+	}else{
+		//they don't have the funds
+		//i know i literally JUST checked this, but with money, you can't be too safe, can you?
+		handleError("nofunds");
+	}
+	//something went wrong, but i have no idea what that might be.
+	return 0;
+}
+
+function rewardUser($from, $to, $amount, $fee){
+	//used to reward users (for winning)
+	$fromuser = getDoc($from, "users");
+	if ($fromuser->wallet->locked < $amount){
+		//they don't have the funds
+		handleError("nofunds");
+	}
+	$touser = getDoc($to, "users");
+	//pay the user the entrance fee
+	$touser->wallet->available += $amount;
+	//take the creation fee (we should probably log this)
+	$touser->wallet->available -= $fee;
+	//take the entrance fee from the user
+	$fromuser->wallet->locked -= $amount;
+	if ($fromuser->wallet->locked >= 0){
 		$response = setDoc($fromuser, "users");
 		$response = setDoc($touser, "users");
 		return $amount;

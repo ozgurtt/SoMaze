@@ -105,6 +105,10 @@ function handleError($error, $meta=null){
 			$error = "Not enough money";
 			$content = "<p>You have insufficient funds to do this.</p>";
 			break;
+		case "youredead":
+			$error = "You're dead, you can't do things";
+			$content = "<p>You're a ghost, you can't be going around and doing things.  Stick to being spooky.  Much scared.</p>";
+			break;
 		default:
 			$content = "No listing for error: " . $error;
 			$error = "Generic Error";

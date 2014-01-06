@@ -25,6 +25,8 @@ $( document ).ready(function() {
 });
 
 function sendMove(tileID, el){
+	//don't send moves if you're dead silly
+	if (hp <= 0){return false;}
 	$.getJSON( "game.php?api=true&command=move&id="+GAME_ID+"&tileID="+tileID+"&sessionID="+sessionID, function( data ) {
 		if (data.accepted == true){
 			console.log ("move accepted");
@@ -34,7 +36,7 @@ function sendMove(tileID, el){
 		    lastClicked = el;
 		    lastTile = tileID;
 		    lastClicked.innerHTML = "<img src='" + getTileArt(data.tileType) + "'>";
-		    if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
+		    if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false}else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
 		    hp = data.hp;
 		}else{
 			console.log ("move not accepted");
