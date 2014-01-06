@@ -94,7 +94,7 @@ function handleError($error, $meta=null){
 			break;
 		case "notingame":
 			$error = "You are not in this game";
-			$content = "<p>You can submit commands to a game that you haven't joined.</p>";
+			$content = "<p>You can't submit commands to a game that you haven't joined.</p>";
 			break;
 		case "notloggedin":
 			$error = "You are not logged in";

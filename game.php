@@ -36,10 +36,34 @@ if (isset($_REQUEST["api"])){
 
 $JS_ID_SNIPPET = "<script>\n\tvar GAME_ID = '" . $_REQUEST['id'] . "';\n\tvar SESSION_ID = '" . generateSession() . "'\n</script";
 
+//aux is used to add additional lines to this
+$aux = '';
+$JS_VAR_SNIPPET =<<<EOT
+<script>
+	var GAME_ID = '{$_REQUEST['id']}';
+	var SESSION_ID = '{generateSession()}';
+</script>
+EOT;
+
 switch ($command){
 	case "getMap":
 		$puzzle = getDoc($_REQUEST["id"], "puzzles");
 		$_SESSION['puzzle'] = clone $puzzle;
+		//load the user
+		$user = getDoc($_SESSION["user"], "users");
+		//if they have a game session for the map (which they should)
+		if ($_SESSION['game'] == $user->games->solver->{$_REQUEST['id']}){
+			//load the game
+			$game = getDoc($_SESSION['game'], "games");
+			//if they've moved at all
+			if (count($game->movechain) != 0){
+				//set their starting place to the last place they were
+				$puzzle->map = str_replace(1, 0, $puzzle->map);
+				$puzzle->map[end($game->movechain)] = 1;
+			}
+		}else{
+			handleError("notingame");
+		}
 		//loaded the map, now store it in the session and then convert it
 		$content = json_encode(convertMap($puzzle));
 		break;
@@ -80,18 +104,23 @@ switch ($command){
 		}
 		$content = json_encode(convertMove($game, $_SESSION['puzzle'], $_REQUEST['tileID'], $_REQUEST['sessionID']));
 		break;
-	default:	
-		//serve the game on the main webpage
-		$client = new couchClient ($DB_ROOT,"puzzles");
-		try{
-			$puzzle = $client->getDoc($_REQUEST["id"]);
+	default:
+		$user = getDoc($_SESSION['user'], "users");
+		$puzzle = getDoc($_REQUEST['id'], "puzzles");
+		if (isset($user->games->solver->$_REQUEST['id'])){
+			//this person has already paid
+			$_SESSION['game'] = $user->games->solver->{$_REQUEST['id']};
+			$amount = 0;
+			$joinfee = "<p>You have rejoined this game for free.</p>";
+		}else{
+			//create the game in their active games and save it
+			//then set the session
+			//change them for entry
+			$amount = payUser($user, $puzzle->creator, $puzzle->fees->entry);
+			$joinfee = "<p>You just paid <b>" . $amount . $CURRENCY_IMG . "</b> to join this game.</p>";
 		}
-		catch (Exception $c){
-			//map wasn't found
-			handleError("nodoc", $_REQUEST["id"]);
-		}
-		$body = str_replace("###HEADING###", $puzzle->title . " by " . $puzzle->creator, $body);
-		$content = "<p>" . $puzzle->desc . "</p>";
+		$body = str_replace("###HEADING###", $puzzle->title . " by " . $puzzle->nickname, $body);
+		$content = $joinfee . "<p>" . $puzzle->desc . "</p>";
 		//do tile difficulty math
 		$diffSpan = getDifficulty($puzzle->dimensions, $puzzle->traps);
 		$divcontent = <<<EOT
@@ -104,9 +133,9 @@ switch ($command){
   <div class="panel-body">
     <p>$diffSpan</p>
     <table id='fee'>
-    <tr><td class='fee'>Creation Fee</td><td>{$puzzle->fees->creation}$CURRENCY_IMG</td></tr>
-    <tr><td class='fee'>Entry Fee</td><td>{$puzzle->fees->entry}$CURRENCY_IMG</td></tr>
-    <tr><td class='fee'>Reward Fee</td><td>{$puzzle->fees->reward}$CURRENCY_IMG</td></tr>
+    <tr><td class='fee'>Creation Fee</td><td><b>{$puzzle->fees->creation}</b>$CURRENCY_IMG</td></tr>
+    <tr><td class='fee'>Entry Fee</td><td><b>{$puzzle->fees->entry}</b>$CURRENCY_IMG</td></tr>
+    <tr><td class='fee'>Reward Fee</td><td><b>{$puzzle->fees->reward}</b>$CURRENCY_IMG</td></tr>
     </table>
   </div>
 </div>
@@ -208,6 +237,28 @@ function checkIfNeighbor($puzzle, $start, $finish){
 	//checks if $finish is a neighbor to $start
 	//bound checking needs to go here
 	return true;
+}
+
+function payUser($from, $to, $amount){
+	$fromuser = getDoc($from, "users");
+	if ($fromuser->wallet->available < $amount){
+		//they don't have the funds
+		handleError("nofunds");
+	}
+	$touser = getDoc($to, "users");
+	$touser->wallet->available -= $amount;
+	$fromuser->wallet->available += $amount;
+	if ($fromuser->wallet->available >= 0){
+		$response = setDoc($fromuser, "users");
+		$response = setDoc($touser, "users");
+		return $amount;
+	}else{
+		//they don't have the funds
+		//i know i literally JUST checked this, but with money, you can't be too safe, can you?
+		handleError("nofunds");
+	}
+	//something went wrong, but i have no idea what that might be.
+	return 0;
 }
 
 ?>
