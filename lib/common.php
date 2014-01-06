@@ -85,6 +85,10 @@ function handleError($error, $meta=null){
 			$error = "Unable to save document";
 			$content = "<p>Save failed with document ID: " . $meta . "</p>";
 			break;
+		case "badrm":
+			$error = "Unable to delete document";
+			$content = "<p>Delete failed with document ID: " . $meta . "</p>";
+			break;
 		case "badlogin":
 			$error = "Unable to log you in";
 			$content = "<p>Something went wrong during the OpenID login: (" .  $meta . ")</p>";
@@ -168,7 +172,18 @@ function setDoc($id, $db){
 	try {
 		return $client->storeDoc($id);
 	} catch (Exception $e) {
-		handleError("badsave", $id . " db: " . $db);
+		handleError("badsave", $id->_id . " db: " . $db);
+	}	
+}
+
+function deleteDoc($id, $db){
+	global $DB_ROOT;
+	//stores a document in the database
+	$client = new couchClient ($DB_ROOT,$db);
+	try {
+		return $client->deleteDoc($id);
+	} catch (Exception $e) {
+		handleError("badrm", $id->_id . " db: " . $db);
 	}	
 }
 

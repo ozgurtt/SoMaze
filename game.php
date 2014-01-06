@@ -199,7 +199,7 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 	//first check if the request ID is valid
 	if ($sessionID == $game->sessionID){
 		//the request matches what we are expecting, let's check if it's a valid move next
-		if (checkIfNeighbor($puzzle, end($game->movechain), $tileID) == true){
+		if (checkIfNeighbor($puzzle, end($game->movechain), $tileID) == true || count($game->movechain) == 0){
 			//the move is valid, let's do calculations on damage
 			$returnObj->accepted = true;
 			$returnObj->tileID = $tileID;
@@ -209,15 +209,21 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 			$game = applyEffects($game, $puzzle->map[$tileID], $tileID);
 			array_push($game->movechain, intval($tileID));
 			$returnObj->hp = $game->hp;
-			if ($return->tileType == 2){
+			if ($returnObj->tileType == 2){
 				//win conditions
 				rewardUser($puzzle->creator, $_SESSION['user'], $puzzle->fees->reward, 0);
 				//remove the reference from the user doc
+				$user = getDoc($_SESSION['user'], "users");
+				unset($user->games->solver->{$puzzle->_id});
+				error_log("user: " . json_encode($user));
+				$response = setDoc($user, "users");
 				//delete the game
+				$response = deleteDoc($game, "games");
 				//set the puzzle to active=false
+			}else{
+				//write player position to database
+				$response = setDoc($game, "games");	
 			}
-			//write player position to database
-			$response = setDoc($game, "games");	
 		}else{
 			$returnObj->accepted = false;
 		}
@@ -232,7 +238,7 @@ function applyEffects($player, $tile, $tileID){
 	switch($tile){
 		case 2:
 			//finish tile, they've won, NOW KILL THEM!
-			$player-> = 0;
+			$player->hp = 0;
 			break;
 		case 3:
 			//lava - instadeath
