@@ -42,6 +42,8 @@ $( document ).ready(function() {
 			});
 			//document.body.appendChild(grid);
 			$("#game").append(grid);
+			$("#hp").html("<p>HP: " + data.hp + "</p>");
+			hp = data.hp;
 		});
 	});
     
@@ -65,6 +67,7 @@ function sendMove(tileID, el){
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}
 		    else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
 		    hp = data.hp;
+		    $("#hp").html("<p>HP: " + ((hp <0)?0:hp) + "</p>");
 		}else{
 			console.log ("move not accepted");
 		}

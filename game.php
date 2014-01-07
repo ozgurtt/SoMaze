@@ -48,6 +48,7 @@ switch ($command){
 		if ($_SESSION['game'] == $user->games->solver->{$_REQUEST['id']}){
 			//load the game
 			$game = getDoc($_SESSION['game'], "games");
+			$puzzle->hp = $game->hp;
 			//if they've moved at all
 			if (count($game->movechain) != 0){
 				//set their starting place to the last place they were
@@ -124,6 +125,8 @@ switch ($command){
 		$diffSpan = getDifficulty($puzzle->dimensions, $puzzle->traps);
 		$divcontent = <<<EOT
 <div id="game">
+	<div id="hp">
+	</div>
 </div>
 <div id="alerts">
 </div>

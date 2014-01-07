@@ -53,8 +53,9 @@
       <div class="basic-template">
         <h1>###HEADING###</h1>
         <p class="lead">###CONTENT###</p>
+        ###DIV###
       </div>
-###DIV###
+
     </div><!-- /.container -->
 
 

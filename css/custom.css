@@ -22,3 +22,8 @@ td.fee {
     background-color:red;
     font-weight:bold; color:red;
 }
+
+div#hp {
+	text-align: center;
+	font-weight:bold;
+}
