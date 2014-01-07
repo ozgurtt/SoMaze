@@ -1,5 +1,6 @@
 var lastClicked;
 var lastTile;
+var startTile = null;
 
 var puzzleData;
 
@@ -34,7 +35,8 @@ function sendMove(tileID, el){
 		    lastClicked = el;
 		    lastTile = tileID;
 		    sessionID = data.sessionID;
-		    lastClicked.innerHTML = "<img src='" + getTileArt(data.tileType) + "'>";
+		    //prevents the "start tile" from redrawing to a blank tile
+		    if (i != startTile){lastClicked.innerHTML = "<img src='" + getTileArt(data.tileType) + "'>";}
 		    if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}
 		    else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
@@ -61,6 +63,7 @@ function clickableGrid( rows, cols, callback ){
             	cell.className='clicked';
             	lastClicked = cell;
             	lastTile = i;
+            	startTile = i;
             }
             cell.addEventListener('click',(function(el,r,c,i){
                 return function(){

@@ -136,7 +136,6 @@ switch ($command){
 </div>
 EOT;
 		$body = str_replace("###DIV###", $divcontent, $body);
-		error_log("snippet dump: " . json_encode(makeJS(array("GAME_ID"=>$_REQUEST['id'], "sessionID"=>$game->sessionID))));
 		$body = str_replace("###SNIPPET###", makeJS(array("GAME_ID"=>$_REQUEST['id'], "sessionID"=>$game->sessionID)), $body);
 		break;
 		
