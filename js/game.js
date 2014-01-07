@@ -46,7 +46,7 @@ function sendMove(tileID, el){
 	if (hp <= 0){return false;}
 	$.getJSON( "game.php?api=true&command=move&id="+GAME_ID+"&tileID="+tileID+"&sessionID="+sessionID, function( data ) {
 		if (data.accepted == true){
-			console.log ("move accepted");
+			console.log ("move accepted (" + data.sessionID + ")");
 			//the move we sent was accepted
 			el.className='clicked';
 		    if (lastClicked) lastClicked.className='';

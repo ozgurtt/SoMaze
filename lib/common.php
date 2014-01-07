@@ -3,6 +3,8 @@ require_once "lib/couch.php";
 require_once "lib/couchClient.php";
 require_once "lib/couchDocument.php";
 
+$VERBOSE = true;
+
 $TITLE = "SoMaze";
 $VERSION = ".01";
 
@@ -153,39 +155,40 @@ EOT;
 }
 
 function getDoc($id, $db){
-	global $DB_ROOT;
+	global $DB_ROOT, $VERBOSE;
 	//gets a document from the database
 	$client = new couchClient ($DB_ROOT,$db);
 	try{
 		return $client->getDoc($id);
 	}
-	catch (Exception $c){
+	catch (Exception $e){
 		//doc
-		handleError("nodoc", $id . " db: " . $db);
+		handleError("nodoc", $id . " db: " . $db . (($VERBOSE == true)?" - " . json_encode($e):""));
 	}
 }
 
 function setDoc($id, $db){
-	global $DB_ROOT;
+	global $DB_ROOT, $VERBOSE;
 	//stores a document in the database
 	$client = new couchClient ($DB_ROOT,$db);
 	try {
 		return $client->storeDoc($id);
 	} catch (Exception $e) {
-		handleError("badsave", $id->_id . " db: " . $db);
+		handleError("badsave", $id->_id . " db: " . $db . (($VERBOSE == true)?" - " . $e:""));
 	}	
 }
 
 function deleteDoc($id, $db){
-	global $DB_ROOT;
+	global $DB_ROOT, $VERBOSE;
 	//stores a document in the database
 	$client = new couchClient ($DB_ROOT,$db);
 	try {
 		return $client->deleteDoc($id);
 	} catch (Exception $e) {
-		handleError("badrm", $id->_id . " db: " . $db);
+		handleError("badrm", $id->_id . " db: " . $db . (($VERBOSE == true)?" - " . json_encode($e):""));
 	}	
 }
+
 
 
 

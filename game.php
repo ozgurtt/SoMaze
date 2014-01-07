@@ -211,16 +211,17 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 			array_push($game->movechain, intval($tileID));
 			$returnObj->hp = $game->hp;
 			if ($returnObj->hp <= 0){
-				//user is either dead or has won, handle both
-				$user = getDoc($_SESSION['user'], "users");
-				unset($user->games->solver->{$puzzle->_id});
+				//user is either dead or has won, handle bot
 				if ($returnObj->tileType == 2){
 					//win conditions
 					rewardUser($puzzle->creator, $_SESSION['user'], $puzzle->fees->reward, 0);
+					$user = getDoc($_SESSION['user'], "users");
 					$user->stats->wins++;
 				}else{
+					$user = getDoc($_SESSION['user'], "users");
 					$user->stats->losses++;
 				}
+				unset($user->games->solver->{$puzzle->_id});
 				//remove the reference from the user doc
 				$response = setDoc($user, "users");
 				//delete the game
