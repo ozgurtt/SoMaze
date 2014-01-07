@@ -35,6 +35,10 @@ if (isset($_REQUEST["api"])){
 }
 
 switch ($command){
+	case "getTiles":
+		//used to get tiles
+		$content = json_encode(getDoc("tiles", "misc"));
+		break;
 	case "getMap":
 		$puzzle = getDoc($_REQUEST["id"], "puzzles");
 		$_SESSION['puzzle'] = clone $puzzle;
@@ -182,7 +186,13 @@ function makeJS($vars){
 
 function convertMap($puzzle){
 	//when given a map array, converts it for the client (removes all tiles they shouldn't see
-	$hiddenTiles = array(4);
+	$tiles = getDoc("tiles", "misc");
+	$hiddenTiles = array();
+	foreach ($tiles->tiles as $i => $tile){
+		if ($tile->hidden == true){
+			array_push($hiddenTiles, $i);
+		}
+	}
 	foreach ($hiddenTiles as $tile){
 		//walks through each hidden tile
 		$puzzle->map = str_replace($tile, 0, $puzzle->map);
@@ -242,22 +252,12 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 }
 
 function applyEffects($player, $tile, $tileID){
-	switch($tile){
-		case 2:
-			//finish tile, they've won, NOW KILL THEM!
-			$player->hp = 0;
-			break;
-		case 3:
-			//lava - instadeath
-			$player->hp = 0;
-			break;
-		case 4:
-			//mine
-			if (!in_array($tileID, $player->movechain)){
-				//single damage.  if the user hits it twice, the second time does no damage
-				$player->hp -= 50;
-			}
-			break;
+	$tiles = getDoc("tiles", "misc");
+	if (!in_array($tileID, $player->movechain)){
+		//single damage.  if the user hits it twice, the second time does no damage
+		$player->hp += $tiles->tiles[$tile]->effect->hp;
+	}elseif ($tiles->tiles[$tile]->effect->rearm == true){
+		$player->hp += $tiles->tiles[$tile]->effect->hp;
 	}
 	return $player;
 }

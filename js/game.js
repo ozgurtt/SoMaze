@@ -2,6 +2,7 @@ var lastClicked;
 var lastTile;
 var startTile = null;
 
+var tileData;
 var puzzleData;
 
 var hp = 100;
@@ -26,19 +27,24 @@ window.onbeforeunload = function (e) {
 
 $( document ).ready(function() {
     console.log("DOM loaded");
-    $.getJSON( "game.php?api=true&command=getMap&id="+GAME_ID, function( data ) {
-		puzzleData = data;
-		//console.log(mapData);
-		var grid = clickableGrid(puzzleData.dimensions.height,puzzleData.dimensions.width,function(el,row,col,i){
-		    console.log("You clicked on item #:",i);
-			if (validateClick(lastTile, i, col)){
-				console.log ("validate passed");
-				sendMove(i, el);
-			}else{console.log("validate failed");}
+    $.getJSON( "game.php?api=true&command=getTiles&id="+GAME_ID, function( data ) {
+		//we got the tile, now get the game
+		tileData = data;
+		$.getJSON( "game.php?api=true&command=getMap&id="+GAME_ID, function( data ) {
+			puzzleData = data;
+			//console.log(mapData);
+			var grid = clickableGrid(puzzleData.dimensions.height,puzzleData.dimensions.width,function(el,row,col,i){
+			    console.log("You clicked on item #:",i);
+				if (validateClick(lastTile, i, col)){
+					console.log ("validate passed");
+					sendMove(i, el);
+				}else{console.log("validate failed");}
+			});
+			//document.body.appendChild(grid);
+			$("#game").append(grid);
 		});
-		//document.body.appendChild(grid);
-		$("#game").append(grid);
 	});
+    
 });
 
 function sendMove(tileID, el){
@@ -116,52 +122,22 @@ function giveAlert(type, text, dismissable){
 function getTileArt(id){
 	//give me the id for the map, and i'll tell you what tile to use
 	path = "img/Tiles/";
-	id = id.toString();
-	switch(id){
-		case "0":
-			path += "blank.png";
-			break;
-		case "1":
-			path += "entrance.png";
-			break;
-		case "2":
-			path += "exit.png";
-			break;
-		case "3":
-			path += "lava.png";
-			break;
-		case "4":
-			path += "mine.png";
-			break;
-		default:
-			path += "error.png";
-			break;
+	id = parseInt(id);
+	if (typeof tileData.tiles[id] == 'undefined'){
+		path += "error.png";
+	}else{
+		path += tileData.tiles[id].file;
 	}
 	return path;
 }
 
 function getTileName(id){
 	//give me the id for the map, and i'll tell you what tile to use
-	id = id.toString();
-	switch(id){
-		case "0":
-			name = "Tile";
-			break;
-		case "1":
-			name = "Entrance";
-			break;
-		case "2":
-			name = "Exit";
-			break;
-		case "3":
-			name = "Lava";
-			break;
-		case "4":
-			name = "Mine";
-			break;
-		default:
-			name = "Error";
-			break;
+	id = parseInt(id);
+	if (typeof tileData.tiles[id] == 'undefined'){
+		name = "Error";
+	}else{
+		name = tileData.tiles[id].name;
 	}
 	return name;
 }

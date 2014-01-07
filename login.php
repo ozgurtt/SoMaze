@@ -14,6 +14,7 @@ if(isset($_GET['logout'])){
 	session_destroy();
 	$content = "<p>You have been logged out.  Many destroyed sessions. <br>Click <a href='index.php'>here</a> to go home</p>";
 }else{
+	$content = '';
 	try {
 	    # Change 'localhost' to your domain name.
 	    $openid = new LightOpenID($DOMAIN);
