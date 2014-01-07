@@ -112,7 +112,7 @@ switch ($command){
 			$_SESSION['game'] = $user->games->solver->$_REQUEST['id'];
 			//change them for entry
 			$amount = payUser($_SESSION['user'], $puzzle->creator, $puzzle->fees->entry, $puzzle->fees->creation);
-			$joinfee = "<p><i>You just paid <b>" . $amount . $CURRENCY_IMG . "</b> to join this game.</i></p>";
+			$joinfee = "<p><i>You just paid <b>" . $amount . $CURRENCY_IMG . "</b> to join this game (you have <b>" . $user->wallet->available . $CURRENCY_IMG . "</b> left)</i></p>";
 		}
 		$body = str_replace("###HEADING###", $puzzle->title . " by " . $puzzle->nickname, $body);
 		$content = $joinfee . "<p>" . $puzzle->desc . "</p>";

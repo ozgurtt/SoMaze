@@ -6,6 +6,24 @@ var puzzleData;
 
 var hp = 100;
 
+var leaving = true;
+
+$("a").click(function()
+{
+   leaving = false;
+});
+
+window.onbeforeunload = function (e) {
+  e = e || window.event;
+  if (hp > 0 || leaving == false){return;}
+  // For IE and Firefox prior to version 4
+  if (e) {
+    e.returnValue = 'If you refresh this page, you will be charged for entering the game again.  Are you sure you want to do this?';
+  }
+  // For others
+  return 'If you refresh this page, you will be charged for entering the game again.  Are you sure you want to do this';
+};
+
 $( document ).ready(function() {
     console.log("DOM loaded");
     $.getJSON( "game.php?api=true&command=getMap&id="+GAME_ID, function( data ) {
@@ -36,7 +54,7 @@ function sendMove(tileID, el){
 		    lastTile = tileID;
 		    sessionID = data.sessionID;
 		    //prevents the "start tile" from redrawing to a blank tile
-		    if (i != startTile){lastClicked.innerHTML = "<img src='" + getTileArt(data.tileType) + "'>";}
+		    if (tileID != startTile){lastClicked.innerHTML = "<img src='" + getTileArt(data.tileType) + "'>";}
 		    if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}
 		    else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
