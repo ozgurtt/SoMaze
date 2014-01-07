@@ -2,8 +2,6 @@ var lastClicked;
 var lastTile;
 
 var puzzleData;
-//do better than this later
-var sessionID = "X";
 
 var hp = 100;
 
@@ -35,6 +33,7 @@ function sendMove(tileID, el){
 		    if (lastClicked) lastClicked.className='';
 		    lastClicked = el;
 		    lastTile = tileID;
+		    sessionID = data.sessionID;
 		    lastClicked.innerHTML = "<img src='" + getTileArt(data.tileType) + "'>";
 		    if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}

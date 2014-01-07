@@ -1,4 +1,4 @@
-<?
+<?php
 //common vars and such
 require_once "lib/common.php";
 
@@ -33,17 +33,6 @@ if (isset($_REQUEST["api"])){
 	$api = false;
 	$command = "none";
 }
-
-$JS_ID_SNIPPET = "<script>\n\tvar GAME_ID = '" . $_REQUEST['id'] . "';\n\tvar SESSION_ID = '" . generateSession() . "'\n</script";
-
-//aux is used to add additional lines to this
-$aux = '';
-$JS_VAR_SNIPPET =<<<EOT
-<script>
-	var GAME_ID = '{$_REQUEST['id']}';
-	var SESSION_ID = '{generateSession()}';
-</script>
-EOT;
 
 switch ($command){
 	case "getMap":
@@ -111,11 +100,12 @@ switch ($command){
 		if (isset($user->games->solver->$_REQUEST['id'])){
 			//this person has already paid
 			$_SESSION['game'] = $user->games->solver->{$_REQUEST['id']};
+			$game = getDoc($_SESSION['game'], "games");
 			$amount = 0;
 			$joinfee = "<p><i>You have rejoined this game for free.</i></p>";
 		}else{
 			//create the game in their active games and save it
-			$game = createGame();
+			$game = createGame($puzzle->start);
 			$user->games->solver->$_REQUEST['id'] = $game->_id;
 			$response = setDoc($user, "users");
 			//then set the session
@@ -146,6 +136,8 @@ switch ($command){
 </div>
 EOT;
 		$body = str_replace("###DIV###", $divcontent, $body);
+		error_log("snippet dump: " . json_encode(makeJS(array("GAME_ID"=>$_REQUEST['id'], "sessionID"=>$game->sessionID))));
+		$body = str_replace("###SNIPPET###", makeJS(array("GAME_ID"=>$_REQUEST['id'], "sessionID"=>$game->sessionID)), $body);
 		break;
 		
 }
@@ -170,7 +162,6 @@ if ($api == true){
 	//format the rest
 	$body = str_replace("###CONTENT###", $content, $body);
 	$body = str_replace("###JS###", $JS_GAME_SOURCE, $body);
-	$body = str_replace("###SNIPPET###", $JS_ID_SNIPPET, $body);
 	//remove all the remaining tags
 	$body = preg_replace("/###.*###/", "", $body);
 	print $body;
@@ -178,6 +169,17 @@ if ($api == true){
 die();
 
 //functions start here!
+
+function makeJS($vars){
+	//makes a JS snippet based on the args array you give it
+	$snippet = "<script>\n\t";
+	//var GAME_ID = '" . $_REQUEST['id'] . "';\n\tvar SESSION_ID = '" . "###SESSION###" . "'\n</script";
+	foreach ($vars as $k => $var){
+		$snippet .= "var " . $k . " ='" . $var . "';\n\t";
+	}
+	$snippet .= "</script>";
+	return $snippet;
+}
 
 function convertMap($puzzle){
 	//when given a map array, converts it for the client (removes all tiles they shouldn't see
@@ -198,14 +200,15 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 	$returnObj = new stdClass();
 	//first check if the request ID is valid
 	if ($sessionID == $game->sessionID){
-		//the request matches what we are expecting, let's check if it's a valid move next
-		if (checkIfNeighbor($puzzle, end($game->movechain), $tileID) == true || count($game->movechain) == 0){
+		//the request matches what we are expecting, let's check if it's a valid move
+		if (checkIfNeighbor($puzzle, end($game->movechain), $tileID) == true){
 			//the move is valid, let's do calculations on damage
 			$returnObj->accepted = true;
 			$returnObj->tileID = $tileID;
 			$returnObj->tileType = $puzzle->map[$tileID];
 			//TODO: use better session id!
-			$returnObj->sessionID = "X";
+			$returnObj->sessionID = generateSession();
+			$game->sessionID = $returnObj->sessionID;
 			$game = applyEffects($game, $puzzle->map[$tileID], $tileID);
 			array_push($game->movechain, intval($tileID));
 			$returnObj->hp = $game->hp;
@@ -215,6 +218,7 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 				//remove the reference from the user doc
 				$user = getDoc($_SESSION['user'], "users");
 				unset($user->games->solver->{$puzzle->_id});
+				$user->stats->wins++;
 				error_log("user: " . json_encode($user));
 				$response = setDoc($user, "users");
 				//delete the game
@@ -325,7 +329,7 @@ function rewardUser($from, $to, $amount, $fee){
 	return 0;
 }
 
-function createGame(){
+function createGame($start){
 	//creates a new blank game and returns it
 	$game = new stdClass();
 	$game->_id = $_REQUEST['id'] . " - " . $_SESSION['user'];
@@ -333,8 +337,9 @@ function createGame(){
 	$game->userid = $_SESSION['user'];
 	$game->hp = 100;
 	$game->started = time();
-	$game->sessionID = "X";
+	$game->sessionID = generateSession();
 	$game->movechain = array();
+	array_push($game->movechain, $start);
 	$response = setDoc($game, "games");
 	return $game;
 }

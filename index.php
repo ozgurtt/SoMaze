@@ -1,4 +1,4 @@
-<?
+<?php
 //common vars and such
 require_once "lib/common.php";
 date_default_timezone_set('America/Chicago');
