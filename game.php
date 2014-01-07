@@ -206,20 +206,23 @@ function convertMove($game, $puzzle, $tileID, $sessionID){
 			$returnObj->accepted = true;
 			$returnObj->tileID = $tileID;
 			$returnObj->tileType = $puzzle->map[$tileID];
-			//TODO: use better session id!
 			$returnObj->sessionID = generateSession();
 			$game->sessionID = $returnObj->sessionID;
 			$game = applyEffects($game, $puzzle->map[$tileID], $tileID);
 			array_push($game->movechain, intval($tileID));
 			$returnObj->hp = $game->hp;
-			if ($returnObj->tileType == 2){
-				//win conditions
-				rewardUser($puzzle->creator, $_SESSION['user'], $puzzle->fees->reward, 0);
-				//remove the reference from the user doc
+			if ($returnObj->hp <= 0){
+				//user is either dead or has won, handle both
 				$user = getDoc($_SESSION['user'], "users");
 				unset($user->games->solver->{$puzzle->_id});
-				$user->stats->wins++;
-				error_log("user: " . json_encode($user));
+				if ($returnObj->tileType == 2){
+					//win conditions
+					rewardUser($puzzle->creator, $_SESSION['user'], $puzzle->fees->reward, 0);
+					$user->stats->wins++;
+				}else{
+					$user->stats->losses++;
+				}
+				//remove the reference from the user doc
 				$response = setDoc($user, "users");
 				//delete the game
 				$response = deleteDoc($game, "games");
