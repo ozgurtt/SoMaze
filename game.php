@@ -178,17 +178,6 @@ die();
 
 //functions start here!
 
-function makeJS($vars){
-	//makes a JS snippet based on the args array you give it
-	$snippet = "<script>\n\t";
-	//var GAME_ID = '" . $_REQUEST['id'] . "';\n\tvar SESSION_ID = '" . "###SESSION###" . "'\n</script";
-	foreach ($vars as $k => $var){
-		$snippet .= "var " . $k . " ='" . $var . "';\n\t";
-	}
-	$snippet .= "</script>";
-	return $snippet;
-}
-
 function convertMap($puzzle){
 	//when given a map array, converts it for the client (removes all tiles they shouldn't see
 	$tiles = getDoc("tiles", "misc");

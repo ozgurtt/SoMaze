@@ -12,6 +12,9 @@ $CURRENCY = "DOGE";
 $CURRENCY_FULL = "Dogecoin";
 $CURRENCY_IMG = "<img src='img/dogecoin-d-16.png' class='currency' alt='DOGE'>";
 
+$MIN_PUZZLE_SIZE = 3;
+$MAX_PUZZLE_SIZE = 25;
+
 $DB_ROOT = "http://127.0.0.1:5984";
 
 //switch these for openID deployment
@@ -20,6 +23,7 @@ $DOMAIN = "127.0.0.1";
 //$DOMAIN = "192.168.1.101";
 //html snippets
 $JS_GAME_SOURCE = '<script src="js/game.js"></script>';
+$JS_CREATE_SOURCE = '<script src="js/create.js"></script>';
 
 //prep body
 $body = file_get_contents('templates/body.inc');
@@ -53,6 +57,16 @@ function generateSession(){
 	$bytes = openssl_random_pseudo_bytes(8, $strong);
     $hex = bin2hex($bytes);
     return $hex;
+}
+
+function makeJS($vars){
+	//makes a JS snippet based on the args array you give it
+	$snippet = "<script>\n\t";
+	foreach ($vars as $k => $var){
+		$snippet .= "var " . $k . " ='" . $var . "';\n\t";
+	}
+	$snippet .= "</script>";
+	return $snippet;
 }
 
 function handleError($error, $meta=null){
@@ -111,6 +125,10 @@ function handleError($error, $meta=null){
 			$error = "Not enough money";
 			$content = "<p>You have insufficient funds to do this.</p>";
 			break;
+		case "badparams":
+			$error = "Bad parameters";
+			$content = "<p>The parameters you supplied are invalid.</p>";
+			break;
 		case "youredead":
 			$error = "You're dead, you can't do things";
 			$content = "<p>You're a ghost, you can't be going around and doing things.  Stick to being spooky.  Much scared.</p>";
@@ -140,7 +158,7 @@ function formatLogin($body){
 	if (isset($_SESSION['user'])){
 		//this user was already logged in
 		$signin = "<p class='navbar-text navbar-right'>Signed in as <a href='index.php?type=account' class='navbar-link'>" . $_SESSION['nickname'] . "</a> - <a href='login.php?logout=true' class='navbar-link'>Logout</a></p>";
-		$body = str_replace("###NAVBAR###", "<li><a href='index.php?type=account'>Account</a></li>", $body);
+		$body = str_replace("###NAVBAR###", "<li><a href='index.php?type=account'>Account</a></li><li><a href='index.php?type=create'>Create</a></li>", $body);
 	}else{
 		//this user hasn't yet logged in
 		$signin = <<<'EOT'

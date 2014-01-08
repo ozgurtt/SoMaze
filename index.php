@@ -21,6 +21,31 @@ if (isset($_SERVER['PHP_AUTH_USER'])){
 }
 
 switch($type){
+	case "create":
+		if (!isset($_SESSION['user'])){
+			//they aren't logged in, so why are they accessing the account page?
+			handleError("notloggedin");
+		}
+		$body = str_replace("###HEADING###", "Puzzle creation", $body);
+		$content = "To get started creating your puzzle, set the dimensions for it<br>";
+		$content .=<<<EOT
+<form role="form" action="create.php" method="get">
+	<div class="form-group">
+		<table>
+		<tr>
+		<td><label for="width">Width</label></td>
+		<td><input type="number" id="width" name="width" min="$MIN_PUZZLE_SIZE" max="$MAX_PUZZLE_SIZE"></td>
+		</tr>
+		<tr>
+		<td><label for="height">Height</label></td>
+		<td><input type="number" id="height" name="height" min="$MIN_PUZZLE_SIZE" max="$MAX_PUZZLE_SIZE"></td>
+		</tr>
+		</table><br>
+		<button class="btn btn-default btn-lg">Get Started!</button>
+	</div>
+</form>
+EOT;
+		break;
 	case "play":
 		if (!isset($_SESSION['user'])){
 			//they aren't logged in, so why are they accessing the account page?
@@ -62,7 +87,7 @@ EOT;
 			handleError("noview");
 		}
 		//TODO: give listing of games you are currently playing
-		$body = str_replace("###HEADING###", ((count($results) == 1)?"There is currently 1 game to join":"There are currently " . count($results) . " games to join"), $body);
+		$body = str_replace("###HEADING###", ((count($results->rows) == 1)?"There is currently 1 game to join":"There are currently " . count($results->rows) . " games to join"), $body);
 		$content = '<div class="list-group">';
 		$i = 0;
 		while ($i < count($results->rows)){
@@ -102,6 +127,26 @@ EOT;
 				$content = "<p>Your nickname has been changed to <b>" . $nickname . "</b></p>";
 				break;
 			default:
+				//do processing
+				$user = getDoc($_SESSION['user'], "users");
+				$creators = "";
+				if (count($user->games->creator) == 0){
+					$creators .= "<li>none</li>";
+				}else{
+					foreach ($user->games->creator as $k => $v){
+						$creators .= "<li><a href='game.php?id=" . $k . "'>" . $k . "</a></li>";
+					}
+				}
+				$solvers = "";
+				if (count($user->games->solver) == 0){
+					$solvers .= "<li>none</li>";
+				}else{
+					foreach ($user->games->solver as $k => $v){
+						$solvers .= "<li><a href='game.php?id=" . $k . "'>" . $k . "</a></li>";
+						}
+				}
+				
+				
 				//just display the menu
 				$content = "<p>Your nickname is currently <b>" . $_SESSION['nickname'] . "</b> <i>(which we all love)</i><br>To change it, type in your desired nickname in the box below and click submit.</p>";
 				$content .=<<<EOT
@@ -113,7 +158,18 @@ EOT;
 		<input type="hidden" name="action" value="nickname">
 	</div>
 		<button type="submit" class="btn btn-primary">Change Nickname</button>
-	</form>			
+	</form>	<br>
+	<h3>Open Games</h3>
+	<p>Active puzzles you've made:<br>
+	<ul>
+	$creators
+	</ul>
+	</p>
+	<p>Active puzzles you're solving:<br>
+	<ul>
+	$solvers
+	</ul>
+	</p>	
 EOT;
 				break;
 		}
