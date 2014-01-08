@@ -9,6 +9,7 @@ var lastClicked;
 
 $( document ).ready(function() {
     console.log("DOM loaded");
+    $("#metaform").hide();
     $.getJSON( "create.php?api=true&command=getTiles", function( data ) {
 		//we got the tile, now get the game
 		tileData = data;
@@ -41,21 +42,37 @@ $( document ).ready(function() {
 
 function nextStep(){
 	//the map is done, submit it, get a cost, and fill in meta data
-	locked = true;
-	$("#tiles").hide();
-	$("#nextstep").hide();
 	console.log("sending puzzle data: ");
 	console.log(puzzleData);
 	$.ajax({
 	  url: "create.php?api=true&command=evalMap",
-	  //url: "create.php",
 	  type: "POST",
 	  data: JSON.stringify(puzzleData),
 	  contentType: "application/JSON",
 	  dataType: "json",
-	  success:function(a) {
+	  success:function(reply) {
 	  	console.log("success: ");  
-		console.log(a);
+		console.log(reply);
+		if (reply.valid == true){
+			locked = true;
+			$("#tiles").hide();
+			$("#nextstep").hide();
+			console.log("requesting url");
+			$.ajax({
+			url:"create.php?api=true&command=getFeeForm",
+			success:function(data){
+				console.log("got data");
+			    $("#feeform").html(data);
+				$("#metaform").show();
+			},
+			error:function(e) {
+				console.log("error: ");  
+				console.log(e);
+			  }
+			});
+		}else{
+			giveAlert("danger", "You must have exactly one entrance and one exit in your puzzle", true);
+		}
 	  },
 	  error:function(e) {
 		console.log("error: ");  

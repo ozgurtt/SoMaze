@@ -34,7 +34,7 @@ switch ($command){
 			break;
 		case "getMap":
 			//used to get blank map
-			$content = json_encode(createPuzzle($_REQUEST['width'], $_REQUEST['height']));
+			$content = json_encode($_SESSION['puzzle']);
 			break;
 		case "evalMap":
 			$puzzle = json_decode(file_get_contents("php://input"), true);
@@ -42,10 +42,33 @@ switch ($command){
 			if (isValid($puzzle) == true){
 				$returnObj->valid = true;
 				$returnObj->fee = scoreMap($puzzle);
+				$_SESSION['puzzle']->map = $puzzle['map'];
+				$_SESSION['puzzle']->fees->creation = $returnObj->fee;
 			}else{
 				$returnObj->valid = false;
 			}
 			$content = json_encode($returnObj);
+			header("Content-type: application/json");
+			break;
+		case "getFeeForm":
+			$content =<<<EOT
+	<div class="form-group">
+		<table>
+		<tr>
+		<td><b>Creation Fee (paid by you)</b></td>
+		<td>{$_SESSION['puzzle']->fees->creation}</td>
+		</tr>
+		<tr>
+		<td><label for="entry">Entry Fee (paid by the player)</label></td>
+		<td><input type="number" id="entry" name="entry" min="{$_SESSION['puzzle']->fees->creation}"></td>
+		</tr>
+		<tr>
+		<td><label for="reward">Reward (paid by you)</label></td>
+		<td><input type="number" id="reward" name="reward" min="{$_SESSION['puzzle']->fees->creation}"></td>
+		</tr>
+		</table><br>
+	</div>		
+EOT;
 			break;
 		default:
 			if ($_REQUEST['width'] < $MIN_PUZZLE_SIZE || $_REQUEST['width'] > $MAX_PUZZLE_SIZE){
@@ -54,8 +77,10 @@ switch ($command){
 			if ($_REQUEST['height'] < $MIN_PUZZLE_SIZE || $_REQUEST['height'] > $MAX_PUZZLE_SIZE){
 				handleError("badparams");
 			}
+			$puzzle = createPuzzle($_REQUEST['width'], $_REQUEST['height']);
+			$_SESSION['puzzle'] = $puzzle;
 			$body = str_replace("###HEADING###", "Puzzle creation", $body);
-			$content = "To create a puzzle, click on the tile you want in the library, and after you do, click on all the tiles you want to look like that on your puzzle.  When you are done, click the green button to go to the next step.";
+			$content = "To create a puzzle, click on the tile you want in the library, and after you do, click on all the tiles you want to look like that on your puzzle.  When you are done, click the 'Next Step' to continue";
 			$divcontent = <<<EOT
 <div id="game">
 </div>
@@ -67,8 +92,23 @@ Select a tile
 </div>
 </div>
 <br>
-<button id="nextstep" class="btn btn-success btn-lg">Next Step</button>
+<button id="nextstep" class="btn btn-primary btn-lg">Next Step</button><br>
 <div id="metaform">
+<form role="form" action="create.php" method="post">
+	<div class="form-group">
+    	<label for="title">Title of the puzzle</label>
+		<input type="text" class="form-control" name="title" placeholder="{$_SESSION['nickname']}'s super awesome puzzle">
+		<input type="hidden" name="api" value="true">
+		<input type="hidden" name="command" value="saveMap">
+	</div>
+	<div class="form-group">
+    	<label for="desc">Description for the puzzle</label>
+		<input type="text" class="form-control" name="desc" placeholder="A super awesome puzzle that's made by a super awesome person.">
+	</div>
+	<div id="feeform">
+	</div>
+		<button type="submit" class="btn btn-success btn-lg">Finalize</button>
+	</form>
 </div>
 EOT;
 			
@@ -84,7 +124,6 @@ EOT;
 //pre body and send it out
 if ($api == true){
 	//if we're using the api, just return what they want
-	header("Content-type: application/json");
 	print $content;
 }else{
 	//if we're not, make it pretttty
@@ -102,7 +141,12 @@ die();
 function createPuzzle($width, $height){
 	global $CURRENCY;
 	$returnObj = new stdClass();
+	$returnObj->active = false;
+	$returnObj->created = time();
+	$returnObj->nickname = $_SESSION['nickname'];
 	$returnObj->dimensions = new stdClass();
+	$returnObj->fees = new stdClass();
+	$returnObj->traps = new stdClass();
 	$returnObj->dimensions->width = intval($width);
 	$returnObj->dimensions->height = intval($height);
 	$returnObj->map = array_fill(0, (($width * $height)), 0);

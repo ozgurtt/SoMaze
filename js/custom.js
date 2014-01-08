@@ -1,6 +1,10 @@
 /*menu handler*/
 $(function(){
   function getType(str) {
+  	if (str.indexOf("create.php") >= 0){
+  		//traps if we're in a game, highlight "Play"
+	    return "create";
+    }
   	if (str.indexOf("game.php") >= 0){
   		//traps if we're in a game, highlight "Play"
 	    return "games";
