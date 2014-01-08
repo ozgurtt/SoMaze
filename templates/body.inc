@@ -38,9 +38,9 @@
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="index.php">Home</a></li>
-            <li><a href="index.php?type=games">Play</a></li>
             <li><a href="index.php?type=about">About</a></li>
             <li><a href="index.php?type=contact">Contact</a></li>
+            <li><a href="index.php?type=games">Play</a></li>
             ###NAVBAR###
           </ul>
           ###LOGIN###

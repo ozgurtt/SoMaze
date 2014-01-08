@@ -1,8 +1,7 @@
-var lastClicked;
-var lastTile;
-
 var tileData;
 var puzzleData;
+
+var selectedTile = 0;
 
 
 $( document ).ready(function() {
@@ -15,16 +14,17 @@ $( document ).ready(function() {
 			console.log(puzzleData);
 			var grid = clickableGrid(puzzleData.dimensions.height,puzzleData.dimensions.width,function(el,row,col,i){
 			    console.log("You clicked on item #:",i);
-				el.className='clicked';
-			    if (lastClicked) lastClicked.className='';
-			    lastClicked = el;
-			    lastTile = tileID;
+			    puzzleData.map[i] = selectedTile;
+				el.innerHTML = "<img src='" + getTileArt(selectedTile) + "'>";
+			    
 			});
 			//document.body.appendChild(grid);
 			$("#game").append(grid);
 			var tiles = clickableTiles(10,10,function(el,i){
 			    console.log("You clicked on tile #:",i);
 				el.className='clicked';
+				$("#tileinfo").html(getTileInfo(i));
+				selectedTile = i;
 			});
 			//document.body.appendChild(grid);
 			$("#tiles").append(tiles);
@@ -44,12 +44,6 @@ console.log("drawing grid");
             var cell = tr.appendChild(document.createElement('td'));
             //console.log("getTileArt: " + getTileArt(mapData[i]) + " - mapData: " + mapData[i] + " - i: " + i);
             cell.innerHTML = "<img src='" + getTileArt(puzzleData.map[i]) + "'>";
-            if (puzzleData.map[i] == 1){
-            	//set starting position
-            	cell.className='clicked';
-            	lastClicked = cell;
-            	lastTile = i;
-            }
             cell.addEventListener('click',(function(el,r,c,i){
                 return function(){
                     callback(el,r,c,i);
@@ -101,13 +95,13 @@ function getTileArt(id){
 	return path;
 }
 
-function getTileName(id){
+function getTileInfo(id){
 	//give me the id for the map, and i'll tell you what tile to use
 	id = parseInt(id);
 	if (typeof tileData.tiles[id] == 'undefined'){
-		name = "Error";
+		content = "Error";
 	}else{
-		name = tileData.tiles[id].name;
+		content = "<p>" + tileData.tiles[id].name + " - Cost: " + tileData.tiles[id].cost.DOGE + "<br>" + tileData.tiles[id].desc + "<br>Damage: " + tileData.tiles[id].effect.hp + "hp - Rearm: " + tileData.tiles[id].effect.rearm + " - Status Effect: " + tileData.tiles[id].effect.status + "</p>";
 	}
-	return name;
+	return content;
 }

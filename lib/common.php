@@ -158,7 +158,7 @@ function formatLogin($body){
 	if (isset($_SESSION['user'])){
 		//this user was already logged in
 		$signin = "<p class='navbar-text navbar-right'>Signed in as <a href='index.php?type=account' class='navbar-link'>" . $_SESSION['nickname'] . "</a> - <a href='login.php?logout=true' class='navbar-link'>Logout</a></p>";
-		$body = str_replace("###NAVBAR###", "<li><a href='index.php?type=account'>Account</a></li><li><a href='index.php?type=create'>Create</a></li>", $body);
+		$body = str_replace("###NAVBAR###", "<li><a href='index.php?type=create'>Create</a></li><li><a href='index.php?type=account'>Account</a></li>", $body);
 	}else{
 		//this user hasn't yet logged in
 		$signin = <<<'EOT'
