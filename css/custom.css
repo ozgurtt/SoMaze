@@ -27,6 +27,15 @@ td.fee {
     font-weight:bold; color:red;
 }
 
+.tilegrid { border-collapse:collapse }
+.tilegrid td {
+    cursor:pointer;
+}
+.tilegrid td.clicked {
+    background-color:red;
+    font-weight:bold; color:red;
+}
+
 div#hp {
 	text-align: center;
 	font-weight:bold;

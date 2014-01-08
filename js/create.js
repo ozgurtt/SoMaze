@@ -2,6 +2,9 @@ var tileData;
 var puzzleData;
 
 var selectedTile = 0;
+var locked = false;
+
+var lastClicked;
 
 
 $( document ).ready(function() {
@@ -11,8 +14,8 @@ $( document ).ready(function() {
 		tileData = data;
 		$.getJSON( "create.php?api=true&command=getMap&width="+WIDTH+"&height="+HEIGHT, function( data ) {
 			puzzleData = data;
-			console.log(puzzleData);
 			var grid = clickableGrid(puzzleData.dimensions.height,puzzleData.dimensions.width,function(el,row,col,i){
+				if (locked == true){return;}
 			    console.log("You clicked on item #:",i);
 			    puzzleData.map[i] = selectedTile;
 				el.innerHTML = "<img src='" + getTileArt(selectedTile) + "'>";
@@ -23,15 +26,44 @@ $( document ).ready(function() {
 			var tiles = clickableTiles(10,10,function(el,i){
 			    console.log("You clicked on tile #:",i);
 				el.className='clicked';
+				if (lastClicked) lastClicked.className='';
+				lastClicked = el;
 				$("#tileinfo").html(getTileInfo(i));
 				selectedTile = i;
 			});
 			//document.body.appendChild(grid);
 			$("#tiles").append(tiles);
+			$("#nextstep").on("click", nextStep);
 		});
 	});
     
 });
+
+function nextStep(){
+	//the map is done, submit it, get a cost, and fill in meta data
+	locked = true;
+	$("#tiles").hide();
+	$("#nextstep").hide();
+	console.log("sending puzzle data: ");
+	console.log(puzzleData);
+	$.ajax({
+	  url: "create.php?api=true&command=evalMap",
+	  //url: "create.php",
+	  type: "POST",
+	  data: JSON.stringify(puzzleData),
+	  contentType: "application/JSON",
+	  dataType: "json",
+	  success:function(a) {
+	  	console.log("success: ");  
+		console.log(a);
+	  },
+	  error:function(e) {
+		console.log("error: ");  
+		console.log(e);
+	  }
+	});
+
+}
 
 function clickableGrid( rows, cols, callback ){
 console.log("drawing grid");

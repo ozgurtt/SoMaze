@@ -36,6 +36,17 @@ switch ($command){
 			//used to get blank map
 			$content = json_encode(createPuzzle($_REQUEST['width'], $_REQUEST['height']));
 			break;
+		case "evalMap":
+			$puzzle = json_decode(file_get_contents("php://input"), true);
+			$returnObj = new stdClass();
+			if (isValid($puzzle) == true){
+				$returnObj->valid = true;
+				$returnObj->fee = scoreMap($puzzle);
+			}else{
+				$returnObj->valid = false;
+			}
+			$content = json_encode($returnObj);
+			break;
 		default:
 			if ($_REQUEST['width'] < $MIN_PUZZLE_SIZE || $_REQUEST['width'] > $MAX_PUZZLE_SIZE){
 				handleError("badparams");
@@ -44,7 +55,7 @@ switch ($command){
 				handleError("badparams");
 			}
 			$body = str_replace("###HEADING###", "Puzzle creation", $body);
-			$content = "To create a puzzle, click on the tile you want in the library, and after you do, click on all the tiles you want to look like that on your puzzle.  When you are done, click finish to move to the next step.";
+			$content = "To create a puzzle, click on the tile you want in the library, and after you do, click on all the tiles you want to look like that on your puzzle.  When you are done, click the green button to go to the next step.";
 			$divcontent = <<<EOT
 <div id="game">
 </div>
@@ -54,6 +65,10 @@ switch ($command){
 <div id="tileinfo">
 Select a tile
 </div>
+</div>
+<br>
+<button id="nextstep" class="btn btn-success btn-lg">Next Step</button>
+<div id="metaform">
 </div>
 EOT;
 			
@@ -69,6 +84,7 @@ EOT;
 //pre body and send it out
 if ($api == true){
 	//if we're using the api, just return what they want
+	header("Content-type: application/json");
 	print $content;
 }else{
 	//if we're not, make it pretttty
@@ -84,12 +100,35 @@ die();
 
 //functions start here!
 function createPuzzle($width, $height){
+	global $CURRENCY;
 	$returnObj = new stdClass();
-	$returnObj->active = false;
 	$returnObj->dimensions = new stdClass();
 	$returnObj->dimensions->width = intval($width);
 	$returnObj->dimensions->height = intval($height);
 	$returnObj->map = array_fill(0, (($width * $height)), 0);
+	$returnObj->currency = $CURRENCY;
 	return $returnObj;
+}
+
+function scoreMap($puzzle){
+	global $CURRENCY;
+	//scores a puzzle
+	$tiles = getDoc("tiles", "misc");
+	$fee = 0;
+	foreach($puzzle['map'] as $tile){
+	
+		$fee += $tiles->tiles[$tile]->cost->{$CURRENCY};
+	}
+	return $fee;
+}
+
+function isValid($puzzle){
+	//checks to make sure the puzzle has exactly 1 entrance and exit
+	$values = array_count_values($puzzle['map']);
+	if ($values[1] == 1 && $values[2] == 1){
+		return true;
+	}else{
+		return false;
+	}
 }
 ?>
