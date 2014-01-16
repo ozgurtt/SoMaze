@@ -1,0 +1,1 @@
+<p>Click <a href='{{ action('UserController@accountIndex') }}'>here</a> to go back to account settings</p>

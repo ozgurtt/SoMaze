@@ -1,0 +1,1 @@
+<p>Click <a href='/'>here</a> to go home</p>
