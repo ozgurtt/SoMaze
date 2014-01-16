@@ -91,6 +91,8 @@ class APIController extends BaseController {
 			$data->fee = Shared\Game::scoreMap($puzzle);
 			$sessionPuzzle = Session::get('puzzle');
 			$sessionPuzzle->map = $puzzle['map'];
+			$sessionPuzzle->start = array_search(1, $sessionPuzzle->map);
+			$sessionPuzzle->end = array_search(2, $sessionPuzzle->map);
 			$sessionPuzzle->fees->creation = $data->fee;
 			Session::put('puzzle', $sessionPuzzle);
 		}else{
@@ -99,7 +101,8 @@ class APIController extends BaseController {
 		return Response::json($data);
 	}
 	
-	public function getFees_Creator(){
+	public function saveMap_Creator(){
+	//to be added later
 		$data= array("comingsoon" => "notyet");
 		return Response::json($data);
 	}

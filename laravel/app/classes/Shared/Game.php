@@ -187,10 +187,13 @@ class Game {
 	public static function isValid($puzzle){
 		//checks to make sure the puzzle has exactly 1 entrance and exit
 		$values = array_count_values($puzzle['map']);
+		if (!isset($values[1])){return false;}
+		if (!isset($values[2])){return false;}
 		if ($values[1] == 1 && $values[2] == 1){
 			return true;
 		}else{
 			return false;
 		}
 	}
+
 }

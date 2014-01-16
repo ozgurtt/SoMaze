@@ -18,7 +18,7 @@
 	@endif
 	<p>
 		<a href="{{ action('GameController@showGameListing') }}" class="btn btn-danger btn-lg">No</a>
-		<a href="{{ action('GameController@response', array('id' => $puzzle->_id)) }}" class="btn btn-success btn-lg">Yes</a>
+		<a href="{{ action('GameController@playResponse', array('id' => $puzzle->_id)) }}" class="btn btn-success btn-lg">Yes</a>
 	</p>				
 </p>
 @stop

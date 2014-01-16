@@ -20,10 +20,19 @@ class GameController extends BaseController {
 		return View::make('game.solver-confirm', $data);
 	}
 	
-	public function response($confirm){
+	public function playResponse($confirm){
 		if ($confirm == true){
 			//they confirmed and they are back on this page
-			Session::flash('confirm', true);
+			Session::flash('playconfirm', true);
+			$data = array('id' => Session::get('id'));
+			return Redirect::action('GameController@playGame', $data);
+		}
+	}
+	
+	public function createResponse($confirm){
+		if ($confirm == true){
+			//they confirmed and they are back on this page
+			Session::flash('createconfirm', true);
 			$data = array('id' => Session::get('id'));
 			return Redirect::action('GameController@playGame', $data);
 		}
@@ -63,7 +72,6 @@ class GameController extends BaseController {
 	
 	public function makePuzzle(){
 		$GAME = Config::get('game');
-		error_log("create puzzle, width: " . Input::get('width'));
 		if (Input::get('width') < $GAME['MIN_PUZZLE_SIZE'] || Input::get('width') > $GAME['MAX_PUZZLE_SIZE']){
 			return Shared\Errors::handleError("badparams");
 		}
@@ -77,4 +85,33 @@ class GameController extends BaseController {
 		return View::make('game.creator-make', $data);
 	}
 
+	public function confirmCreate(){
+		//check for min char count on title and desc
+		if (strlen(Input::get('title')) <= 2 || strlen(Input::get('desc')) <= 2){
+			return Shared\Errors::handleError("badwords");
+		}
+		//load the puzzle
+		$sessionPuzzle = Session::get('puzzle');
+		//check to make sure the entry fee is high enough (client side js should prevent this)
+		if (intval(Input::get('entry')) < $sessionPuzzle->fees->creation){
+			return Shared\Errors::handleError("lowentry");
+		}
+		//check to make sure the reward is high enough (client side js should prevent this)
+		if (intval(Input::get('reward')) < intval(Input::get('entry'))){
+			return Shared\Errors::handleError("lowreward");
+		}
+		$user = CouchDB::getDoc(Session::get('user'), "users");
+		//check to make sure the user has enough money for the reward + the creation fee
+		if ((intval(Input::get('reward')) + $sessionPuzzle->fees->creation) > $user->wallet->available){
+			return Shared\Errors::handleError("nofunds");
+		}
+		$sessionPuzzle->title = e(Input::get('title'));
+		$sessionPuzzle->desc = e(Input::get('desc'));
+		$sessionPuzzle->fees->entry = intval(Input::get('entry'));
+		$sessionPuzzle->fees->reward = intval(Input::get('reward'));
+		Session::put('puzzle', $sessionPuzzle);
+		$data = array('fees' => $sessionPuzzle->fees,
+					  'wallet' => $user->wallet);
+		return View::make('game.creator-confirm', $data);
+	}
 }

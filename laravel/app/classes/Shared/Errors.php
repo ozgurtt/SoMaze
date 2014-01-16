@@ -67,6 +67,16 @@ class Errors {
 			case "youredead":
 				$error = "You're dead, you can't do things";
 				$content = "You're a ghost, you can't be going around and doing things.  Stick to being spooky.  Much scared.";
+			case "badwords":
+				$error = "Bad title/description";
+				$content = "The title and description for your game need to be at least 3 characters each.";
+				break;
+			case "lowentry":
+				$error = "Entry fee too low";
+				$content = "Your entry fee needs to be at least as much as your creation fee.  You would lose money the other way.";
+			case "lowreward":
+				$error = "Reward too low";
+				$content = "Your reward has to be at least as much as your entry fee.";
 				break;
 			default:
 				$content = "No listing for error: " . $error;

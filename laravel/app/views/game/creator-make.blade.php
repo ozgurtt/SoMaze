@@ -22,12 +22,10 @@
 	<br>
 	<button id="nextstep" class="btn btn-primary btn-lg">Next Step</button><br>
 	<div id="metaform">
-	<form role="form" action="make.php" method="post">
+	<form role="form" action="/make/summary" method="post">
 		<div class="form-group">
 	    	<label for="title">Title of the puzzle</label>
-			<input type="text" class="form-control" name="title" placeholder="{{ Session::get('nickname') }}'s super awesome puzzle">
-			<input type="hidden" name="api" value="true">
-			<input type="hidden" name="command" value="saveMap">
+			<input type="text" class="form-control" name="title" placeholder="{{{ Session::get('nickname') }}}'s super awesome puzzle">
 		</div>
 		<div class="form-group">
 	    	<label for="desc">Description for the puzzle</label>
