@@ -21,6 +21,12 @@ Route::filter('playconfirmed', function(){
 		//return Shared\Errors::handleError("mustconfirm");
 	}
 });
+Route::filter('createconfirmed', function(){
+	if (!Session::has('createconfirm')){
+		return Redirect::action('GameController@createPuzzle');
+		//return Shared\Errors::handleError("mustconfirm");
+	}
+});
 
 Route::get('/', function()
 {
@@ -46,14 +52,15 @@ Route::get('contact', function()
 //game (solver) routes
 Route::get('play', 'GameController@showGameListing');
 Route::get('play/{id}', array('before' => 'loggedin', 'uses' => 'GameController@confirmEntry'));
-Route::get('confirm/{confirm}', array('before' => 'loggedin', 'uses' => 'GameController@playResponse'));
-Route::get('game/{id}', array('before' => 'loggedin|hasconfirmed', 'uses' => 'GameController@playGame'));
+Route::get('confirm', array('before' => 'loggedin', 'uses' => 'GameController@playResponse'));
+Route::get('game/{id}', array('before' => 'loggedin|playconfirmed', 'uses' => 'GameController@playGame'));
 
 //game (creator) routes
 Route::get('create', array('before' => 'loggedin', 'uses' => 'GameController@createPuzzle'));
 Route::get('make', array('before' => 'loggedin', 'uses' => 'GameController@makePuzzle'));
 Route::post('make/summary', array('before' => 'loggedin', 'uses' => 'GameController@confirmCreate'));
 Route::get('make/confirm', array('before' => 'loggedin', 'uses' => 'GameController@createResponse'));
+Route::get('make/save', array('before' => 'loggedin|createconfirmed', 'uses' => 'GameController@savePuzzle'));
 //login routes
 Route::any('login', 'LoginController@doLogin');
 Route::get('logout', 'LoginController@doLogout');

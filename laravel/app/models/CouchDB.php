@@ -94,6 +94,7 @@ class CouchDB {
 		$returnObj = new stdClass();
 		$returnObj->active = false;
 		$returnObj->created = time();
+		$returnObj->creator = Session::get('user');
 		$returnObj->nickname = Session::get('nickname');
 		$returnObj->dimensions = new stdClass();
 		$returnObj->fees = new stdClass();

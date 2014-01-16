@@ -91,6 +91,7 @@ class APIController extends BaseController {
 			$data->fee = Shared\Game::scoreMap($puzzle);
 			$sessionPuzzle = Session::get('puzzle');
 			$sessionPuzzle->map = $puzzle['map'];
+			$sessionPuzzle->traps = Shared\Game::populateTraps($puzzle);
 			$sessionPuzzle->start = array_search(1, $sessionPuzzle->map);
 			$sessionPuzzle->end = array_search(2, $sessionPuzzle->map);
 			$sessionPuzzle->fees->creation = $data->fee;

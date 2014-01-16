@@ -20,22 +20,17 @@ class GameController extends BaseController {
 		return View::make('game.solver-confirm', $data);
 	}
 	
-	public function playResponse($confirm){
-		if ($confirm == true){
-			//they confirmed and they are back on this page
-			Session::flash('playconfirm', true);
-			$data = array('id' => Session::get('id'));
-			return Redirect::action('GameController@playGame', $data);
-		}
+	public function playResponse(){
+		//they confirmed and they are back on this page
+		Session::flash('playconfirm', true);
+		$data = array('id' => Session::get('id'));
+		return Redirect::action('GameController@playGame', $data);
 	}
 	
-	public function createResponse($confirm){
-		if ($confirm == true){
-			//they confirmed and they are back on this page
-			Session::flash('createconfirm', true);
-			$data = array('id' => Session::get('id'));
-			return Redirect::action('GameController@playGame', $data);
-		}
+	public function createResponse(){
+		//they confirmed and they are back on this page
+		Session::flash('createconfirm', true);
+		return Redirect::action('GameController@savePuzzle');
 	}
 	
 	public function playGame($id){
@@ -113,5 +108,19 @@ class GameController extends BaseController {
 		$data = array('fees' => $sessionPuzzle->fees,
 					  'wallet' => $user->wallet);
 		return View::make('game.creator-confirm', $data);
+	}
+	
+	public function savePuzzle(){
+		$sessionPuzzle = Session::get('puzzle');
+		$response = CouchDB::setDoc($sessionPuzzle, "puzzles");
+		$user = CouchDB::getDoc(Session::get('user'), "users");
+		array_push($user->games->creator, $response->id);
+		$userresponse = CouchDB::setDoc($user, "users");
+		$reward = Shared\Game::lockFunds(Session::get('user'), $sessionPuzzle->fees->reward);
+		$creation = Shared\Game::payCreationFee(Session::get('user'), $sessionPuzzle->fees->creation);
+		$data = array('reward' => $reward,
+					  'creation' => $creation,
+					  'id' => $response->id);
+		return View::make('game.creator-save', $data);
 	}
 }
