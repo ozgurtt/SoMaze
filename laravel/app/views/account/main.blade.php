@@ -20,8 +20,8 @@
 	@if (count($user->games->creator) == 0)
 		(none)
 	@else
-		@foreach ($user->games->creator as $name => $game)
-    		<a href='/play/{{ $name }}'>{{ $name }}</a>
+		@foreach ($user->games->creator as $k => $game)
+    		<a href='/play/{{ $game }}'>{{ $game }}</a>
 		@endforeach
 	@endif
 	</ul>

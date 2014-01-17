@@ -41,6 +41,14 @@ class GameController extends BaseController {
 			Session::put('game', $user->games->solver->$id);
 			$game = CouchDB::getDoc(Session::get('game'), "games");
 			$amount = 0;
+		}elseif (in_array($puzzle->_id, $user->games->creator)){
+			//this is the creator who's playing and they don't have an active game
+			$game = CouchDB::createGame($puzzle->start, $id, Session::get('user'));
+			$user->games->solver->$id = $game->_id;
+			$response = CouchDB::setDoc($user, "users");
+			Session::put('game', $user->games->solver->$id);
+			Session::put('creator', $puzzle->_id);
+			$amount = 0;
 		}else{
 			//create the game in their active games and save it
 			$game = CouchDB::createGame($puzzle->start, $id, Session::get('user'));

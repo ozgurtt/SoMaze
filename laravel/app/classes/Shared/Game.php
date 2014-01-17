@@ -158,10 +158,20 @@ class Game {
 					//user is either dead or has won, handle bot
 					if ($returnObj->tileType == 2){
 						//win conditions
-						rewardUser($puzzle->creator, \Session::get('user'), $puzzle->fees->reward, 0);
-						$user = \CouchDB::getDoc(\Session::get('user'), "users");
-						$user->stats->wins++;
+						if (\Session::has('creator')){
+							if (\Session::get('creator') == $puzzle->_id)
+							//this is the creator who just beat the game
+							$puzzle->active = true;
+							$response = \CouchDB::setDoc($puzzle, "puzzles");
+							$user = \CouchDB::getDoc(\Session::get('user'), "users");
+						}else{
+							Game::rewardUser($puzzle->creator, \Session::get('user'), $puzzle->fees->reward, 0);
+							$user = \CouchDB::getDoc(\Session::get('user'), "users");
+							$user->stats->wins++;
+							$puzzle->active = false;
+						}
 					}else{
+						//they lost :(
 						$user = \CouchDB::getDoc(\Session::get('user'), "users");
 						$user->stats->losses++;
 					}
@@ -170,7 +180,10 @@ class Game {
 					$response = \CouchDB::setDoc($user, "users");
 					//delete the game
 					$response = \CouchDB::deleteDoc($game, "games");
-					//set the puzzle to active=false
+					//delete the puzzle if we didn't JUST set it to active
+					if ($puzzle->active == false){
+						$response = \CouchDB::deleteDoc($puzzle, "puzzles");
+					}
 				}else{
 					//write player position to database
 					$response = \CouchDB::setDoc($game, "games");	

@@ -6,7 +6,9 @@
 @stop
 
 @section('content')
-	@if ($amount == 0)
+	@if ($puzzle->creator == $user->_id)
+		<p><i>You have joined this game for free (you are the creator).</i></p>
+	@elseif ($amount == 0)
 		{{--they already paid--}}
 		<p><i>You have rejoined this game for free.</i></p>
 	@else
