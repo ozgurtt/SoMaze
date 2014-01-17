@@ -165,10 +165,18 @@ class Game {
 							$response = \CouchDB::setDoc($puzzle, "puzzles");
 							$user = \CouchDB::getDoc(\Session::get('user'), "users");
 						}else{
-							Game::rewardUser($puzzle->creator, \Session::get('user'), $puzzle->fees->reward, 0);
-							$user = \CouchDB::getDoc(\Session::get('user'), "users");
-							$user->stats->wins++;
-							$puzzle->active = false;
+							//if we're paying out money, we need to be SURE, this puzzle is open
+							$puzzle = \CouchDB::getDoc($puzzle->_id, "puzzles");
+							if ($puzzle->solved == false){
+								//if the puzzle hasn't been solved by the time you're solving it, yay!
+								Game::rewardUser($puzzle->creator, \Session::get('user'), $puzzle->fees->reward, 0);
+								$user = \CouchDB::getDoc(\Session::get('user'), "users");
+								$user->stats->wins++;
+								//we set solved to be true, but not active to false, this should trigger the puzzle write
+								$puzzle->solved = true;
+							}else{
+								//the puzzle has already bad solved, if only you were a little bit faster
+							}
 						}
 					}else{
 						//they lost :(
@@ -181,8 +189,10 @@ class Game {
 					//delete the game
 					$response = \CouchDB::deleteDoc($game, "games");
 					//delete the puzzle if we didn't JUST set it to active
-					if ($puzzle->active == false){
-						$response = \CouchDB::deleteDoc($puzzle, "puzzles");
+					if ($puzzle->active == true && $puzzle->solved == true){
+						$puzzle->active = false;
+						$response = \CouchDB::setDoc($puzzle, "puzzles");
+						//$response = \CouchDB::deleteDoc($puzzle, "puzzles");
 					}
 				}else{
 					//write player position to database

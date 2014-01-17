@@ -94,6 +94,10 @@ class GameController extends BaseController {
 			return Shared\Errors::handleError("badwords");
 		}
 		//load the puzzle
+		if (!Session::has("puzzle")){
+			//there's no puzzle session, probably because they just created it and hit back.  I call this "Caleb Syndrome"
+			return Shared\Errors::handleError("cantmakepuzzle");
+		}
 		$sessionPuzzle = Session::get('puzzle');
 		//check to make sure the entry fee is high enough (client side js should prevent this)
 		if (intval(Input::get('entry')) < $sessionPuzzle->fees->creation){
@@ -119,7 +123,12 @@ class GameController extends BaseController {
 	}
 	
 	public function savePuzzle(){
+		if (!Session::has("puzzle")){
+			//there's no puzzle session, probably because they just created it and hit back.  I call this "Caleb Syndrome"
+			return Shared\Errors::handleError("cantmakepuzzle");
+		}
 		$sessionPuzzle = Session::get('puzzle');
+		Session::forget('puzzle');
 		$response = CouchDB::setDoc($sessionPuzzle, "puzzles");
 		$user = CouchDB::getDoc(Session::get('user'), "users");
 		array_push($user->games->creator, $response->id);

@@ -15,18 +15,18 @@
 		<button type="submit" class="btn btn-primary">Change Nickname</button>
 	</form>	<br>
 	<h3>Open Games</h3>
-	<p>Active puzzles you've made:<br>
+	<p>Puzzles you've made:<br>
 	<ul>
 	@if (count($user->games->creator) == 0)
 		(none)
 	@else
 		@foreach ($user->games->creator as $k => $game)
-    		<a href='/play/{{ $game }}'>{{ $game }}</a>
+    		<a href='/play/{{ $game }}'>{{ $game }}</a><br>
 		@endforeach
 	@endif
 	</ul>
 	</p>
-	<p>Active puzzles you're solving:<br>
+	<p>Puzzles you're solving:<br>
 	<ul>
 	<?php $solverGames = get_object_vars($user->games->solver); ?>
 	@if (count($solverGames) == 0)

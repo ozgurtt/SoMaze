@@ -93,6 +93,7 @@ class CouchDB {
 		$COMMON = Config::get('common');
 		$returnObj = new stdClass();
 		$returnObj->active = false;
+		$returnObj->solved = false;
 		$returnObj->created = time();
 		$returnObj->creator = Session::get('user');
 		$returnObj->nickname = Session::get('nickname');
