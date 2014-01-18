@@ -11,7 +11,11 @@
 {{--if they are the creator, don't charge them anything--}}
 	@if (in_array($puzzle->_id, $user->games->creator))
 		@if ($puzzle->active == false)
-			<p>Your puzzle isn't active yet and needs to be successfully solved by you first, are you ready to solve it?</p>
+			@if ($puzzle->solved == false)
+				<p>Your puzzle isn't active yet and needs to be successfully solved by you first, are you ready to solve it?</p>
+			@else
+				<p>Your puzzle has been beaten and can't be reactivated at this time.  Do you still want to play it?</p>
+			@endif
 		@else
 			<p>Your puzzle is already active and doesn't require any interaction from you to make it work. Do you still want to play it?</p>
 		@endif

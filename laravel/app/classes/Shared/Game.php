@@ -136,6 +136,7 @@ class Game {
 	}
 	
 	public static function convertMove($game, $puzzle, $tileID, $sessionID){
+	error_log("convertmove");
 		//given the puzzle, the player, and the proposed move, sends information back to the client
 		//get json from client, {tileID, sessionID} ?player id?
 		//send json back, {accepted, tileID, tileType, hp, sessionID}
@@ -158,16 +159,25 @@ class Game {
 					//user is either dead or has won, handle bot
 					if ($returnObj->tileType == 2){
 						//win conditions
+						$creator = false;
 						if (\Session::has('creator')){
-							if (\Session::get('creator') == $puzzle->_id)
+							if (\Session::get('creator') == $puzzle->_id){
+								$creator = true;
+							}
+						}
+						if ($creator == true){
 							//this is the creator who just beat the game
+							\Session::forget('creator');
 							$puzzle->active = true;
 							$response = \CouchDB::setDoc($puzzle, "puzzles");
 							$user = \CouchDB::getDoc(\Session::get('user'), "users");
+							$returnObj->alert = Game::buildAlert("success", "You've solved the puzzle, and it's now activated!", false);
 						}else{
 							//if we're paying out money, we need to be SURE, this puzzle is open
 							$puzzle = \CouchDB::getDoc($puzzle->_id, "puzzles");
+							error_log("convertmove: win condition met, got puzzle, solved? " . $puzzle->solved);
 							if ($puzzle->solved == false){
+								error_log("convertmove:  puzzle isn't solved");
 								//if the puzzle hasn't been solved by the time you're solving it, yay!
 								Game::rewardUser($puzzle->creator, \Session::get('user'), $puzzle->fees->reward, 0);
 								$user = \CouchDB::getDoc(\Session::get('user'), "users");
@@ -175,7 +185,9 @@ class Game {
 								//we set solved to be true, but not active to false, this should trigger the puzzle write
 								$puzzle->solved = true;
 							}else{
-								//the puzzle has already bad solved, if only you were a little bit faster
+								//the puzzle has already been solved, if only you were a little bit faster
+								$user = \CouchDB::getDoc(\Session::get('user'), "users");
+								$returnObj->alert = Game::buildAlert("danger", "Someone solved the puzzle before you!", false);
 							}
 						}
 					}else{
@@ -192,6 +204,7 @@ class Game {
 					if ($puzzle->active == true && $puzzle->solved == true){
 						$puzzle->active = false;
 						$response = \CouchDB::setDoc($puzzle, "puzzles");
+						error_log("convertmove:  set puzzle to false and saved");
 						//$response = \CouchDB::deleteDoc($puzzle, "puzzles");
 					}
 				}else{
@@ -273,6 +286,15 @@ class Game {
 		}
 		return $traps;
 		
+	}
+	
+	public static function buildAlert($type, $text, $dismissable){
+		//this function builds an object for a client side alert
+		$alert = new \stdClass();
+		$alert->type = $type;
+		$alert->text = $text;
+		$alert->dismissable = $dismissable;
+		return $alert;
 	}
 
 }

@@ -53,7 +53,11 @@ function sendMove(tileID, el){
 		    sessionID = data.sessionID;
 		    //prevents the "start tile" from redrawing to a blank tile
 		    if (tileID != startTile){lastClicked.innerHTML = "<img src='/" + getTileArt(data.tileType) + "'>";}
-		    if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
+		    //alert chain
+		    if (typeof data.alert != 'undefined') {
+			    // the server sent back a custom message, let's display it
+			    giveAlert(data.alert.type, data.alert.text, data.alert.dismissable);
+			}else if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}
 		    else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
 		    hp = data.hp;
