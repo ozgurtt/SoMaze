@@ -12,7 +12,7 @@
 				Entry: {{ $row->value[5]->entry }} <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'>
 			  - Reward: {{ $row->value[5]->reward }} <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'>
 			</span>
-			{{ $row->value[1] }} by {{ $row->value[0] }}
+			{{ $row->value[1] }} by {{ $row->value[0]->nickname }} @include('includes.icon', array('status' => $row->value[0]->status))
 			<br>Dimensions: {{ $row->value[3]->width }}x{{ $row->value[3]->height }}
 			<?php $difficulty = Shared\Game::getDifficulty($row->value[3], $row->value[4]); ?>
 			<br>Difficulty: {{ $difficulty['difficulty'] }}% 

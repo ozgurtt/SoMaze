@@ -84,6 +84,22 @@ class Errors {
 				$error = "Can't create puzzle";
 				$content = "We're really sorry, we can't create a puzzle for you at this time.  You're probably seeing this because you just created a puzzle and now you're trying again.";
 				break;
+			case "notactive":
+				$error = "Not active";
+				$content = "We're sorry about that, the puzzle you're trying to join isn't active or has already been solved.  Maybe try a different one instead?";
+				break;
+			case "toomanysolvers":
+				$error = "Too many active games";
+				$content = "Sorry to tell you this, but unfortunately you've reached your limit of open games.  Luckily, all you need to do is finish one you have open and come back to try again.";
+				break;
+			case "toomanycreators":
+				$error = "Too many active games";
+				$content = "Sorry to tell you this, but unfortunately you've reached your limit of games you can create.  You'll need to wait for one to be solved, or close one that is open to create a new one.";
+				break;
+			case "gameover":
+				$error = "This game has ended";
+				$content = "Looks like you were a little too slow, unfortunately this puzzle has been solved!";
+				break;
 			default:
 				$content = "No listing for error: " . $error;
 				$error = "Generic Error";

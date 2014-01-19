@@ -13,7 +13,13 @@
 		<input type="text" class="form-control" name="nickname" placeholder="{{{ Session::get('nickname') }}}">
 	</div>
 		<button type="submit" class="btn btn-primary">Change Nickname</button>
-	</form>	<br>
+	</form>	
+	<h3>Flair</h3>
+	<p>You are currently displaying flair for your status, which looks like this: @include('includes.icon', array('status' => $user->status)) 
+	@include('includes.flair', array('status' => $user->status))
+
+	
+	<br>
 	<h3>Open Games</h3>
 	<p>Puzzles you've made:<br>
 	<ul>

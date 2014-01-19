@@ -2,11 +2,12 @@
 <?php $COMMON = Config::get('common'); ?>
 
 @section('heading')
-	{{ $puzzle->title }} by {{ $puzzle->nickname }}
+	{{ $puzzle->title }} by {{ $puzzle->creator->nickname }} @include('includes.icon', array('status' => $puzzle->creator->status))
+
 @stop
 
 @section('content')
-	@if ($puzzle->creator == $user->_id)
+	@if ($puzzle->creator->id == $user->_id)
 		<p><i>You have joined this game for free (you are the creator).</i></p>
 	@elseif ($amount == 0)
 		{{--they already paid--}}

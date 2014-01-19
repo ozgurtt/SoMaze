@@ -136,7 +136,6 @@ class Game {
 	}
 	
 	public static function convertMove($game, $puzzle, $tileID, $sessionID){
-	error_log("convertmove");
 		//given the puzzle, the player, and the proposed move, sends information back to the client
 		//get json from client, {tileID, sessionID} ?player id?
 		//send json back, {accepted, tileID, tileType, hp, sessionID}
@@ -175,15 +174,13 @@ class Game {
 						}else{
 							//if we're paying out money, we need to be SURE, this puzzle is open
 							$puzzle = \CouchDB::getDoc($puzzle->_id, "puzzles");
-							error_log("convertmove: win condition met, got puzzle, solved? " . $puzzle->solved);
-							if ($puzzle->solved == false){
-								error_log("convertmove:  puzzle isn't solved");
+							if ($puzzle->stats->solved == false){
 								//if the puzzle hasn't been solved by the time you're solving it, yay!
-								Game::rewardUser($puzzle->creator, \Session::get('user'), $puzzle->fees->reward, 0);
+								Game::rewardUser($puzzle->creator->id, \Session::get('user'), $puzzle->fees->reward, 0);
 								$user = \CouchDB::getDoc(\Session::get('user'), "users");
 								$user->stats->wins++;
 								//we set solved to be true, but not active to false, this should trigger the puzzle write
-								$puzzle->solved = true;
+								$puzzle->stats->solved = true;
 							}else{
 								//the puzzle has already been solved, if only you were a little bit faster
 								$user = \CouchDB::getDoc(\Session::get('user'), "users");
@@ -201,7 +198,7 @@ class Game {
 					//delete the game
 					$response = \CouchDB::deleteDoc($game, "games");
 					//delete the puzzle if we didn't JUST set it to active
-					if ($puzzle->active == true && $puzzle->solved == true){
+					if ($puzzle->active == true && $puzzle->stats->solved == true){
 						$puzzle->active = false;
 						$response = \CouchDB::setDoc($puzzle, "puzzles");
 						error_log("convertmove:  set puzzle to false and saved");

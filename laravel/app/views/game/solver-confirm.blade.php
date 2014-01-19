@@ -7,11 +7,12 @@
 
 @section('content')
 <p class="lead">
-	You are getting ready to join <b>{{{ $puzzle->title }}}</b> by <b>{{{ $puzzle->nickname }}}</b></p>
+	You are getting ready to join <b>{{{ $puzzle->title }}}</b> by <b>{{{ $puzzle->creator->nickname }}} @include('includes.icon', array('status' => $puzzle->creator->status))
+</b></p>
 {{--if they are the creator, don't charge them anything--}}
 	@if (in_array($puzzle->_id, $user->games->creator))
 		@if ($puzzle->active == false)
-			@if ($puzzle->solved == false)
+			@if ($puzzle->stats->solved == false)
 				<p>Your puzzle isn't active yet and needs to be successfully solved by you first, are you ready to solve it?</p>
 			@else
 				<p>Your puzzle has been beaten and can't be reactivated at this time.  Do you still want to play it?</p>

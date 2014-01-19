@@ -67,6 +67,7 @@ class CouchDB {
 		$user->stats->attempts = 0;
 		$user->stats->wins = 0;
 		$user->stats->losses = 0;
+		$user->status = CouchDB::createUserStats();
 		$user->games = new stdClass();
 		$user->games->creator = array();
 		$user->games->solver = new stdClass();
@@ -93,18 +94,42 @@ class CouchDB {
 		$COMMON = Config::get('common');
 		$returnObj = new stdClass();
 		$returnObj->active = false;
-		$returnObj->solved = false;
-		$returnObj->created = time();
-		$returnObj->creator = Session::get('user');
-		$returnObj->nickname = Session::get('nickname');
+		$returnObj->creator = CouchDB::createCreator();
 		$returnObj->dimensions = new stdClass();
 		$returnObj->fees = new stdClass();
 		$returnObj->traps = new stdClass();
+		$returnObj->stats = new stdClass();
+		//stats object
+		$returnObj->stats->solved = false;
+		$returnObj->stats->attempts = 0;
+		$returnObj->stats->last = null;
+		$returnObj->stats->winner = null;
+		$returnObj->stats->windate = null;
 		$returnObj->dimensions->width = intval($width);
 		$returnObj->dimensions->height = intval($height);
 		$returnObj->map = array_fill(0, ((intval($width) * intval($height))), 0);
 		$returnObj->currency = $COMMON['CURRENCY'];
 		return $returnObj;
+	}
+		
+	public static function createUserStats(){
+		//makes a user stats object
+		$userstats = new stdClass();
+		$userstats->verified = false;
+		$userstats->vip = false;
+		$userstats->donator = false;
+		$userstats->staff = false;
+		return $userstats;
+	}
+	
+	public static function createCreator(){
+		//makes a creator object
+		$creator = new stdClass();
+		$creator->id = Session::get('user');
+		$creator->nickname = Session::get('nickname');
+		$creator->created = time();
+		$creator->status = Session::get('status');
+		return $creator;
 	}
 
 	public static function generateNickname(){

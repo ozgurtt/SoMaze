@@ -11,6 +11,16 @@ class GameController extends BaseController {
 	public function confirmEntry($id){
 		$puzzle = CouchDB::getDoc($id, "puzzles");
 		$user = CouchDB::getDoc($value = Session::get('user'), "users");
+		if (count(get_object_vars($puzzle)) == 0){
+			//this puzzle is gone now, let's delete the references to it
+			$game = CouchDB::getDoc($user->games->solver->{$id}, "games");
+			unset($user->games->solver->{$id});
+			//remove the reference from the user doc
+			$response = CouchDB::setDoc($user, "users");
+			//delete the game
+			$response = CouchDB::deleteDoc($game, "games");
+			return Shared\Errors::handleError("gameover");
+		}
 		if ($user->wallet->available < $puzzle->fees->entry){
 			return Shared\Errors::handleError("nofunds");
 		}
@@ -51,13 +61,21 @@ class GameController extends BaseController {
 			$amount = 0;
 		}else{
 			//create the game in their active games and save it
+			if ($puzzle->active == false || $puzzle->stats->solved == true){
+				return Shared\Errors::handleError("notactive");
+			}
+			if (count(get_object_vars($user->games->solver)) > 0){
+				//they can only have one game open at a time
+				return Shared\Errors::handleError("toomanysolvers");
+			}
 			$game = CouchDB::createGame($puzzle->start, $id, Session::get('user'));
 			$user->games->solver->$id = $game->_id;
+			$user->stats->attempts++;
 			$response = CouchDB::setDoc($user, "users");
 			//then set the session
 			Session::put('game', $user->games->solver->$id);
 			//change them for entry
-			$amount = Shared\Game::payUser(Session::get('user'), $puzzle->creator, $puzzle->fees->entry, $puzzle->fees->creation);
+			$amount = Shared\Game::payUser(Session::get('user'), $puzzle->creator->id, $puzzle->fees->entry, $puzzle->fees->creation);
 		}
 		//do tile difficulty math
 		$difficulty = Shared\Game::getDifficulty($puzzle->dimensions, $puzzle->traps);
@@ -108,6 +126,11 @@ class GameController extends BaseController {
 			return Shared\Errors::handleError("lowreward");
 		}
 		$user = CouchDB::getDoc(Session::get('user'), "users");
+		//check to make sure they don't have more than 10 games open
+		if (count($user->games->creator) > 10){
+			//they can only have one game open at a time
+			return Shared\Errors::handleError("toomanycreators");
+		}
 		//check to make sure the user has enough money for the reward + the creation fee
 		if ((intval(Input::get('reward')) + $sessionPuzzle->fees->creation) > $user->wallet->available){
 			return Shared\Errors::handleError("nofunds");
@@ -128,9 +151,19 @@ class GameController extends BaseController {
 			return Shared\Errors::handleError("cantmakepuzzle");
 		}
 		$sessionPuzzle = Session::get('puzzle');
+		//the next two checks are duplicates from confirmCreate, but if they skip it somehow, this should weed them out
+		//check for min char count on title and desc
+		if (strlen($sessionPuzzle->title) <= 2 || strlen($sessionPuzzle->desc) <= 2){
+			return Shared\Errors::handleError("badwords");
+		}
+		$user = CouchDB::getDoc(Session::get('user'), "users");
+		//check to make sure they don't have more than 10 games open
+		if (count($user->games->creator) > 10){
+			//they can only have one game open at a time
+			return Shared\Errors::handleError("toomanycreators");
+		}
 		Session::forget('puzzle');
 		$response = CouchDB::setDoc($sessionPuzzle, "puzzles");
-		$user = CouchDB::getDoc(Session::get('user'), "users");
 		array_push($user->games->creator, $response->id);
 		$userresponse = CouchDB::setDoc($user, "users");
 		$reward = Shared\Game::lockFunds(Session::get('user'), $sessionPuzzle->fees->reward);

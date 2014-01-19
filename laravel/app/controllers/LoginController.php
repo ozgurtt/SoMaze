@@ -36,6 +36,7 @@ class LoginController extends BaseController {
 					}
 					Session::put('user', $openid->identity);
 					Session::put('nickname', $user->nickname);
+					Session::put('status', $user->status);
 			    	if (isset($nickname)){
 			    		//we gave them a nickname (first sign in)
 			    		return View::make('login.success', array("nickname" => $nickname));
