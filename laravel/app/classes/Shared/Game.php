@@ -181,6 +181,8 @@ class Game {
 								$user->stats->wins++;
 								//we set solved to be true, but not active to false, this should trigger the puzzle write
 								$puzzle->stats->solved = true;
+								$puzzle->stats->winner = $user->_id;
+								$puzzle->stats->windate = time();
 							}else{
 								//the puzzle has already been solved, if only you were a little bit faster
 								$user = \CouchDB::getDoc(\Session::get('user'), "users");

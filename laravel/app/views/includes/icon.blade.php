@@ -1,5 +1,5 @@
 @if ($status->staff)
-	<span class="glyphicon glyphicon-certificate" title="Staff"></span>
+	<span class="glyphicon glyphicon-flash" title="Staff"></span>
 @elseif ($status->donator)
 	<span class="glyphicon glyphicon-heart" title="Donator"></span>
 @elseif ($status->vip)

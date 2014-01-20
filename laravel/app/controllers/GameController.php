@@ -44,6 +44,7 @@ class GameController extends BaseController {
 	}
 	
 	public function playGame($id){
+		$GAME_CONFIG = Config::get('game');
 		$user = CouchDB::getDoc(Session::get('user'), "users");
 		$puzzle = CouchDB::getDoc($id, "puzzles");
 		if (isset($user->games->solver->$id)){
@@ -64,7 +65,7 @@ class GameController extends BaseController {
 			if ($puzzle->active == false || $puzzle->stats->solved == true){
 				return Shared\Errors::handleError("notactive");
 			}
-			if (count(get_object_vars($user->games->solver)) > 0){
+			if (count(get_object_vars($user->games->solver)) >= $GAME_CONFIG['MAX_SOLVER_PUZZLES']){
 				//they can only have one game open at a time
 				return Shared\Errors::handleError("toomanysolvers");
 			}
@@ -72,6 +73,11 @@ class GameController extends BaseController {
 			$user->games->solver->$id = $game->_id;
 			$user->stats->attempts++;
 			$response = CouchDB::setDoc($user, "users");
+			//update puzzle stats
+			$puzzle->stats->attempts++;
+			$puzzle->stats->last = time();
+			$response = CouchDB::setDoc($puzzle, "puzzles");
+			$puzzle->_rev = $response->rev;
 			//then set the session
 			Session::put('game', $user->games->solver->$id);
 			//change them for entry
@@ -107,6 +113,7 @@ class GameController extends BaseController {
 	}
 
 	public function confirmCreate(){
+		$GAME = Config::get('game');
 		//check for min char count on title and desc
 		if (strlen(Input::get('title')) <= 2 || strlen(Input::get('desc')) <= 2){
 			return Shared\Errors::handleError("badwords");
@@ -127,7 +134,7 @@ class GameController extends BaseController {
 		}
 		$user = CouchDB::getDoc(Session::get('user'), "users");
 		//check to make sure they don't have more than 10 games open
-		if (count($user->games->creator) > 10){
+		if (count($user->games->creator) > $GAME['MAX_CREATOR_PUZZLES']){
 			//they can only have one game open at a time
 			return Shared\Errors::handleError("toomanycreators");
 		}
@@ -146,6 +153,7 @@ class GameController extends BaseController {
 	}
 	
 	public function savePuzzle(){
+		$GAME = Config::get('game');
 		if (!Session::has("puzzle")){
 			//there's no puzzle session, probably because they just created it and hit back.  I call this "Caleb Syndrome"
 			return Shared\Errors::handleError("cantmakepuzzle");
@@ -158,7 +166,7 @@ class GameController extends BaseController {
 		}
 		$user = CouchDB::getDoc(Session::get('user'), "users");
 		//check to make sure they don't have more than 10 games open
-		if (count($user->games->creator) > 10){
+		if (count($user->games->creator) > $GAME['MAX_CREATOR_PUZZLES']){
 			//they can only have one game open at a time
 			return Shared\Errors::handleError("toomanycreators");
 		}
