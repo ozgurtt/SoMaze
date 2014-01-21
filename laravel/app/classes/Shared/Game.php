@@ -199,6 +199,8 @@ class Game {
 								$puzzle->stats->solved = true;
 								$puzzle->stats->winner = $user->_id;
 								$puzzle->stats->windate = time();
+								$puzzle->stats->winnick = \Session::get('nickname');
+								$puzzle->stats->winstatus = \Session::get('status');
 							}else{
 								//the puzzle has already been solved, if only you were a little bit faster
 								$user = \CouchDB::getDoc(\Session::get('user'), "users");

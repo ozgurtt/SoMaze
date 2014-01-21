@@ -199,12 +199,12 @@ class GameController extends BaseController {
 		if ($puzzle->stats->solved == false){
 			//this person needs a refund of the reward
 			$amount = Shared\Game::unlockFunds($user->_id, $puzzle->fees->reward);
-			$net = 0;
+			$net = 0 - $puzzle->fees->creation;
 		}else{
 			//they don't get a refund. so sad
 			$amount = 0;
 			$gross = $puzzle->stats->attempts * $puzzle->fees->entry;
-			$net = ($gross - ($puzzle->stats->attempts * $puzzle->fees->creation)) - $puzzle->fees->reward;
+			$net = ($gross - ($puzzle->stats->attempts * $puzzle->fees->creation)) - $puzzle->fees->reward - $puzzle->fees->creation;
 		}
 		//it passes the checks, so let's close it
 		$response = CouchDB::deleteDoc($puzzle, "puzzles");

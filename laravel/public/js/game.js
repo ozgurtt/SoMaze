@@ -33,6 +33,10 @@ $( document ).ready(function() {
 			$("#game").append(grid);
 			$("#hp").html("<p>HP: " + data.hp + "</p>");
 			hp = data.hp;
+			//for Caleb's keypresses
+			$('html').keydown(function(e){
+				keyMove(e.which);
+		    });
 		});
 	});
     
@@ -68,11 +72,37 @@ function sendMove(tileID, el){
 	});
 }
 
+function keyMove(key){
+	switch (key){
+		case 37:
+			//left
+			tile = lastTile-1;
+			break;
+		case 38:
+			//up
+			tile = lastTile-puzzleData.dimensions.width;
+			break;
+		case 39:
+			//right
+			tile = lastTile+1;
+			break;
+		case 40:
+			//down	
+			tile = lastTile+puzzleData.dimensions.width;
+			
+	}
+	if (validateClick(lastTile, tile, tile % puzzleData.dimensions.width)){
+		console.log ("key validate passed");
+		$('#gameGrid td:eq('+tile+')').trigger('click');
+	}else{console.log("key validate failed");}
+}
+
 
 function clickableGrid( rows, cols, callback ){
     var i=0;
     var grid = document.createElement('table');
     grid.className = 'grid';
+    grid.id = 'gameGrid';
     for (var r=0;r<rows;++r){
         var tr = grid.appendChild(document.createElement('tr'));
         for (var c=0;c<cols;++c){
@@ -97,12 +127,14 @@ function clickableGrid( rows, cols, callback ){
     return grid;
 }
 
-function validateClick(startTile, finishTile, startTileColumn){
+function validateClick(startTile, finishTile, finishTileColumn){
+		console.log("You keyed to tile #:",startTile," from tile #: ",finishTile, " col: ",finishTileColumn);
+
 	if (finishTile < 0 || finishTile >= (puzzleData.dimensions.height * puzzleData.dimensions.width)){return false;}
-	if (startTile + 1 == finishTile && startTileColumn != 0){
+	if (startTile + 1 == finishTile && finishTileColumn != 0){
 		//do left movement
 		return true;
-	}else if (startTile - 1 == finishTile && startTileColumn != (puzzleData.dimensions.width - 1)){
+	}else if (startTile - 1 == finishTile && finishTileColumn != (puzzleData.dimensions.width - 1)){
 		//do right movement
 		return true;
 	}else if (Math.abs(startTile - finishTile) == puzzleData.dimensions.width){

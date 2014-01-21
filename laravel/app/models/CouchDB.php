@@ -105,6 +105,8 @@ class CouchDB {
 		$returnObj->stats->last = null;
 		$returnObj->stats->winner = null;
 		$returnObj->stats->windate = null;
+		$returnObj->stats->winnick = null;
+		$returnObj->stats->winstatus = null;
 		$returnObj->dimensions->width = intval($width);
 		$returnObj->dimensions->height = intval($height);
 		$returnObj->map = array_fill(0, ((intval($width) * intval($height))), 0);

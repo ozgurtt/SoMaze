@@ -31,7 +31,7 @@
     		$puzzle = CouchDB::getDoc($game, "puzzles"); 
 	    	$solved = (($puzzle->stats->solved == true)?"[Solved]":"[Unsolved]");
 	    	$gross = $puzzle->stats->attempts * $puzzle->fees->entry;
-	    	$net = ($gross - ($puzzle->stats->attempts * $puzzle->fees->creation)) - $puzzle->fees->reward;
+	    	$net = ($gross - ($puzzle->stats->attempts * $puzzle->fees->creation)) - $puzzle->fees->reward - $puzzle->fees->creation;
     		?>
     		<b>{{ $solved }}</b> - <a href='/play/{{ $puzzle->_id }}'>{{ $puzzle->title }}</a> - Profit: <b>{{ $net }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'>
     		@if ($puzzle->stats->attempts == 0 || $puzzle->stats->solved == true)
@@ -40,7 +40,8 @@
     		<br>
     		<b>Stats:</b> - <i>Attempts: </i>{{ $puzzle->stats->attempts }}
     		@if ($puzzle->stats->solved == true)
-    			 - <i>Win Date:</i> {{ date("F j, Y, g:i a", $puzzle->stats->windate) }} CST
+    			 - <i>Won by:</i> {{ $puzzle->stats->winnick }}@include('includes.icon', array('status' => $puzzle->stats->winstatus))
+    			  <i>on</i> {{ date("F j, Y, g:i a", $puzzle->stats->windate) }} CST
     		@endif
 			<br><br>
 		@endforeach
