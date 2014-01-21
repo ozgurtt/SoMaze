@@ -71,6 +71,7 @@ Route::group(array('prefix' => '/account'), function()
 		{
 			//for account sections
 			Route::post('/nickname', array('before' => 'loggedin', 'uses' => 'UserController@changeNickname'));
+			Route::get('/close/{id}', array('before' => 'loggedin', 'uses' => 'GameController@closeGame'));
 		});
 
 //API

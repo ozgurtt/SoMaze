@@ -96,6 +96,22 @@ class Game {
 		return 0;
 	}
 	
+	public static function unlockFunds($from, $amount){
+		//locks funds to prepare for reward
+		$fromuser = \CouchDB::getDoc($from, "users");
+		if ($fromuser->wallet->locked < $amount){
+			//you broke dawg
+			return \Shared\Error::handleError("nofunds");
+		}else{
+			$fromuser->wallet->locked -= $amount;
+			$fromuser->wallet->available += $amount;
+			$response = \CouchDB::setDoc($fromuser, "users");
+			return $amount;
+		}
+		//something went wrong, but i have no idea what that might be.
+		return 0;
+	}
+	
 	public static function payMe($from, $amount){
 		//pay ME billy
 		$from->wallet->available -= $amount;

@@ -181,4 +181,37 @@ class GameController extends BaseController {
 					  'id' => $response->id);
 		return View::make('game.creator-save', $data);
 	}
+	
+	public function closeGame($id){
+		$user = CouchDB::getDoc(Session::get('user'), "users");
+		if (!in_array($id, $user->games->creator)){
+			//the id they passed isnt in their array
+			return Shared\Errors::handleError("notcreator");
+		}
+		$puzzle = CouchDB::getDoc($id, "puzzles");
+		if ($puzzle->stats->attempts != 0 && $puzzle->stats->solved == false){
+			//the puzzle has attempts and isn't closed
+			return Shared\Errors::handleError("cantclose");
+		}
+		$index = array_search($id, $user->games->creator);
+		unset($user->games->creator[$index]);
+		$response = CouchDB::setDoc($user, "users");
+		if ($puzzle->stats->solved == false){
+			//this person needs a refund of the reward
+			$amount = Shared\Game::unlockFunds($user->_id, $puzzle->fees->reward);
+			$net = 0;
+		}else{
+			//they don't get a refund. so sad
+			$amount = 0;
+			$gross = $puzzle->stats->attempts * $puzzle->fees->entry;
+			$net = ($gross - ($puzzle->stats->attempts * $puzzle->fees->creation)) - $puzzle->fees->reward;
+		}
+		//it passes the checks, so let's close it
+		$response = CouchDB::deleteDoc($puzzle, "puzzles");
+		$data = array('amount' => $amount,
+					  'profit' => $net,
+					  'puzzle' => $puzzle);
+		return View::make('game.creator-close', $data);
+
+	}
 }

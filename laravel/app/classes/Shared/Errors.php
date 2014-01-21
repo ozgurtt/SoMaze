@@ -48,6 +48,10 @@ class Errors {
 				$error = "You are not in this game";
 				$content = "You can't submit commands to a game that you haven't joined.";
 				break;
+			case "notcreator":
+				$error = "You are not the creator of this game";
+				$content = "That's rather daft.  You can't close a game that you're not the creator of.";
+				break;
 			case "mustconfirm":
 				$error = "Confirmation needed";
 				$content = "You must confirm that you're willing to pay the entry fee before you can play this game.";
@@ -99,6 +103,10 @@ class Errors {
 			case "gameover":
 				$error = "This game has ended";
 				$content = "Looks like you were a little too slow, unfortunately this puzzle has been solved!";
+				break;
+			case "cantclose":
+				$error = "This game can't be closed at this time";
+				$content = "We're sorry to be the ones that have to tell you, but you can't close this game at this time.  This is most likely due to the fact that someone has already attempted it, but hasn't solved it yet.  You can only close games that no one has attempted or have been solved.";
 				break;
 			default:
 				$content = "No listing for error: " . $error;
