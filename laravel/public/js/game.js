@@ -6,6 +6,7 @@ var tileData;
 var puzzleData;
 
 var hp = 100;
+var locked = false;
 
 var leaving = true;
 
@@ -35,6 +36,8 @@ $( document ).ready(function() {
 			hp = data.hp;
 			//for Caleb's keypresses
 			$('html').keydown(function(e){
+				e.stopPropagation();
+				e.preventDefault();
 				keyMove(e.which);
 		    });
 		});
@@ -45,8 +48,9 @@ $( document ).ready(function() {
 function sendMove(tileID, el){
 	//don't send moves if you're dead silly
 	if (hp <= 0){return false;}
-	
+	locked = true;
 	$.getJSON( "/api/v1/solver/move/"+GAME_ID+"/"+tileID+"/"+sessionID, function( data ) {
+		locked = false;
 		if (data.accepted == true){
 			console.log ("move accepted (" + data.sessionID + ")");
 			//the move we sent was accepted
@@ -128,8 +132,8 @@ function clickableGrid( rows, cols, callback ){
 }
 
 function validateClick(startTile, finishTile, finishTileColumn){
-		console.log("You keyed to tile #:",startTile," from tile #: ",finishTile, " col: ",finishTileColumn);
-
+	console.log("You keyed to tile #:",startTile," from tile #: ",finishTile, " col: ",finishTileColumn);
+	if (locked == true){return false;}
 	if (finishTile < 0 || finishTile >= (puzzleData.dimensions.height * puzzleData.dimensions.width)){return false;}
 	if (startTile + 1 == finishTile && finishTileColumn != 0){
 		//do left movement
