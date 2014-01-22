@@ -132,7 +132,7 @@ function clickableGrid( rows, cols, callback ){
 }
 
 function validateClick(startTile, finishTile, finishTileColumn){
-	console.log("You keyed to tile #:",startTile," from tile #: ",finishTile, " col: ",finishTileColumn);
+	console.log("You keyed to tile #:",startTile," from tile #: ",finishTile, " col: ",finishTileColumn, "locked: ", locked);
 	if (locked == true){return false;}
 	if (finishTile < 0 || finishTile >= (puzzleData.dimensions.height * puzzleData.dimensions.width)){return false;}
 	if (startTile + 1 == finishTile && finishTileColumn != 0){
