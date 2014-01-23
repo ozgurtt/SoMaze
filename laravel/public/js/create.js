@@ -24,6 +24,7 @@ $( document ).ready(function() {
 			});
 			//document.body.appendChild(grid);
 			$("#game").append(grid);
+			$("#game").on('dragstart', function(event) { event.preventDefault();});
 			var tiles = clickableTiles(10,10,function(el,i){
 			    console.log("You clicked on tile #:",i);
 				el.className='clicked';
@@ -34,6 +35,7 @@ $( document ).ready(function() {
 			});
 			//document.body.appendChild(grid);
 			$("#tiles").append(tiles);
+			$("#tiles").on('dragstart', function(event) { event.preventDefault();});
 			$("#nextstep").on("click", nextStep);
 		});
 	});

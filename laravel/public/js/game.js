@@ -32,6 +32,7 @@ $( document ).ready(function() {
 			});
 			//document.body.appendChild(grid);
 			$("#game").append(grid);
+			$("#gameGrid").on('dragstart', function(event) { event.preventDefault();});
 			$("#hp").html("<p>HP: " + data.hp + "</p>");
 			hp = data.hp;
 			//for Caleb's keypresses
@@ -66,7 +67,7 @@ function sendMove(tileID, el){
 			    // the server sent back a custom message, let's display it
 			    giveAlert(data.alert.type, data.alert.text, data.alert.dismissable);
 			}else if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
-		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(",false);}
+		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(<br>Please click 'Play' in the top navigation bar to try again.  You can do it!",false);}
 		    else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
 		    hp = data.hp;
 		    $("#hp").html("<p>HP: " + ((hp <0)?0:hp) + "</p>");
