@@ -3,7 +3,7 @@
 return array(
 	'VERBOSE' => true,
 	'TITLE' => 'SoMaze',
-	'VERSION' => '0.23',
+	'VERSION' => '0.30',
 	'CURRENCY' => 'DOGE',
 	'CURRENCY_FULL' => 'Dogecoin',
 	'CURRENCY_IMG' => '/img/dogecoin-d-16.png',

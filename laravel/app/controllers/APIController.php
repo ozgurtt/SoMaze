@@ -95,7 +95,7 @@ class APIController extends BaseController {
 			$sessionPuzzle->start = array_search(1, $sessionPuzzle->map);
 			$sessionPuzzle->end = array_search(2, $sessionPuzzle->map);
 			//now that we've set the start and end, remove the start
-			$sessionPuzzle->map = str_replace(1, 0, $sessionPuzzle->map);
+			$sessionPuzzle->map[$sessionPuzzle->start] = 0;
 			$sessionPuzzle->fees->creation = $data->fee;
 			Session::put('puzzle', $sessionPuzzle);
 		}else{

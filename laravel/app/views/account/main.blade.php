@@ -20,6 +20,13 @@
 
 	
 	<br>
+	<h3>Wallet</h3>
+	<p>Here is a summary of the funds you have in your wallet:
+	<ul>
+	<li>Available: <b>{{ $user->wallet->available }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	<li>Pending: <b>{{ $user->wallet->pending }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	<li>Locked: <b>{{ $user->wallet->locked }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	</ul>
 	<h3>Open Games</h3>
 	<p>Puzzles you've made:<br>
 	<ul>
@@ -55,7 +62,9 @@
 		(none)
 	@else
 		@foreach ($solverGames as $name => $game)
-    		<?php $puzzle = CouchDB::getDoc($name, "puzzles"); ?>
+    		<?php 
+    		$puzzle = CouchDB::getDoc($name, "puzzles"); 	
+    		?>
     		<a href='/play/{{ $puzzle->_id }}'>{{ $puzzle->title }}</a> by: {{ $puzzle->creator->nickname }} @include('includes.icon', array('status' => $puzzle->creator->status)) <i>[Reward: {{ $puzzle->fees->reward }}<img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'>]</i><br>
 		@endforeach
 	@endif

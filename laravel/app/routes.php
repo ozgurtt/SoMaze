@@ -14,6 +14,10 @@ Route::filter('loggedin', function(){
 	if (!Session::has('user')){
 		return Shared\Errors::handleError("notloggedin");
 	}
+	if (Session::get('ip') != $_SERVER['REMOTE_ADDR']){
+		Session::flush();
+		return Shared\Errors::handleError("notloggedin");
+	}
 });
 Route::filter('playconfirmed', function(){
 	if (!Session::has('playconfirm')){

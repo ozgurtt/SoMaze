@@ -18,7 +18,7 @@
 		    		$attempts = "1 user has attempted this " . Shared\Common::timeElapsed($row->value[6]->last) . " ago.";
 		    		break;
 		    	default:
-		    		$attempts = $row->value[6]->attempts . " users have attempted this, the most recent happened " . Shared\Common::timeElapsed($row->value[6]->last) . " ago.";
+		    		$attempts = $row->value[6]->attempts . " attempts have been made at this puzzle, the most recent happened " . Shared\Common::timeElapsed($row->value[6]->last) . " ago.";
 		    		break;
 	    	}
     	?>
