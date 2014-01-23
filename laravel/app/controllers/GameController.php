@@ -142,6 +142,8 @@ class GameController extends BaseController {
 		if ((intval(Input::get('reward')) + $sessionPuzzle->fees->creation) > $user->wallet->available){
 			return Shared\Errors::handleError("nofunds");
 		}
+		//now that we've set the start and end, remove the start
+		$sessionPuzzle->map[$sessionPuzzle->start] = 0;
 		$sessionPuzzle->title = e(Input::get('title'));
 		$sessionPuzzle->desc = e(Input::get('desc'));
 		$sessionPuzzle->fees->entry = intval(Input::get('entry'));
