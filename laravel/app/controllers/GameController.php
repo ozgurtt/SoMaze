@@ -118,6 +118,10 @@ class GameController extends BaseController {
 		if (strlen(Input::get('title')) <= 2 || strlen(Input::get('desc')) <= 2){
 			return Shared\Errors::handleError("badwords");
 		}
+		//check for max char count on title and desc
+		if (strlen(Input::get('title')) > 100 || strlen(Input::get('desc')) > 1000){
+			return Shared\Errors::handleError("badwords");
+		}
 		//load the puzzle
 		if (!Session::has("puzzle")){
 			//there's no puzzle session, probably because they just created it and hit back.  I call this "Caleb Syndrome"

@@ -26,8 +26,7 @@ class UserController extends BaseController {
 	}
 
 	public function changeNickname(){
-	error_log("change nickname str len: " . strlen(Input::get('nickname')));
-		if (strlen(Input::get('nickname')) <= 2){
+		if (strlen(Input::get('nickname')) <= 2 || strlen(Input::get('nickname')) > 100){
 			return Shared\Errors::handleError("nonick");
 		}
 		$nickname = CouchDB::changeNickname(Input::get('nickname'));

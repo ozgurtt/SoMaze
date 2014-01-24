@@ -25,11 +25,11 @@
 	<form role="form" action="/make/summary" method="post">
 		<div class="form-group">
 	    	<label for="title">Title of the puzzle</label>
-			<input type="text" class="form-control" name="title" placeholder="{{{ Session::get('nickname') }}}'s super awesome puzzle">
+			<input type="text" class="form-control" name="title" placeholder="{{{ Session::get('nickname') }}}'s super awesome puzzle" input pattern=".{3,100}" title="3 to 100 characters">
 		</div>
 		<div class="form-group">
 	    	<label for="desc">Description for the puzzle</label>
-			<input type="text" class="form-control" name="desc" placeholder="A super awesome puzzle that's made by a super awesome person.">
+			<input type="text" class="form-control" name="desc" placeholder="A super awesome puzzle that's made by a super awesome person." input pattern=".{3,1000}" title="3 to 1000 characters">
 		</div>
 		<div id="feeform">
 			<div class="form-group">

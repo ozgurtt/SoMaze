@@ -10,16 +10,23 @@
 	<form role="form" action="/account/nickname" method="post">
 	<div class="form-group">
     	<label for="nickname">Nickname</label>
-		<input type="text" class="form-control" name="nickname" placeholder="{{{ Session::get('nickname') }}}">
+		<input type="text" class="form-control" name="nickname" placeholder="{{{ Session::get('nickname') }}}" input pattern=".{3,100}" title="3 to 100 characters">
 	</div>
 		<button type="submit" class="btn btn-primary">Change Nickname</button>
 	</form>	
 	<h3>Flair</h3>
 	<p>You are currently displaying flair for your status, which looks like this: @include('includes.icon', array('status' => $user->status)) 
 	@include('includes.flair', array('status' => $user->status))
-
-	
-	<br>
+	</p>
+	<h3>Game Statistics</h3>
+	<p>The following is a summary of the games you've played:
+	<ul>
+	<li>Attempts: <b>{{ $user->stats->attempts }}</b></li>
+	<li>Wins: <b>{{ $user->stats->wins }}</b></li>
+	<li>Losses: <b>{{ $user->stats->losses }}</b></li>
+	<li>Win Percentage: <b>{{ round(($user->stats->wins / $user->stats->attempts)*100, 2) }}%</b></li>
+	</ul>
+	</p>
 	<h3>Wallet</h3>
 	<p>Here is a summary of the funds you have in your wallet:
 	<ul>
