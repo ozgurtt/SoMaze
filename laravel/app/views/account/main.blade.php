@@ -24,7 +24,13 @@
 	<li>Attempts: <b>{{ $user->stats->attempts }}</b></li>
 	<li>Wins: <b>{{ $user->stats->wins }}</b></li>
 	<li>Losses: <b>{{ $user->stats->losses }}</b></li>
-	<li>Win Percentage: <b>{{ round(($user->stats->wins / $user->stats->attempts)*100, 2) }}%</b></li>
+	<li>Win Percentage: 
+	@if ($user->stats->attempts != 0)
+		<b>{{ round(($user->stats->wins / $user->stats->attempts)*100, 2) }}%</b>
+	@else
+		<b>0%</b>
+	@endif
+	</li>
 	</ul>
 	</p>
 	<h3>Wallet</h3>

@@ -200,7 +200,7 @@ class GameController extends BaseController {
 			return Shared\Errors::handleError("cantclose");
 		}
 		$index = array_search($id, $user->games->creator);
-		unset($user->games->creator[$index]);
+		unset($user->games->creator[intval($index)]);
 		$response = CouchDB::setDoc($user, "users");
 		if ($puzzle->stats->solved == false){
 			//this person needs a refund of the reward
