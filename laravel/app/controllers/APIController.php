@@ -108,6 +108,13 @@ class APIController extends BaseController {
 		return Response::json($data);
 	}
 	
+	//coin testing
+	
+	public function getCoinInfo(){
+		$data = Coins\Dogecoin::getBalance();
+		return Response::json($data);
+	}
+	
 	public function missingMethod($parameters = array())
 	{
 	    return Reponse::json(array("error" => "missing method"));

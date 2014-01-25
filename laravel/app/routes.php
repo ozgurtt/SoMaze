@@ -110,3 +110,6 @@ Route::group(array('prefix' => 'api', 'before' => 'loggedin'), function()
 	});
 
 });
+
+//test coin routes
+Route::get('coin', 'APIController@getCoinInfo');
