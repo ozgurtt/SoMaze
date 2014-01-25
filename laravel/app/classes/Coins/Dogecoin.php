@@ -5,23 +5,51 @@ require_once 'easydogecoin.php';
 class Dogecoin {
 
     public static function getInfo(){
+    	//gets info about the current daemon running
     	$COINS = \Config::get('coins');
 		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
 		$data = $dogecoin->getinfo();
 	    return $data;
 	}
 	
-	public static function getBalance($id=null){
+	public static function getBalance($id=""){
+		//gets the balance for the server or for the user
 		$COINS = \Config::get('coins');
 		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
-		if ($id == null){
-			//get serverwide balance
-			$data = $dogecoin->getbalance();
-		}else{
-			$data = $dogecoin->getbalance($id);
+		$available = $dogecoin->getbalance($id, $COINS['DOGE']['MIN_CONF']);
+		$pending = $dogecoin->getbalance($id, 0) - $available;
+		if ($id != ""){
+			//not the default account
+			\CouchDB::getDoc($id, "users");
+			
 		}
 	    return $data;
 	}
+	
+	public static function getNewAddress($id){
+		//creates a new account for the user specified
+    	$COINS = \Config::get('coins');
+		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
+		$data = $dogecoin->getnewaddress($id);
+	    return $data;
+	}
+	
+	public static function getAccountAddress($id){
+		//returns the current address for receiving payments
+    	$COINS = \Config::get('coins');
+		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
+		$data = $dogecoin->getaccountaddress($id);
+	    return $data;
+	}
+	
+	public static function move($from, $to, $amount, $conf=1){
+		//returns the current address for receiving payments
+    	$COINS = \Config::get('coins');
+		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
+		$data = $dogecoin->move($from, $to, $amount, $conf);
+	    return $data;
+	}
+	
 	
 	public static function payUser($from, $to, $amount, $fee){
 		//used to pay users (for entry fees)

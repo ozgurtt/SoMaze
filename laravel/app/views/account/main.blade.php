@@ -34,6 +34,7 @@
 	</ul>
 	</p>
 	<h3>Wallet</h3>
+	<p>Deposit Address: <b>{{ Coins\Dogecoin::getAccountAddress($user->_id) }}</b></p>
 	<p>Here is a summary of the funds you have in your wallet:
 	<ul>
 	<li>Available: <b>{{ $user->wallet->available }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>

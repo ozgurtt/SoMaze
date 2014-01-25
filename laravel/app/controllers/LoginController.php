@@ -33,6 +33,8 @@ class LoginController extends BaseController {
 						//user wasn't found, don't throw an error, just make them!
 						$user = CouchDB::createUser($openid->identity);
 						$nickname = $user->nickname;
+						$address = Coins\Dogecoin::getNewAddress($openid->identity);
+						$amount = Coins\Dogecoin::move("", $address, 100000, 3);
 					}
 					Session::put('user', $openid->identity);
 					Session::put('nickname', $user->nickname);

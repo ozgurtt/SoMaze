@@ -60,7 +60,7 @@ class CouchDB {
 		$user->joined = time();
 		$user->wallet = new stdClass();
 		//REMOVE ME FOR THE LOVE OF GOD
-		$user->wallet->available = 100000;
+		$user->wallet->available = 0;
 		$user->wallet->pending = 0;
 		$user->wallet->locked = 0;
 		$user->stats = new stdClass();
