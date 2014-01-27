@@ -36,10 +36,11 @@
 	<h3>Wallet</h3>
 	<p>Deposit Address: <b>{{ Coins\Dogecoin::getAccountAddress($user->_id) }}</b></p>
 	<p>Here is a summary of the funds you have in your wallet:
+	<?php $balance = Coins\Dogecoin::getBalance($user->_id); ?>
 	<ul>
-	<li>Available: <b>{{ $user->wallet->available }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
-	<li>Pending: <b>{{ $user->wallet->pending }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
-	<li>Locked: <b>{{ $user->wallet->locked }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	<li>Available: <b>{{ $balance['available'] }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	<li>Pending: <b>{{ $balance['pending'] }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	<li>Locked: <b>{{ $balance['locked'] }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
 	</ul>
 	<h3>Open Games</h3>
 	<p>Puzzles you've made:<br>
