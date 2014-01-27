@@ -27,7 +27,8 @@ class GameController extends BaseController {
 		}
 		Session::put('id', $id);
 		$data = array('puzzle' => $puzzle,
-					  'user'   => $user);
+					  'user'   => $user,
+					  'wallet' => $wallet);
 		return View::make('game.solver-confirm', $data);
 	}
 	

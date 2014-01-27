@@ -60,6 +60,7 @@ class CouchDB {
 		$user->joined = time();
 		$user->wallet = new stdClass();
 		$user->wallet->locked = 0;
+		$user->wallet->payout = '';
 		$user->stats = new stdClass();
 		$user->stats->attempts = 0;
 		$user->stats->wins = 0;
