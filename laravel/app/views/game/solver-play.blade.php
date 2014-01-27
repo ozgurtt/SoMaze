@@ -14,7 +14,7 @@
 		<p><i>You have rejoined this game for free.</i></p>
 	@else
 		{{--they are paying right now--}}
-		<p><i>You just paid <b>{{ $amount }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'> to join this game (you have <b>{{ $user->wallet->available }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'> left)</i></p>
+		<p><i>You just paid <b>{{ $amount }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'> to join this game</i></p>
 	@endif
 	<p>{{ $puzzle->desc }}</p>
 @stop

@@ -21,7 +21,8 @@ class GameController extends BaseController {
 			$response = CouchDB::deleteDoc($game, "games");
 			return Shared\Errors::handleError("gameover");
 		}
-		if ($user->wallet->available < $puzzle->fees->entry){
+		$wallet = Coins\Dogecoin::getBalance($user->_id);
+		if ($wallet['available'] < $puzzle->fees->entry){
 			return Shared\Errors::handleError("nofunds");
 		}
 		Session::put('id', $id);
@@ -81,7 +82,7 @@ class GameController extends BaseController {
 			//then set the session
 			Session::put('game', $user->games->solver->$id);
 			//change them for entry
-			$amount = Shared\Game::payUser(Session::get('user'), $puzzle->creator->id, $puzzle->fees->entry, $puzzle->fees->creation);
+			$amount = Coins\Dogecoin::payUser(Session::get('user'), $puzzle->creator->id, $puzzle->fees->entry, $puzzle->fees->creation);
 		}
 		//do tile difficulty math
 		$difficulty = Shared\Game::getDifficulty($puzzle->dimensions, $puzzle->traps);
@@ -143,7 +144,8 @@ class GameController extends BaseController {
 			return Shared\Errors::handleError("toomanycreators");
 		}
 		//check to make sure the user has enough money for the reward + the creation fee
-		if ((intval(Input::get('reward')) + $sessionPuzzle->fees->creation) > $user->wallet->available){
+		$wallet = Coins\Dogecoin::getBalance($user->_id);
+		if ((intval(Input::get('reward')) + $sessionPuzzle->fees->creation) > $wallet['available']){
 			return Shared\Errors::handleError("nofunds");
 		}
 		//now that we've set the start and end, remove the start
@@ -154,7 +156,7 @@ class GameController extends BaseController {
 		$sessionPuzzle->fees->reward = intval(Input::get('reward'));
 		Session::put('puzzle', $sessionPuzzle);
 		$data = array('fees' => $sessionPuzzle->fees,
-					  'wallet' => $user->wallet);
+					  'wallet' => $wallet);
 		return View::make('game.creator-confirm', $data);
 	}
 	
@@ -180,10 +182,9 @@ class GameController extends BaseController {
 		$response = CouchDB::setDoc($sessionPuzzle, "puzzles");
 		array_push($user->games->creator, $response->id);
 		$userresponse = CouchDB::setDoc($user, "users");
-		$reward = Shared\Game::lockFunds(Session::get('user'), $sessionPuzzle->fees->reward);
-		$creation = Shared\Game::payCreationFee(Session::get('user'), $sessionPuzzle->fees->creation);
+		$reward = Coins\Dogecoin::lockFunds(Session::get('user'), $sessionPuzzle->fees->reward, $sessionPuzzle->fees->creation);
 		$data = array('reward' => $reward,
-					  'creation' => $creation,
+					  'creation' => $sessionPuzzle->fees->creation,
 					  'id' => $response->id);
 		return View::make('game.creator-save', $data);
 	}
@@ -204,7 +205,7 @@ class GameController extends BaseController {
 		$response = CouchDB::setDoc($user, "users");
 		if ($puzzle->stats->solved == false){
 			//this person needs a refund of the reward
-			$amount = Shared\Game::unlockFunds($user->_id, $puzzle->fees->reward);
+			$amount = Coins\Dogecoin::unlockFunds($user->_id, $puzzle->fees->reward);
 			$net = 0 - $puzzle->fees->creation;
 		}else{
 			//they don't get a refund. so sad

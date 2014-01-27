@@ -26,7 +26,7 @@
 			<p>You have already paid the entry fee of <b>{{ $puzzle->fees->entry }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'> and you already have an open session in this game.  <br>Would you like to rejoin it?  This action will not cost you anything.</p>
 		@else
 			<p>To attempt this puzzle will cost you an entry fee of <b>{{ $puzzle->fees->entry }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'>
-			 (you currently have <b>{{ $user->wallet->available }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'>
+			 (you currently have <b>{{ $wallet['available'] }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'>
 			 available)<br>
 			Are you sure you want to pay this?
 		</p>

@@ -12,7 +12,7 @@ class Dogecoin {
 	    return $data;
 	}
 	
-	public static function getBalance($id="", $write=false){
+	public static function getBalance($id=""){
 		//gets the balance for the server or for the user
 		$COINS = \Config::get('coins');
 		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
@@ -22,11 +22,6 @@ class Dogecoin {
 			//not the default account
 			$user = \CouchDB::getDoc($id, "users");
 			$locked = $user->wallet->locked;
-			if ($write == true){
-				//we want to write these values to the DB
-				$user->wallet->available = $available;
-				$user->wallet->pending = $pending;
-			}
 		}else{
 			$locked = 0;
 		}
@@ -74,7 +69,7 @@ class Dogecoin {
 			$response = Dogecoin::move($from, $to, $amount);
 			$response = Dogecoin::move($to, "CREATION-FEE", $fee);
 			return $amount;
-		}catch{Exception $e){
+		}catch(Exception $e){
 			return 0;
 		}
 	}
@@ -92,21 +87,24 @@ class Dogecoin {
 		try{
 			$response = Dogecoin::move("LOCKED-FEE", $to, $amount);
 			return $amount;
-		}catch{Exception $e){
+		}catch(Exception $e){
 			return 0;
 		}
 		//something went wrong, but i have no idea what that might be.
 		return 0;
 	}
 	
-	public static function lockFunds($from, $amount){
+	public static function lockFunds($from, $amount, $fee=0){
 		//locks funds to prepare for reward
 		$fromuser = \CouchDB::getDoc($from, "users");
 		$frombalance = Dogecoin::getBalance($from);
-		if ($frombalance['available'] < $amount){
+		if ($frombalance['available'] < ($amount + $fee)){
 			//they don't have the funds
 			return \Shared\Error::handleError("nofunds");
 		}else{
+			if ($fee != 0){
+				$response = Dogecoin::payMe($from, $fee);
+			}
 			$response = Dogecoin::move($from, "LOCKED-FEE", $amount);
 			$fromuser->wallet->locked += $amount;
 			$response = \CouchDB::setDoc($fromuser, "users");
