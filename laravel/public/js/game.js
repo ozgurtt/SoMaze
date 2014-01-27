@@ -6,6 +6,7 @@ var tileData;
 var puzzleData;
 
 var hp = 100;
+var hearts = 10;
 var locked = false;
 
 var leaving = true;
@@ -35,6 +36,7 @@ $( document ).ready(function() {
 			$("#gameGrid").on('dragstart', function(event) { event.preventDefault();});
 			$("#hp").html("<p>HP: " + data.hp + "</p>");
 			hp = data.hp;
+			$("#healthbar").html(getHearts(hp));
 			//for Caleb's keypresses
 			$('html').keydown(function(e){
 				e.stopPropagation();
@@ -69,6 +71,10 @@ function sendMove(tileID, el){
 			}else if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(<br>Click <a href='/play/" + GAME_ID + "'>HERE</a> to try this puzzle again.  Click 'Play' in the top navigation bar to try a different puzzle.  You can do it!",false);}
 		    else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
+		    if (data.hp != hp){
+		    	//redraw only if there's a change, this prevents flickering
+			    $("#healthbar").html(getHearts(data.hp));
+		    }
 		    hp = data.hp;
 		    $("#hp").html("<p>HP: " + ((hp <0)?0:hp) + "</p>");
 		}else{
@@ -151,6 +157,29 @@ function validateClick(startTile, finishTile, finishTileColumn){
 
 function giveAlert(type, text, dismissable){
 	$("#alerts").prepend('<div class="alert alert-' + type + ' ' + ((dismissable == true)?'alert-dismissable':'') + '">' + ((dismissable == true)?'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>':'') + text + '</div>');
+}
+
+function getHearts(hp){
+	f = Math.floor(hp / hearts);
+	h = Math.floor((hp - (f * hearts)) / (hearts / 2));
+	i = 0;
+	healthbar = "";
+	while (i < f){
+		//fill in full hearts
+		healthbar += "<img src='/img/Assets/heart-full.png'>";
+		i++;
+	}
+	if (h >= 1){
+		//fill in half hearts
+		healthbar += "<img src='/img/Assets/heart-half.png'>";
+		i++;
+	}
+	while (i < hearts){
+		//fill in empty hearts
+		healthbar += "<img src='/img/Assets/heart-empty.png'>";
+		i++;
+	}
+	return healthbar;
 }
 
 function getTileArt(id){

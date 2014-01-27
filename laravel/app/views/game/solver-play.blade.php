@@ -23,6 +23,8 @@
 	<div id="game">
 		<div id="hp">
 		</div>
+		<div id="healthbar">
+		</div>
 	</div>
 	<div id="alerts">
 	</div>
