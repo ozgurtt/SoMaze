@@ -25,6 +25,8 @@
 		</div>
 		<div id="healthbar">
 		</div>
+		<div id="statusbar">
+		</div>
 	</div>
 	<div id="alerts">
 	</div>

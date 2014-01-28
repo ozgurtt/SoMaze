@@ -80,6 +80,7 @@ class CouchDB {
 		$game->gameid = $id;
 		$game->userid = $user;
 		$game->hp = 100;
+		$game->status = array();
 		$game->started = time();
 		$game->sessionID = Shared\Common::generateSession();
 		$game->movechain = array();

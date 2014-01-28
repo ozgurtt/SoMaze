@@ -61,6 +61,7 @@ class Game {
 				$game = Game::applyEffects($game, $puzzle->map[$tileID], $tileID);
 				array_push($game->movechain, intval($tileID));
 				$returnObj->hp = $game->hp;
+				$returnObj->status = $game->status;
 				if ($returnObj->hp <= 0){
 					//user is either dead or has won, handle bot
 					if ($returnObj->tileType == 2){
@@ -83,7 +84,7 @@ class Game {
 							$puzzle = \CouchDB::getDoc($puzzle->_id, "puzzles");
 							if ($puzzle->stats->solved == false){
 								//if the puzzle hasn't been solved by the time you're solving it, yay!
-								Game::rewardUser($puzzle->creator->id, \Session::get('user'), $puzzle->fees->reward, 0);
+								\Coins\Dogecoin::rewardUser($puzzle->creator->id, \Session::get('user'), $puzzle->fees->reward, 0);
 								$user = \CouchDB::getDoc(\Session::get('user'), "users");
 								$user->stats->wins++;
 								//we set solved to be true, but not active to false, this should trigger the puzzle write
@@ -131,11 +132,34 @@ class Game {
 	
 	public static function applyEffects($player, $tile, $tileID){
 		$tiles = \CouchDB::getDoc("tiles", "misc");
-		if (!in_array($tileID, $player->movechain)){
+		if (!in_array($tileID, $player->movechain) || $tiles->tiles[$tile]->effect->rearm == true){
 			//single damage.  if the user hits it twice, the second time does no damage
 			$player->hp += $tiles->tiles[$tile]->effect->hp;
-		}elseif ($tiles->tiles[$tile]->effect->rearm == true){
-			$player->hp += $tiles->tiles[$tile]->effect->hp;
+			$player = Game::applyStatus($player, $tile, $tileID);
+			//!in_array prevent stacking of statuses...unless that's what we want?
+			if ($tiles->tiles[$tile]->effect->status != "none" && !in_array($tiles->tiles[$tile]->effect->status, $player->status)){
+				array_push($player->status, $tiles->tiles[$tile]->effect->status);
+			}
+		}
+		return $player;
+	}
+	
+	public static function applyStatus($player, $tile, $tileID){
+		$tiles = \CouchDB::getDoc("tiles", "misc");
+		//check for removing statuses
+		foreach ($player->status as $k => $status){
+			//if $status has an remove condition, let's remove it
+			if ($tiles->statuses->{$status}->remove == $tiles->tiles[$tile]->effect->status){
+				//remove condition matches, remove the status
+				unset($player->status[$k]);
+				$player->status = array_values($player->status);
+			}else{
+				if (in_array($status, $player->status)){
+					//apply the status effect
+					$player->hp += $tiles->statuses->{$status}->effect;
+					error_log("applying the tile effect of status: " . $status . " hp" . $player->hp);
+				}
+			}
 		}
 		return $player;
 	}

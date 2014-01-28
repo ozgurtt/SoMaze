@@ -23,6 +23,7 @@ class APIController extends BaseController {
 			//load the game
 			$game = CouchDB::getDoc(Session::get('game'), "games");
 			$puzzle->hp = $game->hp;
+			$puzzle->status = $game->status;
 			//if they've moved at all
 			if (count($game->movechain) != 0){
 				//set their starting place to the last place they were

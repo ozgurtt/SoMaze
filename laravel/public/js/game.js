@@ -5,7 +5,7 @@ var startTile = null;
 var tileData;
 var puzzleData;
 
-var hp = 100;
+var hp = 0;
 var hearts = 10;
 var locked = false;
 
@@ -34,9 +34,7 @@ $( document ).ready(function() {
 			//document.body.appendChild(grid);
 			$("#game").append(grid);
 			$("#gameGrid").on('dragstart', function(event) { event.preventDefault();});
-			$("#hp").html("<p>HP: " + data.hp + "</p>");
-			hp = data.hp;
-			$("#healthbar").html(getHearts(hp));
+			updatePlayer(data);
 			//for Caleb's keypresses
 			$('html').keydown(function(e){
 				e.stopPropagation();
@@ -47,6 +45,16 @@ $( document ).ready(function() {
 	});
     
 });
+
+function updatePlayer(data){
+	if (data.hp != hp){
+    	//redraw only if there's a change, this prevents flickering
+	    $("#healthbar").html(getHearts(data.hp));
+    }
+    hp = data.hp;
+    $("#hp").html("<p>HP: " + ((hp <0)?0:hp) + "</p>");
+    $("#statusbar").html(getStatus(data.status));
+}
 
 function sendMove(tileID, el){
 	//don't send moves if you're dead silly
@@ -70,13 +78,8 @@ function sendMove(tileID, el){
 			    giveAlert(data.alert.type, data.alert.text, data.alert.dismissable);
 			}else if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(<br>Click <a href='/play/" + GAME_ID + "'>HERE</a> to try this puzzle again.  Click 'Play' in the top navigation bar to try a different puzzle.  You can do it!",false);}
-		    else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
-		    if (data.hp != hp){
-		    	//redraw only if there's a change, this prevents flickering
-			    $("#healthbar").html(getHearts(data.hp));
-		    }
-		    hp = data.hp;
-		    $("#hp").html("<p>HP: " + ((hp <0)?0:hp) + "</p>");
+		    else if (data.hp < hp && tileData.tiles[data.tileType].effect.hp < 0){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage! (" + (hp - data.hp) + " hp)",true);}
+		    updatePlayer(data);
 		}else{
 			console.log ("move not accepted");
 		}
@@ -161,7 +164,12 @@ function giveAlert(type, text, dismissable){
 
 function getHearts(hp){
 	f = Math.floor(hp / hearts);
-	h = Math.floor((hp - (f * hearts)) / (hearts / 2));
+	if (hp <= 0){
+		//don't bother with h
+		h = 0;
+	}else{
+		h = Math.floor((hp - (f * hearts)) / (hearts / 2));
+	}
 	i = 0;
 	healthbar = "";
 	while (i < f){
@@ -180,6 +188,20 @@ function getHearts(hp){
 		i++;
 	}
 	return healthbar;
+}
+
+function getStatus(status){
+	var statusArr = [];
+	for (i = 0; i < status.length; ++i) {
+    	statusArr.push(tileData.statuses[status[i]].desc);
+	}
+	if (statusArr.length == 0){
+		//no status
+		return "You're not suffering from any status effects!";
+	}else{
+		//you sick boy
+		return statusArr.join("<br>");
+	}
 }
 
 function getTileArt(id){

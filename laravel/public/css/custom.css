@@ -17,7 +17,7 @@ td.fee {
 }
 
 .grid { 
-	margin:1em auto; 
+	margin:0 auto 1em; 
 	border-collapse:collapse;
 	-webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -55,6 +55,13 @@ div#hp {
 
 div#healthbar {
 	text-align: center;
+}
+
+div#statusbar {
+	text-align: center;
+	font-weight:bold;
+	line-height: 30px;
+	margin: 0;
 }
 
 #wrap {
