@@ -133,21 +133,29 @@ class Game {
 	public static function applyEffects($player, $tile, $tileID){
 		$tiles = \CouchDB::getDoc("tiles", "misc");
 		if (!in_array($tileID, $player->movechain) || $tiles->tiles[$tile]->effect->rearm == true){
+			$player = Game::removeStatus($player, $tile, $tileID, $tiles);
 			//single damage.  if the user hits it twice, the second time does no damage
 			$player->hp += $tiles->tiles[$tile]->effect->hp;
 			//max 100 HP
 			if ($player->hp > 100){$player->hp = 100;}
-			$player = Game::applyStatus($player, $tile, $tileID);
-			//!in_array prevent stacking of statuses...unless that's what we want?
-			if ($tiles->tiles[$tile]->effect->status != "none" && !in_array($tiles->tiles[$tile]->effect->status, $player->status)){
-				array_push($player->status, $tiles->tiles[$tile]->effect->status);
-			}
+			$player = Game::tickStatus($player, $tile, $tileID, $tiles);
+			$player = Game::applyStatus($player, $tile, $tileID, $tiles);
+		}else{
+			//even if we aren't applying primary effects, we still need to apply status effects
+			$player = Game::tickStatus($player, $tile, $tileID, $tiles);
 		}
 		return $player;
 	}
 	
-	public static function applyStatus($player, $tile, $tileID){
-		$tiles = \CouchDB::getDoc("tiles", "misc");
+	public static function applyStatus($player, $tile, $tileID, $tiles){
+		//!in_array prevent stacking of statuses...unless that's what we want?
+		if ($tiles->tiles[$tile]->effect->status != "none" && !in_array($tiles->tiles[$tile]->effect->status, $player->status)){
+			array_push($player->status, $tiles->tiles[$tile]->effect->status);
+		}
+		return $player;
+	}
+	
+	public static function removeStatus($player, $tile, $tileID, $tiles){
 		//check for removing statuses
 		foreach ($player->status as $k => $status){
 			//if $status has an remove condition, let's remove it
@@ -155,13 +163,16 @@ class Game {
 				//remove condition matches, remove the status
 				unset($player->status[$k]);
 				$player->status = array_values($player->status);
-			}else{
-				if (in_array($status, $player->status)){
-					//apply the status effect
-					$player->hp += $tiles->statuses->{$status}->effect;
-					error_log("applying the tile effect of status: " . $status . " hp" . $player->hp);
-				}
 			}
+		}
+		return $player;
+	}
+	
+	public static function tickStatus($player, $tile, $tileID, $tiles){
+		//just applies damage from statuses
+		foreach ($player->status as $k => $status){
+			//cycle through each status currently in player status
+			$player->hp += $tiles->statuses->{$status}->effect;
 		}
 		return $player;
 	}
