@@ -135,6 +135,8 @@ class Game {
 		if (!in_array($tileID, $player->movechain) || $tiles->tiles[$tile]->effect->rearm == true){
 			//single damage.  if the user hits it twice, the second time does no damage
 			$player->hp += $tiles->tiles[$tile]->effect->hp;
+			//max 100 HP
+			if ($player->hp > 100){$player->hp = 100;}
 			$player = Game::applyStatus($player, $tile, $tileID);
 			//!in_array prevent stacking of statuses...unless that's what we want?
 			if ($tiles->tiles[$tile]->effect->status != "none" && !in_array($tiles->tiles[$tile]->effect->status, $player->status)){
@@ -212,7 +214,10 @@ class Game {
 		while ($i < count($tiles->tiles)){
 			if (isset($values[$i])){
 				//this tile exists
-				$traps->{strval($i)} = $values[$i];
+				if ($tiles->tiles[$i]->effect->hp < 0){
+					//the tile must do damage to be a "Trap"
+					$traps->{strval($i)} = $values[$i];
+				}
 			}
 			$i++;
 		}

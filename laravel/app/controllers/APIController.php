@@ -27,7 +27,6 @@ class APIController extends BaseController {
 			//if they've moved at all
 			if (count($game->movechain) != 0){
 				//set their starting place to the last place they were
-				$puzzle->map = str_replace(1, 0, $puzzle->map);
 				$puzzle->map[end($game->movechain)] = 1;
 			}
 		}else{
