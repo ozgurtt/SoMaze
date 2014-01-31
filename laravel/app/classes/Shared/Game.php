@@ -46,7 +46,7 @@ class Game {
 	public static function convertMove($game, $puzzle, $tileID, $sessionID){
 		//given the puzzle, the player, and the proposed move, sends information back to the client
 		//get json from client, {tileID, sessionID} ?player id?
-		//send json back, {accepted, tileID, tileType, hp, sessionID}
+		//send json back, {accepted, tileID, tileType, hp, sessionID, items}
 		//error_log("debug: " . json_encode($puzzle->players->{'$player'}));
 		$returnObj = new \stdClass();
 		//first check if the request ID is valid
@@ -60,6 +60,11 @@ class Game {
 				$returnObj->tileType = $puzzle->map[$tileID];
 				$returnObj->sessionID = Common::generateSession();
 				$game->sessionID = $returnObj->sessionID;
+				//check for item pickup
+				$tArr = Game::checkForItems($game, $tileID);
+				$game = $tArr['game'];
+				$returnObj->items = $tArr['items'];
+				//apply effects (including status effects)
 				$game = Game::applyEffects($game, $puzzle->map[$tileID], $tileID);
 				array_push($game->movechain, intval($tileID));
 				$returnObj->hp = $game->hp;
@@ -253,13 +258,13 @@ class Game {
 	public static function spawnCoins($puzzle){
 		//spawns coins in a game
 		$coins = array(
-		"bronze" => array(
+		"Bronze" => array(
 			"reward" => .025,
 			"odds"   => 50),
-		"silver" => array(
+		"Silver" => array(
 			"reward" => .05,
 			"odds"   => 25),
-		"gold"   => array(
+		"Gold"   => array(
 			"reward" => .075,
 			"odds"   => 10));
 		//one coin per this many tiles (roughly)
@@ -278,31 +283,31 @@ class Game {
 		$returnArr = array();
 		$i = 0;
 		while ($i < $totalCoins){
-			error_log("checking for coin spawn...");
+			//error_log("checking for coin spawn...");
 			$coinSeed = rand(1,100);
-			if ($coinSeed > $coins['bronze']['odds']){
+			if ($coinSeed > $coins['Bronze']['odds']){
 				//no coin is spawned on this pass
-				error_log("no coin spawned: " . $coinSeed);
+				//error_log("no coin spawned: " . $coinSeed);
 			}else{
 				//a coin is being spawned
-				error_log("coin spawned: " . $coinSeed);
+				//error_log("coin spawned: " . $coinSeed);
 				$coin = new \stdClass();
-				if($coinSeed > $coins['silver']['odds']){
+				if($coinSeed > $coins['Silver']['odds']){
 				//bronze coin
-					$coin->type = 'bronze';
-				}elseif($coinSeed > $coins['gold']['odds']){
+					$coin->type = 'Bronze';
+				}elseif($coinSeed > $coins['Gold']['odds']){
 					//silver coin
-					$coin->type = 'silver';
+					$coin->type = 'Silver';
 				}else{
 					//gold coin
-					$coin->type = 'gold';
+					$coin->type = 'Gold';
 				}
 				$totalCost += $coins[$coin->type]['reward'];
 				if ($totalCost <= .9){
 					//we can afford to give out more coins	
-					$coin->value = floor($coins[$coin->type]['reward']  * $puzzle->fees->creation);
+					$coin->value = ceil($coins[$coin->type]['reward']  * $puzzle->fees->creation);
 					$coin->location = rand(0, (count($eligibleLocations)-1));
-					error_log("value: " . $coin->value . " - location: " . $coin->location);
+					//error_log("value: " . $coin->value . " - location: " . $coin->location);
 					array_push($returnArr, $coin);
 				}
 				
@@ -311,6 +316,23 @@ class Game {
 		}
 		return $returnArr;
 					   		
+	}
+	
+	public static function checkForItems($game, $tileID){
+		//checks for items and sends it back to the client
+		$items = array();
+		//### COINS ###
+		foreach ($game->coins as $k => $coin){
+			//cycle through each coin in the array
+			if ($coin->location == $tileID){
+				//you hit a coin!
+				array_push($items, array(("coin-" . $coin->type) => $coin->value));
+				unset ($game->coins[$k]);
+				$game->coins = array_values($game->coins);
+			}
+		}
+		return array("game"  => $game,
+					 "items" => $items);
 	}
 	
 	public static function buildAlert($type, $text, $dismissable){

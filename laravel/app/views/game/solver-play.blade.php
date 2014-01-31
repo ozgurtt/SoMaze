@@ -55,6 +55,7 @@
 @section('snippet')
 	<script>
 		var GAME_ID ='{{{ $game->gameid }}}';
+		var CURRENCY = '{{ $COMMON['CURRENCY'] }}';
 		var sessionID ='{{{ $game->sessionID }}}';
 	</script>
 @stop

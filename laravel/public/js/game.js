@@ -72,6 +72,11 @@ function sendMove(tileID, el){
 		    sessionID = data.sessionID;
 		    //prevents the "start tile" from redrawing to a blank tile
 		    if (tileID != startTile){lastClicked.innerHTML = "<img src='/" + getTileArt(data.tileType) + "'>";}
+		    //check for items
+		    if (data.items.length > 0){
+			    //you got an item, let's handle it
+			    handleItems(data.items);
+		    }
 		    //alert chain
 		    if (typeof data.alert != 'undefined') {
 			    // the server sent back a custom message, let's display it
@@ -166,6 +171,22 @@ function checkBlocking(i){
 		return true;	
 	}else{
 		return false;
+	}
+}
+
+function handleItems(items){
+	//handles the items
+	for (i = 0; i < items.length; ++i) {
+		$.each(items[i], function( key, value ) {
+			type = key.split("-");
+			switch (type[0]){
+				case "coin":
+					//you got a coin
+					lastClicked.innerHTML = "<img src='/img/Assets/" + key + ".png'>";
+					giveAlert("info", "You found a " + type[1] + " coin worth " + value + " " + CURRENCY + "!",true);
+					break;
+			}
+		});
 	}
 }
 
