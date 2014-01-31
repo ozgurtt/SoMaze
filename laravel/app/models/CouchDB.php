@@ -73,18 +73,24 @@ class CouchDB {
 		return $user;
 	}
 	
-	public static function createGame($start, $id, $user){
+	public static function createGame($puzzle, $user){
 		//creates a new blank game and returns it
 		$game = new stdClass();
-		$game->_id = $id . " - " . $user;
-		$game->gameid = $id;
+		$game->_id = $puzzle->_id . " - " . $user;
+		$game->gameid = $puzzle->_id;
 		$game->userid = $user;
 		$game->hp = 100;
 		$game->status = array();
 		$game->started = time();
 		$game->sessionID = Shared\Common::generateSession();
 		$game->movechain = array();
-		array_push($game->movechain, $start);
+		//creators don't get coins
+		if ($puzzle->creator->id == $user){
+			$game->coins = array();
+		}else{
+			$game->coins = Shared\Game::spawnCoins($puzzle);
+		}
+		array_push($game->movechain, $puzzle->start);
 		$response = CouchDB::setDoc($game, "games");
 		return $game;
 	}

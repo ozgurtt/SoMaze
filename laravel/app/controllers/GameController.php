@@ -75,7 +75,7 @@ class GameController extends BaseController {
 			$amount = 0;
 		}elseif (in_array($puzzle->_id, $user->games->creator)){
 			//this is the creator who's playing and they don't have an active game
-			$game = CouchDB::createGame($puzzle->start, $id, Session::get('user'));
+			$game = CouchDB::createGame($puzzle, Session::get('user'));
 			$user->games->solver->$id = $game->_id;
 			$response = CouchDB::setDoc($user, "users");
 			Session::put('game', $user->games->solver->$id);
@@ -90,7 +90,7 @@ class GameController extends BaseController {
 				//they can only have one game open at a time
 				return Shared\Errors::handleError("toomanysolvers");
 			}
-			$game = CouchDB::createGame($puzzle->start, $id, Session::get('user'));
+			$game = CouchDB::createGame($puzzle, Session::get('user'));
 			$user->games->solver->$id = $game->_id;
 			$user->stats->attempts++;
 			$response = CouchDB::setDoc($user, "users");

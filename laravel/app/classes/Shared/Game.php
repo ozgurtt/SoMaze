@@ -31,9 +31,7 @@ class Game {
 		$tiles = \CouchDB::getDoc("tiles", "misc");
 		$hiddenTiles = array();
 		foreach ($tiles->tiles as $i => $tile){
-		error_log("hidden tile test for i: " . $i);
 			if ($tile->hidden == true){
-				error_log("hidden tile for i: " . $i . " - true");
 				array_push($hiddenTiles, $i);
 			}
 		}
@@ -250,6 +248,69 @@ class Game {
 		}
 		return $traps;
 		
+	}
+	
+	public static function spawnCoins($puzzle){
+		//spawns coins in a game
+		$coins = array(
+		"bronze" => array(
+			"reward" => .025,
+			"odds"   => 50),
+		"silver" => array(
+			"reward" => .05,
+			"odds"   => 25),
+		"gold"   => array(
+			"reward" => .075,
+			"odds"   => 10));
+		//one coin per this many tiles (roughly)
+		$threshold = 25;
+		//how many tiles are there total
+		$totalTiles = $puzzle->dimensions->width * $puzzle->dimensions->height;
+		//how many coins (roughly) based on threshold and size
+		$baseCoins = round($totalTiles / $threshold);
+		//get actual coins (first number give or take one)
+		$totalCoins = rand($baseCoins-1, $baseCoins+1);
+		//get all eligible locations
+		$eligibleLocations = array_keys($puzzle->map, 0);
+		//total cost in %, 100 is the full entry fee
+		$totalCost = 0;
+		//return array
+		$returnArr = array();
+		$i = 0;
+		while ($i < $totalCoins){
+			error_log("checking for coin spawn...");
+			$coinSeed = rand(1,100);
+			if ($coinSeed > $coins['bronze']['odds']){
+				//no coin is spawned on this pass
+				error_log("no coin spawned: " . $coinSeed);
+			}else{
+				//a coin is being spawned
+				error_log("coin spawned: " . $coinSeed);
+				$coin = new \stdClass();
+				if($coinSeed > $coins['silver']['odds']){
+				//bronze coin
+					$coin->type = 'bronze';
+				}elseif($coinSeed > $coins['gold']['odds']){
+					//silver coin
+					$coin->type = 'silver';
+				}else{
+					//gold coin
+					$coin->type = 'gold';
+				}
+				$totalCost += $coins[$coin->type]['reward'];
+				if ($totalCost <= .9){
+					//we can afford to give out more coins	
+					$coin->value = floor($coins[$coin->type]['reward']  * $puzzle->fees->creation);
+					$coin->location = rand(0, (count($eligibleLocations)-1));
+					error_log("value: " . $coin->value . " - location: " . $coin->location);
+					array_push($returnArr, $coin);
+				}
+				
+			}
+			$i++;
+		}
+		return $returnArr;
+					   		
 	}
 	
 	public static function buildAlert($type, $text, $dismissable){
