@@ -216,9 +216,11 @@ class Game {
 		$COMMON = \Config::get('common');
 		//scores a puzzle
 		$tiles = \CouchDB::getDoc("tiles", "misc");
-		$fee = 0;
+		$fee = count($puzzle['map']);
 		foreach($puzzle['map'] as $tile){
-			$fee += $tiles->tiles[$tile]->cost->{$COMMON['CURRENCY']};
+			if ($tile != 0){
+				$fee += $tiles->tiles[$tile]->cost->{$COMMON['CURRENCY']};
+			}
 		}
 		return $fee;
 	}
@@ -326,7 +328,8 @@ class Game {
 			//cycle through each coin in the array
 			if ($coin->location == $tileID){
 				//you hit a coin!
-				array_push($items, array(("coin-" . $coin->type) => $coin->value));
+				$amount = \Coins\Dogecoin::coinUser($game->userid, $coin->value);
+				array_push($items, array(("coin-" . $coin->type) => $amount));
 				unset ($game->coins[$k]);
 				$game->coins = array_values($game->coins);
 			}

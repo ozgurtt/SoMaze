@@ -18,7 +18,7 @@ class Dogecoin {
 		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
 		$available = $dogecoin->getbalance($id, $COINS['DOGE']['MIN_CONF']);
 		$pending = $dogecoin->getbalance($id, 0) - $available;
-		if ($id != ""){
+		if ($id != "" && strlen($id) > 20){
 			//not the default account
 			$user = \CouchDB::getDoc($id, "users");
 			$locked = $user->wallet->locked;
@@ -139,6 +139,20 @@ class Dogecoin {
 			return \Shared\Error::handleError("nofunds");
 		}else{
 			$response = Dogecoin::move($from, "CREATION-FEE", $amount);
+			return $amount;
+		}
+		//something went wrong, but i have no idea what that might be.
+		return 0;
+	}
+	
+		public static function coinUser($to, $amount){
+		//pay a user from the creation fee account
+		$frombalance = Dogecoin::getBalance('CREATION-FEE');
+		if ($frombalance['available'] < $amount){
+			//they don't have the funds
+			return \Shared\Error::handleError("nofunds");
+		}else{
+			$response = Dogecoin::move("CREATION-FEE", $to, $amount);
 			return $amount;
 		}
 		//something went wrong, but i have no idea what that might be.
