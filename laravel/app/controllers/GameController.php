@@ -4,7 +4,7 @@ class GameController extends BaseController {
 
 	public function showGameListing(){
 		$page = Input::get('page', 1);
-		$sort = e(Input::get('sort', "date-asc"));
+		$sort = e(Input::get('sort', "date-desc"));
 		$perPage = 5;
 		$sorts = array('difficulty-asc'  => "Difficulty",
 		               'difficulty-desc' => "Difficulty",

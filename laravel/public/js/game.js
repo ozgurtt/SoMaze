@@ -26,7 +26,7 @@ $( document ).ready(function() {
 			//console.log(mapData);
 			var grid = clickableGrid(puzzleData.dimensions.height,puzzleData.dimensions.width,function(el,row,col,i){
 			    console.log("You clicked on item #:",i);
-				if (validateClick(lastTile, i, col)){
+				if (validateClick(lastTile, i, col) && checkBlocking(i) == false){
 					console.log ("validate passed");
 					sendMove(i, el);
 				}else{console.log("validate failed");}
@@ -157,6 +157,16 @@ function validateClick(startTile, finishTile, finishTileColumn){
 		return true;
 	}
 	return false;
+}
+
+function checkBlocking(i){
+	//checks to make sure it's not blocking
+	tileType = puzzleData.map[i];
+	if (tileData.tiles[tileType].effect.blocking == true){
+		return true;	
+	}else{
+		return false;
+	}
 }
 
 function giveAlert(type, text, dismissable){

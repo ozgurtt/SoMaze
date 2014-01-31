@@ -31,13 +31,16 @@ class Game {
 		$tiles = \CouchDB::getDoc("tiles", "misc");
 		$hiddenTiles = array();
 		foreach ($tiles->tiles as $i => $tile){
+		error_log("hidden tile test for i: " . $i);
 			if ($tile->hidden == true){
+				error_log("hidden tile for i: " . $i . " - true");
 				array_push($hiddenTiles, $i);
 			}
 		}
 		foreach ($hiddenTiles as $tile){
 			//walks through each hidden tile
-			$puzzle->map = str_replace($tile, 0, $puzzle->map);
+			//$puzzle->map = str_replace($tile, 0, $puzzle->map);
+			$puzzle->map = array_replace($puzzle->map, array_fill_keys( array_keys($puzzle->map, $tile), "0"));
 		}
 		return $puzzle;
 	}
@@ -51,7 +54,8 @@ class Game {
 		//first check if the request ID is valid
 		if ($sessionID == $game->sessionID){
 			//the request matches what we are expecting, let's check if it's a valid move
-			if (Game::checkIfNeighbor($puzzle, end($game->movechain), $tileID) == true){
+			if (Game::checkIfNeighbor($puzzle, end($game->movechain), $tileID) == true && 
+			    Game::checkIfBlocking($puzzle, end($game->movechain), $tileID) == false){
 				//the move is valid, let's do calculations on damage
 				$returnObj->accepted = true;
 				$returnObj->tileID = $tileID;
@@ -191,6 +195,18 @@ class Game {
 			return true;
 		}
 		return false;
+	}
+	
+	public static function checkIfBlocking($puzzle, $start, $finish){
+		$tiles = \CouchDB::getDoc("tiles", "misc");
+		//checks for blocking
+		$tileType = $puzzle->map[$finish];
+		if ($tiles->tiles[$tileType]->effect->blocking == true){
+			//do equip/powerup checking here
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 	public static function scoreMap($puzzle){
