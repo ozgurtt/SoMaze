@@ -19,6 +19,7 @@ $( document ).ready(function() {
 				if (locked == true){return;}
 			    console.log("You clicked on item #:",i);
 			    puzzleData.map[i] = selectedTile;
+			    $("#hp").html("Creation Fee: " + getCreationFee());
 				el.innerHTML = "<img src='" + getTileArt(selectedTile) + "'>";
 			    
 			});
@@ -37,6 +38,7 @@ $( document ).ready(function() {
 			$("#tiles").append(tiles);
 			$("#tiles").on('dragstart', function(event) { event.preventDefault();});
 			$("#nextstep").on("click", nextStep);
+			$("#hp").html("Creation Fee: " + getCreationFee());
 		});
 	});
     
@@ -124,6 +126,17 @@ console.log("drawing tiles");
         }
     }  
     return grid;
+}
+
+function getCreationFee(){
+	//scores a puzzle
+	fee = puzzleData.map.length;
+	for (var i=0;i<puzzleData.map.length;++i){
+		if (puzzleData.map[i] != 0){
+			fee += tileData.tiles[puzzleData.map[i]].cost[CURRENCY];
+		}
+	}
+	return fee;
 }
 
 

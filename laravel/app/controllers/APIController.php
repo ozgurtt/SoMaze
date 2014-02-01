@@ -33,7 +33,7 @@ class APIController extends BaseController {
 			return Shared\Errors::handleError("notingame");
 		}
 		//loaded the map, now store it in the session and then convert it
-		$data= Shared\Game::convertMap($puzzle);
+		$data= Shared\Game::convertMap($puzzle, $game);
 		return Response::json($data);
 	}
 	

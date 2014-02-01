@@ -10,7 +10,7 @@
 	<form role="form" action="/account/nickname" method="post">
 	<div class="form-group">
     	<label for="nickname">Nickname</label>
-		<input type="text" class="form-control" name="nickname" placeholder="{{{ Session::get('nickname') }}}" input pattern=".{3,100}" title="3 to 100 characters">
+		<input type="text" class="form-control" name="nickname" required="true" placeholder="{{{ Session::get('nickname') }}}" input pattern=".{3,100}" title="3 to 100 characters">
 	</div>
 		<button type="submit" class="btn btn-primary">Change Nickname</button>
 	</form>	

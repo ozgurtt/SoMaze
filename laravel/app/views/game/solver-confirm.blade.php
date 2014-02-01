@@ -9,7 +9,7 @@
 <p class="lead">
 	You are getting ready to join <b>{{{ $puzzle->title }}}</b> by <b>{{{ $puzzle->creator->nickname }}} @include('includes.icon', array('status' => $puzzle->creator->status))
 </b></p>
-{{--if they are the creator, don't charge them anything--}}
+{{--if they are the creator, dont charge them anything--}}
 	@if (in_array($puzzle->_id, $user->games->creator))
 		@if ($puzzle->active == false)
 			@if ($puzzle->stats->solved == false)
@@ -35,6 +35,24 @@
 	<p>
 		<a href="{{ action('GameController@showGameListing') }}" class="btn btn-danger btn-lg">No</a>
 		<a href="{{ action('GameController@playResponse', array('id' => $puzzle->_id)) }}" class="btn btn-success btn-lg">Yes</a>
-	</p>				
+	</p>
+		
+	<?php 
+		$puzzleTraps = get_object_vars($puzzle->traps); 
+		$tiles = CouchDB::getDoc("tiles", "misc");
+	?>	
+	<div class="panel panel-info">
+	<div class="panel-heading">
+	<h3 class="panel-title">Difficulty Stats</h3>
+	</div>
+	<div class="panel-body">
+	This puzzle has the following traps in the following amounts:<br>
+	<table>
+	@foreach ($puzzle->traps as $trap => $amount)
+	<tr><td><b>{{ $amount }}</b></td><td><img src='/img/Tiles/{{ $tiles->tiles[intval($trap)]->file }}'></td><td>{{ $tiles->tiles[intval($trap)]->name }} tiles</td></tr>
+	@endforeach
+	</table>
+	</div>
+	</div>			
 </p>
 @stop

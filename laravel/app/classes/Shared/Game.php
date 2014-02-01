@@ -26,7 +26,7 @@ class Game {
 		return array('difficulty' => $difficulty, 'label' => $label, 'note' => $note);
 	}
 		
-	public static function convertMap($puzzle){
+	public static function convertMap($puzzle, $game){
 		//when given a map array, converts it for the client (removes all tiles they shouldn't see
 		$tiles = \CouchDB::getDoc("tiles", "misc");
 		$hiddenTiles = array();
@@ -35,10 +35,15 @@ class Game {
 				array_push($hiddenTiles, $i);
 			}
 		}
+		$fullPuzzle = clone $puzzle;
 		foreach ($hiddenTiles as $tile){
 			//walks through each hidden tile
 			//$puzzle->map = str_replace($tile, 0, $puzzle->map);
 			$puzzle->map = array_replace($puzzle->map, array_fill_keys( array_keys($puzzle->map, $tile), "0"));
+		}
+		foreach ($game->movechain as $tile){
+			//walk through the move chain and replace as needed
+			$puzzle->map[$tile] = $fullPuzzle->map[$tile];
 		}
 		return $puzzle;
 	}

@@ -81,7 +81,10 @@ function sendMove(tileID, el){
 		    if (typeof data.alert != 'undefined') {
 			    // the server sent back a custom message, let's display it
 			    giveAlert(data.alert.type, data.alert.text, data.alert.dismissable);
-			}else if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
+			}else if (puzzleData.map[tileID] == 2){
+				//win condition
+				giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);
+			}
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(<br>Click <a href='/play/" + GAME_ID + "'>HERE</a> to try this puzzle again.  Click 'Play' in the top navigation bar to try a different puzzle.  You can do it!",false);}
 		    else if (data.hp < hp && tileData.tiles[data.tileType].effect.hp < 0){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage! (" + (hp - data.hp) + " hp)",true);}
 		    else if (data.hp > hp && tileData.tiles[data.tileType].effect.hp > 0){giveAlert("info", "You were healed by a " + getTileName(data.tileType) + " tile and gained health! (" + (data.hp - hp) + " hp)",true);}
