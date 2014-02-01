@@ -6,4 +6,6 @@
 
 @section('content')
 	{{ $readme }}
+	<br><br>
+	@include('includes.tiles')
 @stop

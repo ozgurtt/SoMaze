@@ -14,7 +14,7 @@
 		<p><i>You have rejoined this game for free.</i></p>
 	@else
 		{{--they are paying right now--}}
-		<p><i>You just paid <b>{{ $amount }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'> to join this game</i></p>
+		<p><i>You just paid <b>{{ $amount }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'> to join this game</i></p>
 	@endif
 	<p>{{ $puzzle->desc }}</p>
 @stop
@@ -40,9 +40,9 @@
 			<span class="label {{ $difficulty['label'] }}">{{ $difficulty['note'] }}</span>
 	    </p>
 	    <table id='fee'>
-	    <tr><td class='fee'>Creation Fee</td><td><b>{{ $puzzle->fees->creation }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
-	    <tr><td class='fee'>Entry Fee</td><td><b>{{ $puzzle->fees->entry }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
-	    <tr><td class='fee'>Reward Fee</td><td><b>{{ $puzzle->fees->reward }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
+	    <tr><td class='fee'>Creation Fee</td><td><b>{{ $puzzle->fees->creation }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
+	    <tr><td class='fee'>Entry Fee</td><td><b>{{ $puzzle->fees->entry }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
+	    <tr><td class='fee'>Reward Fee</td><td><b>{{ $puzzle->fees->reward }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
 	    </table>
 	  </div>
 	</div>
