@@ -33,4 +33,16 @@ class UserController extends BaseController {
 		$data = array("nickname" => $nickname);
 		return View::make('account.nickname', $data);
 	}
+	
+	public function showWallet(){
+		$user = CouchDB::getDoc(Session::get('user'), "users");
+		$data = array("user" => $user);
+		return View::make('account.wallet', $data);
+	}
+	
+	public function getNewAddress(){
+		//gets a new address for the user
+		$data = Coins\Dogecoin::getNewAddress(Session::get('user'));
+		return Redirect::action('UserController@showWallet', array("newAddress" => $data));
+	}
 }

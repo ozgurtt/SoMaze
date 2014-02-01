@@ -75,6 +75,8 @@ Route::group(array('prefix' => '/account'), function()
 		{
 			//for account sections
 			Route::post('/nickname', array('before' => 'loggedin', 'uses' => 'UserController@changeNickname'));
+			Route::get('/wallet', array('before' => 'loggedin', 'uses' => 'UserController@showWallet'));
+			Route::get('/wallet/getnewaddress', array('before' => 'loggedin', 'uses' => 'UserController@getNewAddress'));
 			Route::get('/close/{id}', array('before' => 'loggedin', 'uses' => 'GameController@closeGame'));
 		});
 

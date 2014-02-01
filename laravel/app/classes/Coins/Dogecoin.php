@@ -48,13 +48,47 @@ class Dogecoin {
 	    return $data;
 	}
 	
-	public static function move($from, $to, $amount, $conf=1){
+	public static function move($from, $to, $amount, $conf=1, $commment=""){
 		//returns the current address for receiving payments
     	$COINS = \Config::get('coins');
 		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
 		$data = $dogecoin->move($from, $to, $amount, $conf);
 	    return $data;
 	}
+	
+	public static function sendFrom($account, $address, $amount){
+		//sends coins out
+		$COINS = \Config::get('coins');
+		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
+		$data = $dogecoin->sendfrom($account, $address, $amount);
+	    return $data;
+	}
+	
+	public static function listTransactions($account, $count=10, $from=0){
+		//lists all transactions to this account
+		$COINS = \Config::get('coins');
+		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
+		$data = $dogecoin->listtransactions($account, $count, $from);
+	    return $data;
+	}
+	
+	public static function getReceivedByAccount($account){
+		//lists all received to this account
+		$COINS = \Config::get('coins');
+		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
+		$data = $dogecoin->getreceivedbyaccount($account);
+	    return $data;
+	}
+	
+	public static function listReceivedByAccount($account){
+		//lists all received by account (doesn't need account passed)
+		$COINS = \Config::get('coins');
+		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
+		$data = $dogecoin->listreceivedbyaccount();
+	    return $data;
+	}
+	
+	
 	
 	
 	public static function payUser($from, $to, $amount, $fee){

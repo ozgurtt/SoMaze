@@ -14,6 +14,15 @@
 	</div>
 		<button type="submit" class="btn btn-primary">Change Nickname</button>
 	</form>	
+	<h3>My Wallet</h3>
+	<p>Here is a summary of the funds you have in your wallet:
+	<?php $balance = Coins\Dogecoin::getBalance($user->_id); ?>
+	<ul>
+	<li>Available: <b>{{ $balance['available'] }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	<li>Pending: <b>{{ $balance['pending'] }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	<li>Locked: <b>{{ $balance['locked'] }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	</ul>
+	<a href="/account/wallet" class="btn btn-primary"><span class="glyphicon glyphicon-wrench"></span> Manage My Wallet</a>
 	<h3>Flair</h3>
 	<p>You are currently displaying flair for your status, which looks like this: @include('includes.icon', array('status' => $user->status)) 
 	@include('includes.flair', array('status' => $user->status))
@@ -33,15 +42,6 @@
 	</li>
 	</ul>
 	</p>
-	<h3>Wallet</h3>
-	<p>Deposit Address: <b>{{ Coins\Dogecoin::getAccountAddress($user->_id) }}</b></p>
-	<p>Here is a summary of the funds you have in your wallet:
-	<?php $balance = Coins\Dogecoin::getBalance($user->_id); ?>
-	<ul>
-	<li>Available: <b>{{ $balance['available'] }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
-	<li>Pending: <b>{{ $balance['pending'] }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
-	<li>Locked: <b>{{ $balance['locked'] }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
-	</ul>
 	<h3>Open Games</h3>
 	<p>Puzzles you've made:<br>
 	<ul>
