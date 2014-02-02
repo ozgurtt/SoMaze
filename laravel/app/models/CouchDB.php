@@ -90,6 +90,7 @@ class CouchDB {
 		}else{
 			$game->coins = Shared\Game::spawnCoins($puzzle);
 		}
+		$game->items = array();
 		array_push($game->movechain, $puzzle->start);
 		$response = CouchDB::setDoc($game, "games");
 		return $game;

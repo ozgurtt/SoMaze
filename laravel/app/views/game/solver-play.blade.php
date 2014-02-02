@@ -28,6 +28,9 @@
 		<div id="statusbar">
 		</div>
 	</div>
+	<div id="itembar">
+	<img src="/img/Assets/keyBlue_disabled.png">
+	</div>
 	<div id="alerts">
 	</div>
 	<div class="panel panel-default">

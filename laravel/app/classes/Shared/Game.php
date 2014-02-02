@@ -58,7 +58,7 @@ class Game {
 		if ($sessionID == $game->sessionID){
 			//the request matches what we are expecting, let's check if it's a valid move
 			if (Game::checkIfNeighbor($puzzle, end($game->movechain), $tileID) == true && 
-			    Game::checkIfBlocking($puzzle, end($game->movechain), $tileID) == false){
+			    Game::checkIfBlocking($puzzle, $game, end($game->movechain), $tileID) == false){
 				//the move is valid, let's do calculations on damage
 				$returnObj->accepted = true;
 				$returnObj->tileID = $tileID;
@@ -66,7 +66,7 @@ class Game {
 				$returnObj->sessionID = Common::generateSession();
 				$game->sessionID = $returnObj->sessionID;
 				//check for item pickup
-				$tArr = Game::checkForItems($game, $tileID);
+				$tArr = Game::checkForItems($game, $tileID, $puzzle->map[$tileID]);
 				$game = $tArr['game'];
 				$returnObj->items = $tArr['items'];
 				//apply effects (including status effects)
@@ -205,12 +205,20 @@ class Game {
 		return false;
 	}
 	
-	public static function checkIfBlocking($puzzle, $start, $finish){
+	public static function checkIfBlocking($puzzle, $game, $start, $finish){
 		$tiles = \CouchDB::getDoc("tiles", "misc");
 		//checks for blocking
 		$tileType = $puzzle->map[$finish];
 		if ($tiles->tiles[$tileType]->effect->blocking == true){
 			//do equip/powerup checking here
+			if (isset($tiles->tiles[$tileType]->item->unblock)){
+				//this tile can be unblocked, let's see if we have what it needs
+				error_log("check if blocking: " . $tiles->tiles[$tileType]->item->unblock);
+				if (in_array($tiles->tiles[$tileType]->item->unblock, $game->items)){
+					//the equip we need is in the array
+					return false;
+				}
+			}
 			return true;
 		}else{
 			return false;
@@ -325,7 +333,8 @@ class Game {
 					   		
 	}
 	
-	public static function checkForItems($game, $tileID){
+	public static function checkForItems($game, $tileID, $tileType){
+		$tiles = \CouchDB::getDoc("tiles", "misc");
 		//checks for items and sends it back to the client
 		$items = array();
 		//### COINS ###
@@ -339,6 +348,16 @@ class Game {
 				$game->coins = array_values($game->coins);
 			}
 		}
+		//### KEYS ###
+		if (isset($tiles->tiles[$tileType]->item->equip)){
+			//the tile we're on has an equip property, let's check if we should pick it up
+			if (!in_array($tiles->tiles[$tileType]->item->equip, $game->items)){
+				//this equip isn't in the array, let's grab it!
+				array_push($items, array(($tiles->tiles[$tileType]->item->equip) => 1));
+				//update the game array
+				array_push($game->items, $tiles->tiles[$tileType]->item->equip);
+			}
+		}
 		return array("game"  => $game,
 					 "items" => $items);
 	}
@@ -350,6 +369,63 @@ class Game {
 		$alert->text = $text;
 		$alert->dismissable = $dismissable;
 		return $alert;
+	}
+	
+	public static function buildInfo($index){
+		$tiles = \CouchDB::getDoc("tiles", "misc");
+		$COMMON = \Config::get('common'); 
+		$tile = $tiles->tiles[$index];
+		$returnStr = '';
+		//first line (img/name/cost)
+		$returnStr .= "<p><img src='/img/Tiles/" . $tile->file . "'> <b>" . $tile->name . "</b> - Cost: <b> " . $tile->cost->{$COMMON['CURRENCY']} . "</b> <img src='" . $COMMON['CURRENCY_IMG'] . "' class='currency' alt='" . $COMMON['CURRENCY'] . " . '><br>";
+		//second line (desc)
+		$returnStr .= "Description: <i>" . $tile->desc . "</i><br>";
+		//tile specific sections
+		if ($tile->effect->hp != 0){
+			//amount of damage dealt
+			$returnStr .= "This tile will " . (($tile->effect->hp < 0)? "deal <b>" . abs($tile->effect->hp) . "</b> damage":"heal <b>" . $tile->effect->hp . "</b> health") . " when you step on it.<br>";
+			//rearm
+			$returnStr .= "This trap will activate " . (($tile->effect->rearm == true)?"<b>multiple times</b>":"<b>once</b>");
+		}else{
+			$returnStr .= "This tile deals <b>0</b> damage";
+		}
+		//hidden
+		$returnStr .= " and is " . (($tile->hidden == true)?"<b>hidden</b> until activated":"<b>always visible</b>") . ".<br>";
+		if ($tile->effect->status == "none"){
+			//status effects
+			$returnStr .= "It has no special status effects.<br>";
+		}else{
+			$returnStr .= "It has the status effect <b>" . $tile->effect->status . "</b> which deals";
+			if ($tiles->statuses->{$tile->effect->status}->effect < 0){
+				//has a damaging status effect
+				$returnStr .= "<b>" . abs($tiles->statuses->{$tile->effect->status}->effect) . "</b> damage per step.<br>";
+				if ($tiles->statuses->{$tile->effect->status}->remove != "none"){
+					if ($tiles->statuses->{$tile->effect->status}->remove == "death"){
+						$returnStr .= "The effect <b>" . $tile->effect->status . "</b> can not be removed.<br>";
+					}else{
+						$returnStr .= "The effect <b>" . $tile->effect->status . "</b> can be removed by tiles with the effect <b>" . $tiles->statuses->{$tile->effect->status}->remove . "</b>.<br>";
+					}
+				}
+			}else{
+				$returnStr .= "no damage.<br>";
+			}
+		}
+		
+		//do checks for keys/blocks
+		if (isset($tile->item)){
+			//has an item
+			if (isset($tile->item->unblock)){
+				//can be unlocked
+				$returnStr .= "This tile <b>blocks movement</b>, but can be unblocked with item <b>" . $tile->item->unblock . "</b><br>";
+			}elseif (isset($tile->item->equip)){
+				//is the key
+				$returnStr .= "This tile gives the user the item <b>" . $tile->item->equip . "</b><br>";
+			}
+		}else{
+			$returnStr .= (($tile->effect->blocking == true)?"This tile <b>blocks movement</b>":"");
+		}
+		$returnStr .= "</p>";
+		return $returnStr;
 	}
 
 }

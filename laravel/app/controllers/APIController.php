@@ -10,6 +10,11 @@ class APIController extends BaseController {
 		return Response::json($data);
 	}
 	
+	public function getTileInfo_All($id){
+		$data = array("content" => Shared\Game::buildInfo($id));
+		return Response::json($data);
+	}
+	
 	/*
 	API methods that only relate to being a solver
 	*/

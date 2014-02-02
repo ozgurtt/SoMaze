@@ -171,6 +171,10 @@ function checkBlocking(i){
 	//checks to make sure it's not blocking
 	tileType = puzzleData.map[i];
 	if (tileData.tiles[tileType].effect.blocking == true){
+		if (typeof tileData.tiles[tileType].item.unblock != 'undefined'){
+			//it can be unlocked, so let's let the server do the checking
+			return false;
+		}
 		return true;	
 	}else{
 		return false;
@@ -187,6 +191,9 @@ function handleItems(items){
 					//you got a coin
 					lastClicked.innerHTML = "<img src='/img/Assets/" + key + ".png'>";
 					giveAlert("info", "You found a " + type[1] + " coin worth " + value + " " + CURRENCY + "!",true);
+					break;
+				case "key":
+					giveAlert("info", "You found a " + type[1] + " key!",true);
 					break;
 			}
 		});

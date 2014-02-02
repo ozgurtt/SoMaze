@@ -19,6 +19,13 @@
 		</p>
 	</section>
 	<section class='about' id='tiles'>
-	@include('includes.tiles')
+		<h2>Tile Reference</h2>
+		<?php $tiles = \CouchDB::getDoc("tiles", "misc"); ?>
+		@foreach ($tiles->tiles as $k => $tile)
+			{{--cycle through each tile to provide information about them--}}
+			<section id="tile{{ $k }}" class="tiles">
+				{{ Shared\Game::buildInfo($k) }}
+			</section>
+		@endforeach
 	</section>
 @stop

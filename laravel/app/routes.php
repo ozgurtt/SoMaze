@@ -107,6 +107,7 @@ Route::group(array('prefix' => 'api', 'before' => 'loggedin'), function()
 		{
 			//for everyone
 			Route::get('/getTiles', 'APIController@getTiles_All');
+			Route::get('/getTileInfo/{id}', 'APIController@getTileInfo_All');
 		});
 	
 	});
