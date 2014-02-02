@@ -65,4 +65,23 @@ class UserController extends BaseController {
 		//(D[1-9a-z]{20,40}) regex for dogecoin address
 		return View::make('account.withdraw', $data);
 	}
+	
+	public function publicListing(){
+		$page = Input::get('page', 1);
+		$perPage = 10;
+		$results = CouchDB::getView("listing", "allusers", "users");
+		//do the sorting here
+		//error_log(json_encode($results->rows[0]));
+		$users = array_chunk($results->rows, $perPage);
+		$paginator = Paginator::make($users[$page-1], count($results->rows), $perPage);
+		$data = array('results' => $paginator,
+					  'count'   => count($results->rows));
+		return View::make('account.public-listing', $data);
+	}
+	
+	public function publicProfile($id){
+		$user = CouchDB::getDoc(e($id), "users");
+		$data = array("user" => $user);
+		return View::make('account.public-profile', $data);
+	}
 }

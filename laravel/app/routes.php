@@ -69,6 +69,9 @@ Route::any('login', 'LoginController@doLogin');
 Route::get('logout', 'LoginController@doLogout');
 
 //account routes
+Route::get('profile', 'UserController@publicListing');
+Route::get('profile/{id}', 'UserController@publicProfile');
+
 Route::get('account', array('before' => 'loggedin', 'uses' => 'UserController@accountIndex'));
 Route::group(array('prefix' => '/account'), function()
 		{

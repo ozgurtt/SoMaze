@@ -2,7 +2,7 @@
 
 class Sort {
 
-    public static function sortObject($obj, $type){
+    public static function sortPuzzles($obj, $type){
 	    //pass it the object, and it prepares it for sorting and sorts it
 	    switch ($type){
 		    case "difficulty-asc":

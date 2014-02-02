@@ -17,7 +17,7 @@ class GameController extends BaseController {
 		$results = CouchDB::getView("listing", "allactive", "puzzles");
 		//do the sorting here
 		//error_log(json_encode($results->rows[0]));
-		$games = Shared\Sort::sortObject($results->rows, $sort);
+		$games = Shared\Sort::sortPuzzles($results->rows, $sort);
 		$games = array_chunk($games, $perPage);
 		$paginator = Paginator::make($games[$page-1], count($results->rows), $perPage);
 		$data = array('results' => $paginator,
