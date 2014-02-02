@@ -8,8 +8,9 @@ body {
   padding-top: 50px;
 }
 .basic-template {
-  padding: 40px 15px;
+  padding: 0px 15px;
 }
+
 
 td.fee {
 	padding-left: 5px;
@@ -68,9 +69,9 @@ div#statusbar {
   min-height: 100%;
   height: auto;
   /* Negative indent footer by its height */
-  margin: 0 auto -60px;
+  margin: 0 auto -30px;
   /* Pad bottom by footer height */
-  padding: 0 0 60px;
+  padding: 0 0 30px;
 }
 
 #footer {
@@ -79,7 +80,7 @@ div#statusbar {
 }
 
 #wrap > .container {
-  padding: 60px 15px 0;
+  padding: 30px 15px 0;
 }
 .container .text-muted {
   margin: 20px 0;
@@ -92,4 +93,9 @@ div#statusbar {
 
 .right {
   float: right;
+}
+
+section.about{
+	padding-top:40px;
+	margin-top:-40px;
 }

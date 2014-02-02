@@ -45,7 +45,6 @@
     </div>
 
     <div class="container">
-
       <div class="basic-template">
         <h1>@yield('heading')</h1>
         <p class="lead">@yield('content')</p>

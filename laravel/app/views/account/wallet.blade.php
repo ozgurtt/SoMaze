@@ -27,7 +27,7 @@ $COINS = Config::get('coins');
 	</b><br>
 	<a href="{{ action('UserController@getNewAddress') }}">Generate New Address</a></p>
 	<h3>Withdraw Funds</h3>
-	<form role="form">
+	<form role="form" action="{{ action('UserController@withdraw') }}" method="post">
 	<fieldset>
 	<div class="form-group">
 		<label for="address">Address</label>  

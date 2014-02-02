@@ -45,4 +45,24 @@ class UserController extends BaseController {
 		$data = Coins\Dogecoin::getNewAddress(Session::get('user'));
 		return Redirect::action('UserController@showWallet', array("newAddress" => $data));
 	}
+	
+	public function withdraw(){
+		//sends funds to a user's address
+		if (!Input::has('amount') || !Input::has('address')){
+			//user didn't supply us with an amount or an address
+			return Shared\Errors::handleError("badparams");
+		}
+		$COMMON = Config::get('common');
+		$COINS = Config::get('coins');
+		$balance = Coins\Dogecoin::getBalance(Session::get('user'));
+		if (Input::get('amount') + $COINS[$COMMON['CURRENCY']]['TX_FEE'] > $balance['available']){
+			//they are trying to do too much
+			return Shared\Errors::handleError("nofunds");
+		}
+		//$data = Coins\Dogecoin::sendFrom(Session::get('user'), Input::get('account'), Input::get('amount'));
+		$data = array("amount" => Input::get('amount'),
+					  "address" => Input::get('address'));
+		//(D[1-9a-z]{20,40}) regex for dogecoin address
+		return View::make('account.withdraw', $data);
+	}
 }

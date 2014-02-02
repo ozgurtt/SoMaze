@@ -39,8 +39,7 @@ Route::get('/', function()
 
 Route::get('about', function()
 {	
-    return View::make('about')
-    ->with("readme", file_get_contents('templates/about.inc'));
+    return View::make('about');
 });
 
 Route::get('contact', function()
@@ -77,6 +76,7 @@ Route::group(array('prefix' => '/account'), function()
 			Route::post('/nickname', array('before' => 'loggedin', 'uses' => 'UserController@changeNickname'));
 			Route::get('/wallet', array('before' => 'loggedin', 'uses' => 'UserController@showWallet'));
 			Route::get('/wallet/getnewaddress', array('before' => 'loggedin', 'uses' => 'UserController@getNewAddress'));
+			Route::post('/wallet/withdraw', array('before' => 'loggedin', 'uses' => 'UserController@withdraw'));
 			Route::get('/close/{id}', array('before' => 'loggedin', 'uses' => 'GameController@closeGame'));
 		});
 

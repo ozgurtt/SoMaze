@@ -3,10 +3,9 @@ $tiles = CouchDB::getDoc("tiles", "misc");
 $COMMON = Config::get('common'); 
 ?>
 <h2>Tile Reference</h2>
-<hr>
 @foreach ($tiles->tiles as $tile)
 	{{--cycle through each tile to provide information about them--}}
-	<p><img src='/img/Tiles/{{ $tile->file }}'> <b>{{ $tile->name }}</b> - Cost: <b> {{$tile->cost->{$COMMON['CURRENCY']} }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'><br>
+	<p><img src='/img/Tiles/{{ $tile->file }}'> <b>{{ $tile->name }}</b> - Cost: <b> {{$tile->cost->{$COMMON['CURRENCY']} }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'><br>
 	Description: <i>{{ $tile->desc }}</i><br>
 	{{--tile specific sections--}}
 	@if ($tile->effect->hp != 0)
