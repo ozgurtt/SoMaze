@@ -39,7 +39,7 @@ class Game {
 		foreach ($hiddenTiles as $tile){
 			//walks through each hidden tile
 			//$puzzle->map = str_replace($tile, 0, $puzzle->map);
-			$puzzle->map = array_replace($puzzle->map, array_fill_keys( array_keys($puzzle->map, $tile), "0"));
+			$puzzle->map = array_replace($puzzle->map, array_fill_keys( array_keys($puzzle->map, $tile), 0));
 		}
 		foreach ($game->movechain as $tile){
 			//walk through the move chain and replace as needed

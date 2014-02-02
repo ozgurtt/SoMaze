@@ -7,6 +7,10 @@ var puzzleData;
 
 var hp = 0;
 var hearts = 10;
+
+var itemsHUD = [];
+var itemsEquip = [];
+
 var locked = false;
 
 var leaving = true;
@@ -34,6 +38,7 @@ $( document ).ready(function() {
 			//document.body.appendChild(grid);
 			$("#game").append(grid);
 			$("#gameGrid").on('dragstart', function(event) { event.preventDefault();});
+			populateHUD();
 			updatePlayer(data);
 			//for Caleb's keypresses
 			$('html').keydown(function(e){
@@ -54,7 +59,41 @@ function updatePlayer(data){
     hp = data.hp;
     $("#hp").html("<p>HP: " + ((hp <0)?0:hp) + "</p>");
     $("#statusbar").html(getStatus(data.status));
+    $("#itembar").html(refreshHUD());
 }
+
+function populateHUD(){
+	//run to populate the HUD
+	for (var i=0;i<tileData.tiles.length;++i){
+		if (typeof tileData.tiles[i].item != 'undefined'){
+			if (typeof tileData.tiles[i].item.equip != 'undefined'){
+				//this tile is a key
+				if (jQuery.inArray(i, puzzleData.map) > -1){
+					//it's not already in the hud, so let's add it
+					itemsHUD.push(tileData.tiles[i].item.equip);
+				}
+			}
+		}
+	}
+}
+
+function refreshHUD(){
+	//run to refresh the hud according to what's in items
+	itemArr = [];
+	for (var i=0;i<itemsHUD.length;++i){
+	console.log("refresh hud: i : " + i);
+		if (jQuery.inArray(itemsHUD[i], itemsEquip) > -1){
+			//this item has been equiped, let's show it in the hud
+			itemArr.push("<img src='/img/Assets/" + itemsHUD[i] + ".png'>");
+		}else{
+			//let's just show the shadow instead
+			itemArr.push("<img src='/img/Assets/" + itemsHUD[i] + "-disabled.png'>");
+		}
+	}
+	return itemArr.join("&nbsp;");
+}
+
+
 
 function sendMove(tileID, el){
 	//don't send moves if you're dead silly
@@ -193,6 +232,7 @@ function handleItems(items){
 					giveAlert("info", "You found a " + type[1] + " coin worth " + value + " " + CURRENCY + "!",true);
 					break;
 				case "key":
+					itemsEquip.push(key);
 					giveAlert("info", "You found a " + type[1] + " key!",true);
 					break;
 			}
