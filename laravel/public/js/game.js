@@ -38,7 +38,7 @@ $( document ).ready(function() {
 			//document.body.appendChild(grid);
 			$("#game").append(grid);
 			$("#gameGrid").on('dragstart', function(event) { event.preventDefault();});
-			populateHUD();
+			populateHUD(data.items);
 			updatePlayer(data);
 			//for Caleb's keypresses
 			$('html').keydown(function(e){
@@ -62,7 +62,7 @@ function updatePlayer(data){
     $("#itembar").html(refreshHUD());
 }
 
-function populateHUD(){
+function populateHUD(items){
 	//run to populate the HUD
 	for (var i=0;i<tileData.tiles.length;++i){
 		if (typeof tileData.tiles[i].item != 'undefined'){
@@ -74,6 +74,9 @@ function populateHUD(){
 				}
 			}
 		}
+	}
+	for (var i=0;i<items.length;++i){
+		itemsEquip.push(items[i]);
 	}
 }
 

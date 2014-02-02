@@ -45,6 +45,7 @@ class Game {
 			//walk through the move chain and replace as needed
 			$puzzle->map[$tile] = $fullPuzzle->map[$tile];
 		}
+		$puzzle->items = $game->items;
 		return $puzzle;
 	}
 	
