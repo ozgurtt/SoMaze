@@ -24,7 +24,7 @@
 	</ul>
 	<a href="/account/wallet" class="btn btn-primary"><span class="glyphicon glyphicon-wrench"></span> Manage My Wallet</a>
 	<h3>Flair</h3>
-	<p>You are currently displaying flair for your status, which looks like this: @include('includes.icon', array('status' => $user->status)) 
+	<p>You are currently displaying flair for your status, which looks like this: @include('includes.icon', array('status' => $user->status))
 	@include('includes.flair', array('status' => $user->status))
 	</p>
 	<h3>Game Statistics</h3>
@@ -62,7 +62,7 @@
     		<br>
     		<b>Stats:</b> - <i>Attempts: </i>{{ $puzzle->stats->attempts }}
     		@if ($puzzle->stats->solved == true)
-    			 - <i>Won by:</i> {{ $puzzle->stats->winnick }}@include('includes.icon', array('status' => $puzzle->stats->winstatus))
+    			 - <i>Won by:</i> <a href='/profile/{{ $puzzle->stats->winner }}'>{{{ $puzzle->stats->winnick }}}</a> @include('includes.icon', array('status' => $puzzle->stats->winstatus))
     			  <i>on</i> {{ date("F j, Y, g:i a", $puzzle->stats->windate) }} CST
     		@endif
 			<br><br>

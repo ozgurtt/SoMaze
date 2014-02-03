@@ -2,7 +2,7 @@
 <?php $COMMON = Config::get('common'); ?>
 
 @section('heading')
-	{{ $puzzle->title }} by {{ $puzzle->creator->nickname }} @include('includes.icon', array('status' => $puzzle->creator->status))
+	{{ $puzzle->title }} by <a href='/profile/{{ $puzzle->creator->id }}'>{{{ $puzzle->creator->nickname }}}</a> @include('includes.icon', array('status' => $puzzle->creator->status))
 
 @stop
 

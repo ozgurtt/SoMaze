@@ -6,19 +6,20 @@
 @stop
 
 @section('content')
-
-	@foreach ($sorts as $k => $val)
-		<?php 
-		$order = explode("-", $k);
-		$glyph = (($order[1] == "asc") ? "glyphicon glyphicon-chevron-up" : "glyphicon glyphicon-chevron-down");
-		?>
-		
-		@if ($k == $sort)
-			<a href="{{ action('GameController@showGameListing', array('page' => $results->getCurrentPage(), 'sort' => $k )) }}" class="btn btn-info"><span class="{{ $glyph }}"></span> {{ $val }}</a>
-		@else
-			<a href="{{ action('GameController@showGameListing', array('page' => $results->getCurrentPage(), 'sort' => $k )) }}" class="btn btn-primary"><span class="{{ $glyph }}"></span> {{ $val }}</a>
-		@endif
-	@endforeach
+	@if ($count != 0)
+		@foreach ($sorts as $k => $val)
+			<?php 
+			$order = explode("-", $k);
+			$glyph = (($order[1] == "asc") ? "glyphicon glyphicon-chevron-up" : "glyphicon glyphicon-chevron-down");
+			?>
+			
+			@if ($k == $sort)
+				<a href="{{ action('GameController@showGameListing', array('page' => $results->getCurrentPage(), 'sort' => $k )) }}" class="btn btn-info"><span class="{{ $glyph }}"></span> {{ $val }}</a>
+			@else
+				<a href="{{ action('GameController@showGameListing', array('page' => $results->getCurrentPage(), 'sort' => $k )) }}" class="btn btn-primary"><span class="{{ $glyph }}"></span> {{ $val }}</a>
+			@endif
+		@endforeach
+	@endif
 
 @stop
 

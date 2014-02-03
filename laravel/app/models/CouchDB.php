@@ -53,10 +53,11 @@ class CouchDB {
 		}
 	}
 	
-	public static function createUser($id){
+	public static function createUser($id, $openid=true){
 		$user = new stdClass();
 		$user->_id = $id;
 		$user->nickname = CouchDB::generateNickname();
+		$user->openid = $openid;
 		$user->joined = time();
 		$user->wallet = new stdClass();
 		$user->wallet->locked = 0;

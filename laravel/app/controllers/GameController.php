@@ -15,15 +15,19 @@ class GameController extends BaseController {
 		               'reward-desc'     => "Reward Amount",
 		               'entry-asc'       => "Entry Fee");
 		$results = CouchDB::getView("listing", "allactive", "puzzles");
-		//do the sorting here
-		//error_log(json_encode($results->rows[0]));
-		$games = Shared\Sort::sortPuzzles($results->rows, $sort);
-		$games = array_chunk($games, $perPage);
-		$paginator = Paginator::make($games[$page-1], count($results->rows), $perPage);
-		$data = array('results' => $paginator,
-					  'count'   => count($results->rows),
-					  'sorts'    => $sorts,
-					  'sort'    => $sort);
+		if (count($results->rows) != 0){
+			//do the sorting here
+			//error_log(json_encode($results->rows[0]));
+			$games = Shared\Sort::sortPuzzles($results->rows, $sort);
+			$games = array_chunk($games, $perPage);
+			$paginator = Paginator::make($games[$page-1], count($results->rows), $perPage);
+		}else{
+			$paginator = $results->rows;
+		}
+			$data = array('results' => $paginator,
+						  'count'   => count($results->rows),
+						  'sorts'    => $sorts,
+						  'sort'    => $sort);
 		return View::make('game.solver-listing', $data);
 	}
 

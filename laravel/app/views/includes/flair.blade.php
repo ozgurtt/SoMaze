@@ -1,11 +1,11 @@
 @if ($status->staff)
-	(Staff)
+	Staff Member
 @elseif ($status->donator)
-	(Donator)
+	Donator
 @elseif ($status->vip)
-	(VIP)
+	VIP
 @elseif ($status->verified)
-	(Verified)
+	Verified User
 @else
-	(User)
+	User
 @endif

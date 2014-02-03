@@ -7,7 +7,7 @@
 
 @section('content')
 <p class="lead">
-	You are getting ready to join <b>{{{ $puzzle->title }}}</b> by <b>{{{ $puzzle->creator->nickname }}} @include('includes.icon', array('status' => $puzzle->creator->status))
+	You are getting ready to join <b>{{{ $puzzle->title }}}</b> by <b><a href='/profile/{{ $puzzle->creator->id }}'>{{{ $puzzle->creator->nickname }}}</a> @include('includes.icon', array('status' => $puzzle->creator->status))
 </b></p>
 {{--if they are the creator, dont charge them anything--}}
 	@if (in_array($puzzle->_id, $user->games->creator))
