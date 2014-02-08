@@ -72,4 +72,13 @@ class Sort {
 	    }
 	    return $obj;
     }
+    
+    public static function sortTutorials($obj){
+	    //pass it the object, and it prepares it for sorting and sorts it
+		usort($obj, function($a, $b){
+			if($a->key == $b->key){return 0 ;} 
+			return ($a->key < $b->key) ? -1 : 1;
+		});
+		return $obj;
+    }
 }

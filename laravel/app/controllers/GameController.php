@@ -248,4 +248,25 @@ class GameController extends BaseController {
 		return View::make('game.creator-close', $data);
 
 	}
+	
+	//tutorial functions
+	
+	public function showTutorialListing(){
+		$results = CouchDB::getView("listing", "alltutorials", "tutorials");
+		if (count($results->rows) != 0){
+			//do the sorting here
+			$games = Shared\Sort::sortTutorials($results->rows);
+		}else{
+			$games = $results->rows;
+		}
+		$data = array('results' => $games,
+					  'count'   => count($results->rows));
+		return View::make('game.tutorial-listing', $data);		
+	}
+	
+	public function playTutorial($id){
+		$puzzle = CouchDB::getDoc($id, "tutorials");
+		$data = array('puzzle' => $puzzle);
+		return View::make('game.tutorial-play', $data);
+	}
 }

@@ -52,6 +52,10 @@ Route::get('contact', function()
     return View::make('contact');
 });
 
+//game tutorial routes
+Route::get('tutorials', 'GameController@showTutorialListing');
+Route::get('try/{id}', 'GameController@playTutorial');
+
 //game (solver) routes
 Route::get('play', 'GameController@showGameListing');
 Route::get('play/{id}', array('before' => 'loggedin', 'uses' => 'GameController@confirmEntry'));
@@ -84,20 +88,20 @@ Route::group(array('prefix' => '/account'), function()
 		});
 
 //API
-Route::group(array('prefix' => 'api', 'before' => 'loggedin'), function()
+Route::group(array('prefix' => 'api'), function()
 {
 	//the routes for all API calls
 	Route::group(array('prefix' => '/v1'), function()
 	{
 		//for version 1
-		Route::group(array('prefix' => '/solver'), function()
+		Route::group(array('prefix' => '/solver', 'before' => 'loggedin'), function()
 		{
 			//for solvers only
 			Route::get('/getMap/{id}', 'APIController@getMap_Solver');
 			Route::get('/move/{id}/{tileID}/{sessionID}', 'APIController@getMove_Solver');
 		});
 		
-		Route::group(array('prefix' => '/creator'), function()
+		Route::group(array('prefix' => '/creator', 'before' => 'loggedin'), function()
 		{
 			//for creators only
 			Route::get('/getMap/{width}/{height}', 'APIController@getMap_Creator');
@@ -111,6 +115,12 @@ Route::group(array('prefix' => 'api', 'before' => 'loggedin'), function()
 			//for everyone
 			Route::get('/getTiles', 'APIController@getTiles_All');
 			Route::get('/getTileInfo/{id}', 'APIController@getTileInfo_All');
+		});
+		
+		Route::group(array('prefix' => '/tutorial'), function()
+		{
+			//for everyone
+			Route::get('/getMap/{id}', 'APIController@getMap_Tutorial');
 		});
 	
 	});

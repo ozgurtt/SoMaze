@@ -26,7 +26,7 @@ class Game {
 		return array('difficulty' => $difficulty, 'label' => $label, 'note' => $note);
 	}
 		
-	public static function convertMap($puzzle, $game){
+	public static function convertMap($puzzle, $game=null){
 		//when given a map array, converts it for the client (removes all tiles they shouldn't see
 		$tiles = \CouchDB::getDoc("tiles", "misc");
 		$hiddenTiles = array();
@@ -41,11 +41,14 @@ class Game {
 			//$puzzle->map = str_replace($tile, 0, $puzzle->map);
 			$puzzle->map = array_replace($puzzle->map, array_fill_keys( array_keys($puzzle->map, $tile), 0));
 		}
-		foreach ($game->movechain as $tile){
-			//walk through the move chain and replace as needed
-			$puzzle->map[$tile] = $fullPuzzle->map[$tile];
+		if ($game != null){
+			//trap this in case we're just converting for the tutorials
+			foreach ($game->movechain as $tile){
+				//walk through the move chain and replace as needed
+				$puzzle->map[$tile] = $fullPuzzle->map[$tile];
+			}
+			$puzzle->items = $game->items;
 		}
-		$puzzle->items = $game->items;
 		return $puzzle;
 	}
 	
@@ -396,7 +399,7 @@ class Game {
 			//status effects
 			$returnStr .= "It has no special status effects.<br>";
 		}else{
-			$returnStr .= "It has the status effect <b>" . $tile->effect->status . "</b> which deals";
+			$returnStr .= "It has the status effect <b>" . $tile->effect->status . "</b> which deals ";
 			if ($tiles->statuses->{$tile->effect->status}->effect < 0){
 				//has a damaging status effect
 				$returnStr .= "<b>" . abs($tiles->statuses->{$tile->effect->status}->effect) . "</b> damage per step.<br>";

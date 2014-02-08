@@ -113,6 +113,23 @@ class APIController extends BaseController {
 		return Response::json($data);
 	}
 	
+	/*
+	API methods that are specific to the tutorial
+	*/
+	
+	public function getMap_Tutorial($id){
+		//no filtering, just give them the raw map
+		$data = new stdClass();
+		$data->puzzle = CouchDB::getDoc($id, "tutorials");
+		$data->puzzle->map[$data->puzzle->start] = 1;
+		$data->clean = clone $data->puzzle;
+		$data->clean = Shared\Game::convertMap($data->clean);
+		$data->items = array();
+		$data->status = array();
+		$data->hp = 100;
+		return Response::json($data);
+	}
+	
 	//coin testing
 	
 	public function getCoinInfo(){
