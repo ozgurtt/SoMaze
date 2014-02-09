@@ -23,6 +23,11 @@
 	</div>
 	<div id="alerts">
 	</div>
+	<div id="newtiles">
+	@foreach($puzzle->newtiles as $tile)
+		<p>{{ Shared\Game::buildInfo($tile, false) }}</p>
+	@endforeach
+	</div>
 @stop
 
 @section('js')

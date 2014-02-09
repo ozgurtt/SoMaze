@@ -375,13 +375,17 @@ class Game {
 		return $alert;
 	}
 	
-	public static function buildInfo($index){
+	public static function buildInfo($index, $includecost=true){
 		$tiles = \CouchDB::getDoc("tiles", "misc");
 		$COMMON = \Config::get('common'); 
 		$tile = $tiles->tiles[$index];
 		$returnStr = '';
 		//first line (img/name/cost)
-		$returnStr .= "<p><img src='/img/Tiles/" . $tile->file . "'> <b>" . $tile->name . "</b> - Cost: <b> " . $tile->cost->{$COMMON['CURRENCY']} . "</b> <img src='" . $COMMON['CURRENCY_IMG'] . "' class='currency' alt='" . $COMMON['CURRENCY'] . " . '><br>";
+		$returnStr .= "<p><img src='/img/Tiles/" . $tile->file . "'> <b>" . $tile->name . "</b>";
+		if ($includecost == true){
+			$returnStr .= " - Cost: <b> " . $tile->cost->{$COMMON['CURRENCY']} . "</b> <img src='" . $COMMON['CURRENCY_IMG'] . "' class='currency' alt='" . $COMMON['CURRENCY'] . " . '>";
+		}
+		$returnStr .= "<br>";
 		//second line (desc)
 		$returnStr .= "Description: <i>" . $tile->desc . "</i><br>";
 		//tile specific sections

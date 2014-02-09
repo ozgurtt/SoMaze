@@ -102,7 +102,7 @@ function sendMove(tileID, el){
 	locked = true;
 	data = mimicServer(tileID);
 	if (data.accepted == true){
-		console.log ("move accepted (" + data.sessionID + ")");
+		console.log ("move accepted");
 		//the move we sent was accepted
 		el.className='clicked';
 	    if (lastClicked) lastClicked.className='';
@@ -113,6 +113,7 @@ function sendMove(tileID, el){
 	    //check for items
 	    if (data.items.length > 0){
 		    //you got an item, let's handle it
+		    console.log ("handling items in sendmove");
 		    handleItems(data.items);
 	    }
 	    //alert chain
@@ -209,12 +210,14 @@ function checkBlocking(i){
 	//checks to make sure it's not blocking
 	tileType = puzzleData.map[i];
 	if (tileData.tiles[tileType].effect.blocking == true){
-		if (typeof tileData.tiles[tileType].item.unblock != 'undefined'){
-			//it can be unlocked, so let's see if it does
-			if (jQuery.inArray(tileData.tiles[tileType].item.unblock, itemsEquip) > -1){
-				return false;
-			}else{
-				return true;
+		if (typeof tileData.tiles[tileType].item != 'undefined'){
+			if (typeof tileData.tiles[tileType].item.unblock != 'undefined'){
+				//it can be unlocked, so let's see if it does
+				if (jQuery.inArray(tileData.tiles[tileType].item.unblock, itemsEquip) > -1){
+					return false;
+				}else{
+					return true;
+				}
 			}
 		}
 		return true;	
@@ -338,7 +341,10 @@ function mimicServer(tileID){
 		if (typeof tileData.tiles[data.tileType].item.equip != 'undefined'){
 			//it is, so if it's not already in the array, let's push it
 			if (jQuery.inArray(tileData.tiles[data.tileType].item.equip, itemsEquip) <= -1){
-				data.items.push(tileData.tiles[data.tileType].item.equip);
+			console.log("found item, pushing");
+				itemObject = {};
+				itemObject[tileData.tiles[data.tileType].item.equip] = 1;
+				data.items.push(itemObject);
 			}
 		}
 	}
@@ -357,7 +363,7 @@ function mimicServer(tileID){
 		if (data.hp > 100){data.hp = 100;}
 		//tick status effects
 		for (i = 0; i < serverStatus.length; ++i) {
-			data.hp += tileData.statuses[i].effect;
+			data.hp += tileData.statuses[serverStatus[i]].effect;
 		}
 		//apply status effects
 		if (tileData.tiles[data.tileType].effect.status != "none" && jQuery.inArray(tileData.tiles[data.tileType].effect.status, serverStatus) <= -1){
@@ -366,7 +372,7 @@ function mimicServer(tileID){
 		}
 	}else{
 		for (i = 0; i < serverStatus.length; ++i) {
-			data.hp += tileData.statuses[i].effect;
+			data.hp += tileData.statuses[serverStatus[i]].effect;
 		}
 	}
 	//update movechain
