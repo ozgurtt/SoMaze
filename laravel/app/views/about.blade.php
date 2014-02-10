@@ -9,7 +9,9 @@
 	<hr>
 	<section class="about" id='howtoplay'>
 		<h2>How to Play</h2>
-		<p>To be added</p>
+		<p>
+			<a href="/tutorials" class="btn btn-primary"><span class="glyphicon glyphicon-info-sign"></span> Tutorial Puzzles</a>
+		</p>
 	</section>
 	<section class="about" id='faq'>
 		<h2>FAQ</h2>
