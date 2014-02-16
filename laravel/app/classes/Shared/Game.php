@@ -109,6 +109,8 @@ class Game {
 								$puzzle->stats->windate = time();
 								$puzzle->stats->winnick = \Session::get('nickname');
 								$puzzle->stats->winstatus = \Session::get('status');
+								//log information about puzzle win
+								\Shared\Log::doLog("Puzzle Win! '" . $puzzle->stats->winnick . "' [" . $user->_id . "] won puzzle '" . $puzzle->title . "' [" . $puzzle->_id . "] in " . count($game->movechain) . " moves and won " . $puzzle->fees->reward);
 							}else{
 								//the puzzle has already been solved, if only you were a little bit faster
 								$user = \CouchDB::getDoc(\Session::get('user'), "users");
