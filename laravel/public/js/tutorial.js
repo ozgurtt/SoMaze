@@ -123,6 +123,7 @@ function sendMove(tileID, el){
 		}else if (puzzleData.map[tileID] == 2){
 			//win condition
 			giveAlert("success", "Congratulations! You solved the puzzle successfully.  Click <a href='/tutorials'>HERE</a> to go back to a list of all the tutorials.", false);
+			return;
 		}
 	    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(<br>Click <a href='/try/" + GAME_ID + "'>HERE</a> to try this puzzle again or click <a href='/tutorials'>HERE</a> to go back to a list of all the tutorials.",false);}
 	    else if (data.hp < hp && tileData.tiles[data.tileType].effect.hp < 0){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage! (" + (hp - data.hp) + " hp)",true);}

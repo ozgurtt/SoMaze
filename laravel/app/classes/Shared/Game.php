@@ -79,22 +79,26 @@ class Game {
 				$returnObj->hp = $game->hp;
 				$returnObj->status = $game->status;
 				if ($returnObj->hp <= 0){
-					//user is either dead or has won, handle bot
+					//user is either dead or has won, handle both
+					$creator = false;
+					if (\Session::has('creator')){
+						if (\Session::get('creator') == $puzzle->_id){
+							$creator = true;
+						}
+					}
 					if ($returnObj->tileType == 2){
 						//win conditions
-						$creator = false;
-						if (\Session::has('creator')){
-							if (\Session::get('creator') == $puzzle->_id){
-								$creator = true;
-							}
-						}
 						if ($creator == true){
 							//this is the creator who just beat the game
 							\Session::forget('creator');
-							$puzzle->active = true;
-							$response = \CouchDB::setDoc($puzzle, "puzzles");
+							if ($puzzle->active == true){
+								$returnObj->alert = Game::buildAlert("success", "You've solved the puzzle again, it's still active, don't worry.", false);
+							}else{
+								$puzzle->active = true;
+								$response = \CouchDB::setDoc($puzzle, "puzzles");
+								$returnObj->alert = Game::buildAlert("success", "You've solved the puzzle, and it's now activated!", false);
+							}
 							$user = \CouchDB::getDoc(\Session::get('user'), "users");
-							$returnObj->alert = Game::buildAlert("success", "You've solved the puzzle, and it's now activated!", false);
 						}else{
 							//if we're paying out money, we need to be SURE, this puzzle is open
 							$puzzle = \CouchDB::getDoc($puzzle->_id, "puzzles");
@@ -120,7 +124,10 @@ class Game {
 					}else{
 						//they lost :(
 						$user = \CouchDB::getDoc(\Session::get('user'), "users");
-						$user->stats->losses++;
+						if ($creator != true){
+							//creators don't get losses applied to them
+							$user->stats->losses++;
+						}
 					}
 					unset($user->games->solver->{$puzzle->_id});
 					//remove the reference from the user doc

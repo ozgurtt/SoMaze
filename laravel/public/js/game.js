@@ -123,9 +123,15 @@ function sendMove(tileID, el){
 		    if (typeof data.alert != 'undefined') {
 			    // the server sent back a custom message, let's display it
 			    giveAlert(data.alert.type, data.alert.text, data.alert.dismissable);
+			    if (data.alert.type == "success"){
+				    //we return to avoid the whole "you won but you're dead now thing"
+					return;
+			    }
 			}else if (puzzleData.map[tileID] == 2){
 				//win condition
 				giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);
+				//we return to avoid the whole "you won but you're dead now thing"
+				return;
 			}
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(<br>Click <a href='/play/" + GAME_ID + "'>HERE</a> to try this puzzle again.  Click 'Play' in the top navigation bar to try a different puzzle.  You can do it!",false);}
 		    else if (data.hp < hp && tileData.tiles[data.tileType].effect.hp < 0){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage! (" + (hp - data.hp) + " hp)",true);}
@@ -307,7 +313,7 @@ function getTileName(id){
 	if (typeof tileData.tiles[id] == 'undefined'){
 		name = "Error";
 	}else{
-		name = tileData.tiles[id].name;
+		name = "<a href='/about#tile" + id + "' target='_blank'>" + tileData.tiles[id].name + "</a>";
 	}
 	return name;
 }
