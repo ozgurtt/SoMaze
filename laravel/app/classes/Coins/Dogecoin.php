@@ -61,6 +61,7 @@ class Dogecoin {
 		$COINS = \Config::get('coins');
 		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
 		$data = $dogecoin->sendfrom($account, $address, $amount);
+		\Shared\Log::doLog("Money sent [" . $amount . "] from account: " . $account . " to address " . $address);
 	    return $data;
 	}
 	
