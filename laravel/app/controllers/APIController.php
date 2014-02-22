@@ -10,6 +10,11 @@ class APIController extends BaseController {
 		return Response::json($data);
 	}
 	
+	public function getTileInfo_All($id){
+		$data = array("content" => Shared\Game::buildInfo($id));
+		return Response::json($data);
+	}
+	
 	/*
 	API methods that only relate to being a solver
 	*/
@@ -23,17 +28,17 @@ class APIController extends BaseController {
 			//load the game
 			$game = CouchDB::getDoc(Session::get('game'), "games");
 			$puzzle->hp = $game->hp;
+			$puzzle->status = $game->status;
 			//if they've moved at all
 			if (count($game->movechain) != 0){
 				//set their starting place to the last place they were
-				$puzzle->map = str_replace(1, 0, $puzzle->map);
 				$puzzle->map[end($game->movechain)] = 1;
 			}
 		}else{
 			return Shared\Errors::handleError("notingame");
 		}
 		//loaded the map, now store it in the session and then convert it
-		$data= Shared\Game::convertMap($puzzle);
+		$data= Shared\Game::convertMap($puzzle, $game);
 		return Response::json($data);
 	}
 	
@@ -105,6 +110,30 @@ class APIController extends BaseController {
 	public function saveMap_Creator(){
 	//to be added later
 		$data= array("comingsoon" => "notyet");
+		return Response::json($data);
+	}
+	
+	/*
+	API methods that are specific to the tutorial
+	*/
+	
+	public function getMap_Tutorial($id){
+		//no filtering, just give them the raw map
+		$data = new stdClass();
+		$data->puzzle = CouchDB::getDoc($id, "tutorials");
+		$data->puzzle->map[$data->puzzle->start] = 1;
+		$data->clean = clone $data->puzzle;
+		$data->clean = Shared\Game::convertMap($data->clean);
+		$data->items = array();
+		$data->status = array();
+		$data->hp = 100;
+		return Response::json($data);
+	}
+	
+	//coin testing
+	
+	public function getCoinInfo(){
+		$data = Coins\Dogecoin::getBalance();
 		return Response::json($data);
 	}
 	

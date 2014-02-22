@@ -5,7 +5,12 @@ var startTile = null;
 var tileData;
 var puzzleData;
 
-var hp = 100;
+var hp = 0;
+var hearts = 10;
+
+var itemsHUD = [];
+var itemsEquip = [];
+
 var locked = false;
 
 var leaving = true;
@@ -25,7 +30,7 @@ $( document ).ready(function() {
 			//console.log(mapData);
 			var grid = clickableGrid(puzzleData.dimensions.height,puzzleData.dimensions.width,function(el,row,col,i){
 			    console.log("You clicked on item #:",i);
-				if (validateClick(lastTile, i, col)){
+				if (validateClick(lastTile, i, col) && checkBlocking(i) == false){
 					console.log ("validate passed");
 					sendMove(i, el);
 				}else{console.log("validate failed");}
@@ -33,8 +38,8 @@ $( document ).ready(function() {
 			//document.body.appendChild(grid);
 			$("#game").append(grid);
 			$("#gameGrid").on('dragstart', function(event) { event.preventDefault();});
-			$("#hp").html("<p>HP: " + data.hp + "</p>");
-			hp = data.hp;
+			populateHUD(data.items);
+			updatePlayer(data);
 			//for Caleb's keypresses
 			$('html').keydown(function(e){
 				e.stopPropagation();
@@ -45,6 +50,53 @@ $( document ).ready(function() {
 	});
     
 });
+
+function updatePlayer(data){
+	if (data.hp != hp){
+    	//redraw only if there's a change, this prevents flickering
+	    $("#healthbar").html(getHearts(data.hp));
+    }
+    hp = data.hp;
+    $("#hp").html("<p>HP: " + ((hp <0)?0:hp) + "</p>");
+    $("#statusbar").html(getStatus(data.status));
+    $("#itembar").html(refreshHUD());
+}
+
+function populateHUD(items){
+	//run to populate the HUD
+	for (var i=0;i<tileData.tiles.length;++i){
+		if (typeof tileData.tiles[i].item != 'undefined'){
+			if (typeof tileData.tiles[i].item.equip != 'undefined'){
+				//this tile is a key
+				if (jQuery.inArray(i, puzzleData.map) > -1){
+					//it's not already in the hud, so let's add it
+					itemsHUD.push(tileData.tiles[i].item.equip);
+				}
+			}
+		}
+	}
+	for (var i=0;i<items.length;++i){
+		itemsEquip.push(items[i]);
+	}
+}
+
+function refreshHUD(){
+	//run to refresh the hud according to what's in items
+	itemArr = [];
+	for (var i=0;i<itemsHUD.length;++i){
+	console.log("refresh hud: i : " + i);
+		if (jQuery.inArray(itemsHUD[i], itemsEquip) > -1){
+			//this item has been equiped, let's show it in the hud
+			itemArr.push("<img src='/img/Assets/" + itemsHUD[i] + ".png'>");
+		}else{
+			//let's just show the shadow instead
+			itemArr.push("<img src='/img/Assets/" + itemsHUD[i] + "-disabled.png'>");
+		}
+	}
+	return itemArr.join("&nbsp;");
+}
+
+
 
 function sendMove(tileID, el){
 	//don't send moves if you're dead silly
@@ -62,15 +114,23 @@ function sendMove(tileID, el){
 		    sessionID = data.sessionID;
 		    //prevents the "start tile" from redrawing to a blank tile
 		    if (tileID != startTile){lastClicked.innerHTML = "<img src='/" + getTileArt(data.tileType) + "'>";}
+		    //check for items
+		    if (data.items.length > 0){
+			    //you got an item, let's handle it
+			    handleItems(data.items);
+		    }
 		    //alert chain
 		    if (typeof data.alert != 'undefined') {
 			    // the server sent back a custom message, let's display it
 			    giveAlert(data.alert.type, data.alert.text, data.alert.dismissable);
-			}else if (puzzleData.map[tileID] == 2){giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);}
+			}else if (puzzleData.map[tileID] == 2){
+				//win condition
+				giveAlert("success", "Congratulations! You solved the puzzle successfully.  The reward amount for this puzzle has been deposited into your account", false);
+			}
 		    else if (data.hp <= 0){giveAlert("danger", "You hit a " + getTileName(data.tileType) + " tile and died! Much sad. :(<br>Click <a href='/play/" + GAME_ID + "'>HERE</a> to try this puzzle again.  Click 'Play' in the top navigation bar to try a different puzzle.  You can do it!",false);}
-		    else if (data.hp < hp){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage!",true);}
-		    hp = data.hp;
-		    $("#hp").html("<p>HP: " + ((hp <0)?0:hp) + "</p>");
+		    else if (data.hp < hp && tileData.tiles[data.tileType].effect.hp < 0){giveAlert("warning", "You hit a " + getTileName(data.tileType) + " tile and took damage! (" + (hp - data.hp) + " hp)",true);}
+		    else if (data.hp > hp && tileData.tiles[data.tileType].effect.hp > 0){giveAlert("info", "You were healed by a " + getTileName(data.tileType) + " tile and gained health! (" + (data.hp - hp) + " hp)",true);}
+		    updatePlayer(data);
 		}else{
 			console.log ("move not accepted");
 		}
@@ -149,8 +209,84 @@ function validateClick(startTile, finishTile, finishTileColumn){
 	return false;
 }
 
+function checkBlocking(i){
+	//checks to make sure it's not blocking
+	tileType = puzzleData.map[i];
+	if (tileData.tiles[tileType].effect.blocking == true){
+		if (typeof tileData.tiles[tileType].item.unblock != 'undefined'){
+			//it can be unlocked, so let's let the server do the checking
+			return false;
+		}
+		return true;	
+	}else{
+		return false;
+	}
+}
+
+function handleItems(items){
+	//handles the items
+	for (i = 0; i < items.length; ++i) {
+		$.each(items[i], function( key, value ) {
+			type = key.split("-");
+			switch (type[0]){
+				case "coin":
+					//you got a coin
+					lastClicked.innerHTML = "<img src='/img/Assets/" + key + ".png'>";
+					giveAlert("info", "You found a " + type[1] + " coin worth " + value + " " + CURRENCY + "!",true);
+					break;
+				case "key":
+					itemsEquip.push(key);
+					giveAlert("info", "You found a " + type[1] + " key!",true);
+					break;
+			}
+		});
+	}
+}
+
 function giveAlert(type, text, dismissable){
 	$("#alerts").prepend('<div class="alert alert-' + type + ' ' + ((dismissable == true)?'alert-dismissable':'') + '">' + ((dismissable == true)?'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>':'') + text + '</div>');
+}
+
+function getHearts(hp){
+	f = Math.floor(hp / hearts);
+	if (hp <= 0){
+		//don't bother with h
+		h = 0;
+	}else{
+		h = Math.floor((hp - (f * hearts)) / (hearts / 2));
+	}
+	i = 0;
+	healthbar = "";
+	while (i < f){
+		//fill in full hearts
+		healthbar += "<img src='/img/Assets/heart-full.png'>";
+		i++;
+	}
+	if (h >= 1){
+		//fill in half hearts
+		healthbar += "<img src='/img/Assets/heart-half.png'>";
+		i++;
+	}
+	while (i < hearts){
+		//fill in empty hearts
+		healthbar += "<img src='/img/Assets/heart-empty.png'>";
+		i++;
+	}
+	return healthbar;
+}
+
+function getStatus(status){
+	var statusArr = [];
+	for (i = 0; i < status.length; ++i) {
+    	statusArr.push(tileData.statuses[status[i]].desc);
+	}
+	if (statusArr.length == 0){
+		//no status
+		return "You're not suffering from any status effects!";
+	}else{
+		//you sick boy
+		return statusArr.join("<br>");
+	}
 }
 
 function getTileArt(id){

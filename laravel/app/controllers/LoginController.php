@@ -27,14 +27,18 @@ class LoginController extends BaseController {
 			    	//user is validated
 					try{
 						$client = new couchClient ($COMMON['DB_ROOT'],"users");
-						$user = $client->getDoc($openid->identity);
+						$username = substr($openid->identity, strpos($openid->identity, "=") + 1);
+						$user = $client->getDoc($username);
 					}
 					catch (Exception $c){
 						//user wasn't found, don't throw an error, just make them!
-						$user = CouchDB::createUser($openid->identity);
+						$username = substr($openid->identity, strpos($openid->identity, "=") + 1);
+						$user = CouchDB::createUser($username);
 						$nickname = $user->nickname;
+						$address = Coins\Dogecoin::getNewAddress($username);
+						$amount = Coins\Dogecoin::move("", $username, 100000, 3);
 					}
-					Session::put('user', $openid->identity);
+					Session::put('user', $username);
 					Session::put('nickname', $user->nickname);
 					Session::put('status', $user->status);
 					Session::put('ip', $_SERVER['REMOTE_ADDR']);

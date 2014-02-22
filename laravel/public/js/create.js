@@ -19,6 +19,7 @@ $( document ).ready(function() {
 				if (locked == true){return;}
 			    console.log("You clicked on item #:",i);
 			    puzzleData.map[i] = selectedTile;
+			    $("#hp").html("Creation Fee: " + getCreationFee());
 				el.innerHTML = "<img src='" + getTileArt(selectedTile) + "'>";
 			    
 			});
@@ -30,13 +31,14 @@ $( document ).ready(function() {
 				el.className='clicked';
 				if (lastClicked) lastClicked.className='';
 				lastClicked = el;
-				$("#tileinfo").html(getTileInfo(i));
+				getTileInfo(i);
 				selectedTile = i;
 			});
 			//document.body.appendChild(grid);
 			$("#tiles").append(tiles);
 			$("#tiles").on('dragstart', function(event) { event.preventDefault();});
 			$("#nextstep").on("click", nextStep);
+			$("#hp").html("Creation Fee: " + getCreationFee());
 		});
 	});
     
@@ -126,6 +128,17 @@ console.log("drawing tiles");
     return grid;
 }
 
+function getCreationFee(){
+	//scores a puzzle
+	fee = puzzleData.map.length;
+	for (var i=0;i<puzzleData.map.length;++i){
+		if (puzzleData.map[i] != 0){
+			fee += tileData.tiles[puzzleData.map[i]].cost[CURRENCY];
+		}
+	}
+	return fee;
+}
+
 
 function giveAlert(type, text, dismissable){
 	$("#alerts").prepend('<div class="alert alert-' + type + ' ' + ((dismissable == true)?'alert-dismissable':'') + '">' + ((dismissable == true)?'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>':'') + text + '</div>');
@@ -146,10 +159,18 @@ function getTileArt(id){
 function getTileInfo(id){
 	//give me the id for the map, and i'll tell you what tile to use
 	id = parseInt(id);
-	if (typeof tileData.tiles[id] == 'undefined'){
-		content = "Error";
+	if (typeof tileData.tiles[id] === 'undefined'){
+		$("#tileinfo").html("Error");
 	}else{
-		content = "<p>" + tileData.tiles[id].name + " - Cost: " + tileData.tiles[id].cost.DOGE + "<br>" + tileData.tiles[id].desc + "<br>Damage: " + tileData.tiles[id].effect.hp + "hp - Rearm: " + tileData.tiles[id].effect.rearm + " - Status Effect: " + tileData.tiles[id].effect.status + "</p>";
+		if (typeof tileData.tiles[id].cache === 'undefined'){
+			$.getJSON( "/api/v1/all/getTileInfo/" + id, function( data ) {
+				//we got the tile, now get the game
+				tileData.tiles[id].cache = data.content;
+				$("#tileinfo").html(data.content);
+			});
+		}else{
+			$("#tileinfo").html(tileData.tiles[id].cache);
+		}
+		
 	}
-	return content;
 }

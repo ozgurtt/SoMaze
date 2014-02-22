@@ -3,8 +3,31 @@
 class GameController extends BaseController {
 
 	public function showGameListing(){
+		$page = Input::get('page', 1);
+		$sort = e(Input::get('sort', "date-desc"));
+		$perPage = 5;
+		$sorts = array('difficulty-asc'  => "Difficulty",
+		               'difficulty-desc' => "Difficulty",
+		               'date-asc'        => "Date Created",
+		               'date-desc'       => "Date Created",
+		               'attempts-asc'    => "Attempts",
+		               'attempts-desc'   => "Attempts",
+		               'reward-desc'     => "Reward Amount",
+		               'entry-asc'       => "Entry Fee");
 		$results = CouchDB::getView("listing", "allactive", "puzzles");
-		$data = array('results' => $results);
+		if (count($results->rows) != 0){
+			//do the sorting here
+			//error_log(json_encode($results->rows[0]));
+			$games = Shared\Sort::sortPuzzles($results->rows, $sort);
+			$games = array_chunk($games, $perPage);
+			$paginator = Paginator::make($games[$page-1], count($results->rows), $perPage);
+		}else{
+			$paginator = $results->rows;
+		}
+			$data = array('results' => $paginator,
+						  'count'   => count($results->rows),
+						  'sorts'    => $sorts,
+						  'sort'    => $sort);
 		return View::make('game.solver-listing', $data);
 	}
 
@@ -21,12 +44,14 @@ class GameController extends BaseController {
 			$response = CouchDB::deleteDoc($game, "games");
 			return Shared\Errors::handleError("gameover");
 		}
-		if ($user->wallet->available < $puzzle->fees->entry){
+		$wallet = Coins\Dogecoin::getBalance($user->_id);
+		if ($wallet['available'] < $puzzle->fees->entry){
 			return Shared\Errors::handleError("nofunds");
 		}
 		Session::put('id', $id);
 		$data = array('puzzle' => $puzzle,
-					  'user'   => $user);
+					  'user'   => $user,
+					  'wallet' => $wallet);
 		return View::make('game.solver-confirm', $data);
 	}
 	
@@ -54,7 +79,7 @@ class GameController extends BaseController {
 			$amount = 0;
 		}elseif (in_array($puzzle->_id, $user->games->creator)){
 			//this is the creator who's playing and they don't have an active game
-			$game = CouchDB::createGame($puzzle->start, $id, Session::get('user'));
+			$game = CouchDB::createGame($puzzle, Session::get('user'));
 			$user->games->solver->$id = $game->_id;
 			$response = CouchDB::setDoc($user, "users");
 			Session::put('game', $user->games->solver->$id);
@@ -69,7 +94,7 @@ class GameController extends BaseController {
 				//they can only have one game open at a time
 				return Shared\Errors::handleError("toomanysolvers");
 			}
-			$game = CouchDB::createGame($puzzle->start, $id, Session::get('user'));
+			$game = CouchDB::createGame($puzzle, Session::get('user'));
 			$user->games->solver->$id = $game->_id;
 			$user->stats->attempts++;
 			$response = CouchDB::setDoc($user, "users");
@@ -81,7 +106,7 @@ class GameController extends BaseController {
 			//then set the session
 			Session::put('game', $user->games->solver->$id);
 			//change them for entry
-			$amount = Shared\Game::payUser(Session::get('user'), $puzzle->creator->id, $puzzle->fees->entry, $puzzle->fees->creation);
+			$amount = Coins\Dogecoin::payUser(Session::get('user'), $puzzle->creator->id, $puzzle->fees->entry, $puzzle->fees->creation);
 		}
 		//do tile difficulty math
 		$difficulty = Shared\Game::getDifficulty($puzzle->dimensions, $puzzle->traps);
@@ -143,7 +168,8 @@ class GameController extends BaseController {
 			return Shared\Errors::handleError("toomanycreators");
 		}
 		//check to make sure the user has enough money for the reward + the creation fee
-		if ((intval(Input::get('reward')) + $sessionPuzzle->fees->creation) > $user->wallet->available){
+		$wallet = Coins\Dogecoin::getBalance($user->_id);
+		if ((intval(Input::get('reward')) + $sessionPuzzle->fees->creation) > $wallet['available']){
 			return Shared\Errors::handleError("nofunds");
 		}
 		//now that we've set the start and end, remove the start
@@ -154,7 +180,7 @@ class GameController extends BaseController {
 		$sessionPuzzle->fees->reward = intval(Input::get('reward'));
 		Session::put('puzzle', $sessionPuzzle);
 		$data = array('fees' => $sessionPuzzle->fees,
-					  'wallet' => $user->wallet);
+					  'wallet' => $wallet);
 		return View::make('game.creator-confirm', $data);
 	}
 	
@@ -180,10 +206,9 @@ class GameController extends BaseController {
 		$response = CouchDB::setDoc($sessionPuzzle, "puzzles");
 		array_push($user->games->creator, $response->id);
 		$userresponse = CouchDB::setDoc($user, "users");
-		$reward = Shared\Game::lockFunds(Session::get('user'), $sessionPuzzle->fees->reward);
-		$creation = Shared\Game::payCreationFee(Session::get('user'), $sessionPuzzle->fees->creation);
+		$reward = Coins\Dogecoin::lockFunds(Session::get('user'), $sessionPuzzle->fees->reward, $sessionPuzzle->fees->creation);
 		$data = array('reward' => $reward,
-					  'creation' => $creation,
+					  'creation' => $sessionPuzzle->fees->creation,
 					  'id' => $response->id);
 		return View::make('game.creator-save', $data);
 	}
@@ -207,7 +232,7 @@ class GameController extends BaseController {
 		$response = CouchDB::setDoc($user, "users");
 		if ($puzzle->stats->solved == false){
 			//this person needs a refund of the reward
-			$amount = Shared\Game::unlockFunds($user->_id, $puzzle->fees->reward);
+			$amount = Coins\Dogecoin::unlockFunds($user->_id, $puzzle->fees->reward);
 			$net = 0 - $puzzle->fees->creation;
 		}else{
 			//they don't get a refund. so sad
@@ -222,5 +247,26 @@ class GameController extends BaseController {
 					  'puzzle' => $puzzle);
 		return View::make('game.creator-close', $data);
 
+	}
+	
+	//tutorial functions
+	
+	public function showTutorialListing(){
+		$results = CouchDB::getView("listing", "alltutorials", "tutorials");
+		if (count($results->rows) != 0){
+			//do the sorting here
+			$games = Shared\Sort::sortTutorials($results->rows);
+		}else{
+			$games = $results->rows;
+		}
+		$data = array('results' => $games,
+					  'count'   => count($results->rows));
+		return View::make('game.tutorial-listing', $data);		
+	}
+	
+	public function playTutorial($id){
+		$puzzle = CouchDB::getDoc($id, "tutorials");
+		$data = array('puzzle' => $puzzle);
+		return View::make('game.tutorial-play', $data);
 	}
 }

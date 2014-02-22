@@ -8,8 +8,9 @@ body {
   padding-top: 50px;
 }
 .basic-template {
-  padding: 40px 15px;
+  padding: 0px 15px;
 }
+
 
 td.fee {
 	padding-left: 5px;
@@ -17,7 +18,7 @@ td.fee {
 }
 
 .grid { 
-	margin:1em auto; 
+	margin:0 auto 0; 
 	border-collapse:collapse;
 	-webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -29,8 +30,8 @@ td.fee {
 
 .grid td {
     cursor:pointer;
-    width:30px; height:30px;
-    border:1px solid #ccc;
+    width:32px; height:32px;
+
     text-align:center;
     font-family:sans-serif; font-size:13px
 }
@@ -53,13 +54,29 @@ div#hp {
 	font-weight:bold;
 }
 
+div#healthbar {
+	text-align: center;
+}
+
+div#statusbar {
+	text-align: center;
+	font-weight:bold;
+	line-height: 30px;
+	margin: 0;
+}
+
+div#itembar {
+	text-align: center;
+	margin: 5px 0px 5px 0px
+}
+
 #wrap {
   min-height: 100%;
   height: auto;
   /* Negative indent footer by its height */
-  margin: 0 auto -60px;
+  margin: 0 auto -30px;
   /* Pad bottom by footer height */
-  padding: 0 0 60px;
+  padding: 0 0 30px;
 }
 
 #footer {
@@ -68,7 +85,7 @@ div#hp {
 }
 
 #wrap > .container {
-  padding: 60px 15px 0;
+  padding: 30px 15px 0;
 }
 .container .text-muted {
   margin: 20px 0;
@@ -81,4 +98,19 @@ div#hp {
 
 .right {
   float: right;
+}
+
+section.about{
+	padding-top:40px;
+	margin-top:-40px;
+}
+
+section.tiles{
+	padding-top:60px;
+	margin-top:-60px;
+}
+
+td.play{
+	padding-left: 5px;
+	padding-right: 5px;
 }

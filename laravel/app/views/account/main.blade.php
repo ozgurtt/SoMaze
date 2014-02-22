@@ -10,12 +10,21 @@
 	<form role="form" action="/account/nickname" method="post">
 	<div class="form-group">
     	<label for="nickname">Nickname</label>
-		<input type="text" class="form-control" name="nickname" placeholder="{{{ Session::get('nickname') }}}" input pattern=".{3,100}" title="3 to 100 characters">
+		<input type="text" class="form-control" name="nickname" required="true" placeholder="{{{ Session::get('nickname') }}}" input pattern=".{3,100}" title="3 to 100 characters">
 	</div>
 		<button type="submit" class="btn btn-primary">Change Nickname</button>
 	</form>	
+	<h3>My Wallet</h3>
+	<p>Here is a summary of the funds you have in your wallet:
+	<?php $balance = Coins\Dogecoin::getBalance($user->_id); ?>
+	<ul>
+	<li>Available: <b>{{ $balance['available'] }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	<li>Pending: <b>{{ $balance['pending'] }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	<li>Locked: <b>{{ $balance['locked'] }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
+	</ul>
+	<a href="/account/wallet" class="btn btn-primary"><span class="glyphicon glyphicon-wrench"></span> Manage My Wallet</a>
 	<h3>Flair</h3>
-	<p>You are currently displaying flair for your status, which looks like this: @include('includes.icon', array('status' => $user->status)) 
+	<p>You are currently displaying flair for your status, which looks like this: @include('includes.icon', array('status' => $user->status))
 	@include('includes.flair', array('status' => $user->status))
 	</p>
 	<h3>Game Statistics</h3>
@@ -33,13 +42,6 @@
 	</li>
 	</ul>
 	</p>
-	<h3>Wallet</h3>
-	<p>Here is a summary of the funds you have in your wallet:
-	<ul>
-	<li>Available: <b>{{ $user->wallet->available }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
-	<li>Pending: <b>{{ $user->wallet->pending }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
-	<li>Locked: <b>{{ $user->wallet->locked }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></li>
-	</ul>
 	<h3>Open Games</h3>
 	<p>Puzzles you've made:<br>
 	<ul>
@@ -60,7 +62,7 @@
     		<br>
     		<b>Stats:</b> - <i>Attempts: </i>{{ $puzzle->stats->attempts }}
     		@if ($puzzle->stats->solved == true)
-    			 - <i>Won by:</i> {{ $puzzle->stats->winnick }}@include('includes.icon', array('status' => $puzzle->stats->winstatus))
+    			 - <i>Won by:</i> <a href='/profile/{{ $puzzle->stats->winner }}'>{{{ $puzzle->stats->winnick }}}</a> @include('includes.icon', array('status' => $puzzle->stats->winstatus))
     			  <i>on</i> {{ date("F j, Y, g:i a", $puzzle->stats->windate) }} CST
     		@endif
 			<br><br>

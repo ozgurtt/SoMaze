@@ -2,11 +2,29 @@
 <?php $COMMON = Config::get('common'); ?>
 
 @section('heading')
-    {{ ((count($results->rows) == 1)?"There is currently 1 game to join":"There are currently " . count($results->rows) . " games to join") }}
+    {{ (($count == 1)?"There is currently 1 game to join":"There are currently " . $count . " games to join") }}
+@stop
+
+@section('content')
+	@if ($count != 0)
+		@foreach ($sorts as $k => $val)
+			<?php 
+			$order = explode("-", $k);
+			$glyph = (($order[1] == "asc") ? "glyphicon glyphicon-chevron-up" : "glyphicon glyphicon-chevron-down");
+			?>
+			
+			@if ($k == $sort)
+				<a href="{{ action('GameController@showGameListing', array('page' => $results->getCurrentPage(), 'sort' => $k )) }}" class="btn btn-info"><span class="{{ $glyph }}"></span> {{ $val }}</a>
+			@else
+				<a href="{{ action('GameController@showGameListing', array('page' => $results->getCurrentPage(), 'sort' => $k )) }}" class="btn btn-primary"><span class="{{ $glyph }}"></span> {{ $val }}</a>
+			@endif
+		@endforeach
+	@endif
+
 @stop
 
 @section('div')
-    @foreach ($results->rows as $row)
+    @foreach ($results as $row)
     	<a href='{{ action('GameController@confirmEntry', array('id' => $row->id)) }}' class='list-group-item'>
     	<div class="well well-sm"><i>
     	<?php 
@@ -35,7 +53,9 @@
 			<span class="label {{ $difficulty['label'] }}">{{ $difficulty['note'] }}</span>
     	</a>
 	@endforeach
-	@if (count($results->rows) == 0)
+	@if ($count == 0)
 		There aren't any games created at the moment, you should click "Create" up top and make one to share with the world.  Don't be afraid, I have faith in you.
+	@else
+		{{ $results->appends(array('sort' => $sort))->links() }}
 	@endif
 @stop

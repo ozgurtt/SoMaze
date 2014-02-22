@@ -2,7 +2,7 @@
 <?php $COMMON = Config::get('common'); ?>
 
 @section('heading')
-	{{ $puzzle->title }} by {{ $puzzle->creator->nickname }} @include('includes.icon', array('status' => $puzzle->creator->status))
+	{{ $puzzle->title }} by <a href='/profile/{{ $puzzle->creator->id }}'>{{{ $puzzle->creator->nickname }}}</a> @include('includes.icon', array('status' => $puzzle->creator->status))
 
 @stop
 
@@ -14,7 +14,7 @@
 		<p><i>You have rejoined this game for free.</i></p>
 	@else
 		{{--they are paying right now--}}
-		<p><i>You just paid <b>{{ $amount }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'> to join this game (you have <b>{{ $user->wallet->available }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'> left)</i></p>
+		<p><i>You just paid <b>{{ $amount }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'> to join this game</i></p>
 	@endif
 	<p>{{ $puzzle->desc }}</p>
 @stop
@@ -23,6 +23,12 @@
 	<div id="game">
 		<div id="hp">
 		</div>
+		<div id="healthbar">
+		</div>
+		<div id="statusbar">
+		</div>
+	</div>
+	<div id="itembar">
 	</div>
 	<div id="alerts">
 	</div>
@@ -36,9 +42,9 @@
 			<span class="label {{ $difficulty['label'] }}">{{ $difficulty['note'] }}</span>
 	    </p>
 	    <table id='fee'>
-	    <tr><td class='fee'>Creation Fee</td><td><b>{{ $puzzle->fees->creation }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
-	    <tr><td class='fee'>Entry Fee</td><td><b>{{ $puzzle->fees->entry }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
-	    <tr><td class='fee'>Reward Fee</td><td><b>{{ $puzzle->fees->reward }}</b><img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
+	    <tr><td class='fee'>Creation Fee</td><td><b>{{ $puzzle->fees->creation }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
+	    <tr><td class='fee'>Entry Fee</td><td><b>{{ $puzzle->fees->entry }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
+	    <tr><td class='fee'>Reward Fee</td><td><b>{{ $puzzle->fees->reward }}</b> <img src='{{ $COMMON['CURRENCY_IMG'] }}' class='currency' alt='{{ $COMMON['CURRENCY'] }}'></td></tr>
 	    </table>
 	  </div>
 	</div>
@@ -51,6 +57,7 @@
 @section('snippet')
 	<script>
 		var GAME_ID ='{{{ $game->gameid }}}';
+		var CURRENCY = '{{ $COMMON['CURRENCY'] }}';
 		var sessionID ='{{{ $game->sessionID }}}';
 	</script>
 @stop
