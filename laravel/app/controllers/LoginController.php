@@ -36,7 +36,6 @@ class LoginController extends BaseController {
 						$user = CouchDB::createUser($username);
 						$nickname = $user->nickname;
 						$address = Coins\Dogecoin::getNewAddress($username);
-						$amount = Coins\Dogecoin::move("", $username, 100000, 3);
 					}
 					Session::put('user', $username);
 					Session::put('nickname', $user->nickname);

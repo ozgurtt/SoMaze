@@ -55,13 +55,18 @@ class UserController extends BaseController {
 		$COMMON = Config::get('common');
 		$COINS = Config::get('coins');
 		$balance = Coins\Dogecoin::getBalance(Session::get('user'));
-		if (Input::get('amount') + $COINS[$COMMON['CURRENCY']]['TX_FEE'] > $balance['available']){
+		if (floatval(Input::get('amount')) + $COINS[$COMMON['CURRENCY']]['TX_FEE'] > $balance['available']){
 			//they are trying to do too much
 			return Shared\Errors::handleError("nofunds");
 		}
-		//$data = Coins\Dogecoin::sendFrom(Session::get('user'), Input::get('account'), Input::get('amount'));
-		$data = array("amount" => Input::get('amount'),
-					  "address" => Input::get('address'));
+		$transid = Coins\Dogecoin::sendFrom(Session::get('user'), Input::get('address'), Input::get('amount'));
+		if ($transid == false){
+			//something went wrong
+			return Shared\Errors::handleError("withdrawfailed");
+		}
+		$data = array("amount"  => Input::get('amount'),
+					  "address" => Input::get('address'),
+					  "transid" => $transid);
 		//(D[1-9a-z]{20,40}) regex for dogecoin address
 		return View::make('account.withdraw', $data);
 	}

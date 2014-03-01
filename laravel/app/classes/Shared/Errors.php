@@ -64,6 +64,10 @@ class Errors {
 				$error = "Not enough money";
 				$content = "I'm sorry to tell you this, but you don't have enough money in your account to perform this action.  It's not a big deal.  I was broke once, it happens.";
 				break;
+			case "withdrawfailed":
+				$error = "The withdraw request has failed";
+				$content = "We're really sorry about this, something has gone wrong with your withdraw request.  You haven't been charged for this, and there should be no change of balance in your account.";
+				break;
 			case "badparams":
 				$error = "Bad parameters";
 				$content = "The parameters you supplied are invalid.";

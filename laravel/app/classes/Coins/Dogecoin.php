@@ -49,7 +49,7 @@ class Dogecoin {
 	}
 	
 	public static function move($from, $to, $amount, $conf=1, $commment=""){
-		//returns the current address for receiving payments
+		//moves coins from one account to another
     	$COINS = \Config::get('coins');
 		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
 		$data = $dogecoin->move($from, $to, $amount, $conf);
@@ -60,7 +60,7 @@ class Dogecoin {
 		//sends coins out
 		$COINS = \Config::get('coins');
 		$dogecoin = new \Dogecoin($COINS['DOGE']['USER'],$COINS['DOGE']['PASS'],$COINS['DOGE']['IP'],$COINS['DOGE']['PORT'],'http');
-		$data = $dogecoin->sendfrom($account, $address, $amount);
+		$data = $dogecoin->sendfrom($account, $address, floatval($amount));
 		\Shared\Log::doLog("Money sent [" . $amount . "] from account: " . $account . " to address " . $address);
 	    return $data;
 	}
