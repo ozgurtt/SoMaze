@@ -43,9 +43,7 @@ $COINS = Config::get('coins');
 	</fieldset>
 	</form>
 	<hr>
-	<h3>Transaction History</h3>
-	{{ json_encode($data = Coins\Dogecoin::listTransactions($user->_id, 30)) }}
-	
+	@include('includes.transactions', array('transactions' => $transactions))
 	
 	@include('includes.goaccount')
 @stop

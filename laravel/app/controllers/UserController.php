@@ -36,7 +36,9 @@ class UserController extends BaseController {
 	
 	public function showWallet(){
 		$user = CouchDB::getDoc(Session::get('user'), "users");
-		$data = array("user" => $user);
+		$transactions = Coins\Dogecoin::listTransactions($user->_id, 30);
+		$data = array("user" => $user,
+					  "transactions" => $transactions);
 		return View::make('account.wallet', $data);
 	}
 	
