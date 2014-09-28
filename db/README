@@ -1,0 +1,5 @@
+Each .json file represents a database in CouchDB.  
+
+Dumped with couchdb-dump.sh
+
+https://github.com/danielebailo/couchdb-dump

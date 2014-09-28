@@ -1,0 +1,4 @@
+{"docs":[
+{"_id":"_design/listing","_rev":"1-6f03c1f399b3338a653b9d1676da66f3","language":"javascript","views":{"allusers":{"map":"function(doc) {n emit(doc.nickname, [doc.joined, doc.status]);n}"}}}
+]
+}

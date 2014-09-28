@@ -1,0 +1,4 @@
+{"docs":[
+{"_id":"_design/listing","_rev":"7-91251d16f2163a8d922253b9d8e2b262","language":"javascript","views":{"allactive":{"map":"function(doc) {nif (doc.active == true && doc.stats.solved == false){n emit(doc._id, [doc.creator, doc.title, doc.currency, doc.dimensions, doc.traps, doc.fees, doc.stats]);}n}"}}}
+]
+}
